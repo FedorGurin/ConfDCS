@@ -36,7 +36,7 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
 {
     ch.id               = json["idCh"].toInt();
     ch.io               = json["io"].toString() == "выдача";
-    ch.type             = json["typeCh"].;
+    ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString();
     ch.typeNode         = json["typeCh"].toString();
     ch.idNode           = json["idNode"].toInt();
