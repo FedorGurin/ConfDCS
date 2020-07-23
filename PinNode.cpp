@@ -55,7 +55,7 @@ PinNode::PinNode(QString id,
     strTypeI        = strTypeI_;
 
     strCord.clear();
-    if(strCord != "-")
+    if(strCord_ != "-")
         strCord = strCord_;
 
     strTypeWire     = strTypeWire_;
@@ -76,10 +76,10 @@ PinNode::PinNode(QString id,
 
     parent->addChild(this);
     addParent(parent);
-    for(int i=0;i<numClone;i++)
+    for(int i = 0;i < numClone;i++)
     {
-        if(strLabel_!="-")
-            new WireNode(strLabel_,strTypeWire_,this);
+        if(strLabel_ != "-")
+            new WireNode(strLabel_,strTypeWire_,strCord,this);
     }
 }
 PinNode::PinNode():Node()

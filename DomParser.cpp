@@ -54,9 +54,9 @@ void DomParser::loadDataPIC(QString nameDir)
             QJsonDocument loadDoc = QJsonDocument::fromJson(array,&jsonError);
             QJsonObject objJson = loadDoc.object();
             bool res = objJson.contains(("idSys"));
-            qDebug()<<res<<"\n";
+            //qDebug()<<res<<"\n";
             QString name = objJson["idSys"].toString();
-            qDebug()<<name<<"\n";
+            //qDebug()<<name<<"\n";
             //! нужно найти блок с соотвествующим идентификатором
             UnitNode* unit = static_cast<UnitNode* > (findNodeByIdName(name,rootItemData,Node::E_UNIT));
             if(objJson.contains("channels") && objJson["channels"].isArray())
@@ -67,7 +67,7 @@ void DomParser::loadDataPIC(QString nameDir)
                     QJsonObject iArray = objArray[i].toObject();
                     unit->unknownInf.append(new InterfaceNode(iArray));
                 }
-                qDebug()<<"size ="<<objJson.size()<<"\n";
+                //qDebug()<<"size ="<<objJson.size()<<"\n";
             }
 
                     //parseData(obj,rootNode);
@@ -161,6 +161,7 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
         correctInterface(i);
         //! корректируем название соединений
         correctWire     (i);        
+        correctCoords(i);
         //! сохранение связей и объектов в формате GraphViz согласно выбранным настройкам (провода, жгуты, интерфейсы)
         saveForGraphviz (pathToParsedGV,i->idName,i,f_saveNodeGV);
     }
@@ -176,6 +177,7 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     connectWires    (rootItemData);
     //! выделение интерфейсов в  уже объединенной модели
     correctInterface(rootItemData);
+    correctCoords(rootItemData);
     fillGeometryUnit(rootItemData);
 
     //! заполнение интtрфейсов
@@ -188,6 +190,9 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     //! сохранение соединений в файл
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveWires = &DomParser::saveCSVConnection;
     saveDataToCVS("parsed/export/wires",rootItemData, f_saveWires);
+
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
+    saveDataToCVS("parsed/export/coords",rootItemData, f_saveCoords);
 }
 void DomParser::recSaveLocationBetween(Node* startNode, QTextStream& out, QString filter)
 {
@@ -306,6 +311,84 @@ void DomParser::saveCSVCon(Node *startNode, QTextStream& out)
         saveCSVCon(i,out);
     }
 }
+void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
+{
+    if(startNode->type() == Node::E_UNIT)
+    {
+        UnitNode *unit = static_cast<UnitNode* > (startNode);
+        for(auto i:unit->coords)
+        {
+            CoordNode * coord = static_cast <CoordNode *> (i);
+            for(auto j: coord->wires)
+            {
+                if(j->idNameCoord.isEmpty() == true)
+                    continue;
+
+                PinNode *pin = nullptr;
+                if(j->parent->type() != Node::E_PIN)
+                    continue;
+
+                pin = static_cast<PinNode* > (j->parent);
+                if(pin->io == PinNode::E_OUT)
+                {
+                    ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
+                    out<<c->typeConnectorWire<<";";
+                    out<<pin->idName << ";";
+                    out<<j->idName<<";";
+                    out<<j->idNameCoord<<";";
+
+                    PinNode *toPin = static_cast<PinNode* > (j->toPin);
+                    if(toPin == nullptr)
+                        out<<"not connected;";
+                    else
+                    {
+                        out<<toPin->idName<<";";
+                        ConnectorNode *c = static_cast<ConnectorNode* > (toPin->parent);
+                        out<<c->typeConnectorWire<<";";
+                    }
+                    out<<"\n";
+
+                }
+            }
+        }
+    }
+//        WireNode *wire = static_cast<WireNode* > (startNode);
+//        if(wire->parent->type() == Node::E_PIN)
+//        {
+//            PinNode *pin = static_cast<PinNode* > (wire->parent);
+//            if(pin->io == PinNode::E_OUT)
+//            {
+//                 if(wire->fullConnected == true)
+//                 {
+//                     out<<pin->parent->parent->idName<<";"
+//                       <<pin->parent->idName<<";"
+//                       <<pin->idName<<";";
+//                     out<<wire->idName<<";";
+
+//                     if(wire->toPin != nullptr)
+//                     {
+//                        out<<wire->toPin->parent->parent->idName<<";"
+//                            <<wire->toPin->parent->idName<<";"
+//                            <<wire->toPin->idName<<";";
+
+//                      }else
+//                     {
+//                         out<<"-"<<";"
+//                             <<"-"<<";"
+//                             <<"-"<<";";
+//                     }
+//                     out<<wire->typeWire<<";";
+//                     out<<pin->strTypeI + pin->prefTypeI<<";";
+//                     out<<"\n";
+//                 }
+//            }
+//        }
+//    }
+    for(auto i:startNode->child)
+    {
+        recSaveCSVCoords(i,out);
+    }
+}
 
  void DomParser::saveCSVConnection(Node* rootNode, QTextStream& out)
  {
@@ -316,6 +399,16 @@ void DomParser::saveCSVCon(Node *startNode, QTextStream& out)
            <<tr("Тип провода") <<";"<<tr("Интерфейс")<<"\n";
         out.flush();
         saveCSVCon(rootNode,out);
+ }
+ void DomParser::saveCSVCoords(Node* rootNode, QTextStream& out)
+ {
+        out.setCodec("UTF-8");
+//        out<<tr("Блок(Источник)")<<";"<<tr("Разъем(Источник)")<<";"<<tr("Клемма(Источник)")<<";"
+//           <<tr("Бирка провода") <<";"
+//           <<tr("Блок(Приемник)")<<";"<<tr("Разъем(Приемник)")<<";"<<tr("Клемма(Приемник)")<<";"
+//           <<tr("Тип провода") <<";"<<tr("Интерфейс")<<"\n";
+//        out.flush();
+        recSaveCSVCoords(rootNode,out);
  }
 void DomParser::mergeNodes(Node* root,Node* from)
 {
@@ -353,7 +446,7 @@ void DomParser::mergeNodes(Node* root,Node* from)
                                 pin->strCircuit.append(j);
                         }
                     }
-                    if(pinFrom->strCord.isEmpty() == false)
+                    if(pinFrom->strCord.isEmpty() == true)
                     {
                         pin->strCord = pinFrom->strCord;
                     }
@@ -512,6 +605,16 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                     {
                         w0->fullConnected = true;
                         w->fullConnected  = true;
+                        if(w->idNameCoord != w0->idNameCoord)
+                        {
+                            if(w->idNameCoord.isEmpty() && w0->idNameCoord.isEmpty()==false)
+                            {
+                                w->idNameCoord = w0->idNameCoord;
+                            }else if(w0->idNameCoord.isEmpty() == true && w->idNameCoord.isEmpty() == false)
+                            {
+                                w0->idNameCoord = w->idNameCoord;
+                            }
+                        }
                     }
                 }
             }
@@ -1606,10 +1709,23 @@ void DomParser::calcNumInterface(Node *startNode)
 {
 
 }
+void DomParser::correctCoords(Node* startNode)
+{
+    if(startNode->type() == Node::E_UNIT)
+    {
+        UnitNode *unit = static_cast<UnitNode* > (startNode);
+        unit->scanCoords(unit);
+       // unit->calcInterface();
+        return;
+    }
+    for(auto i:startNode->child)
+    {
+        correctCoords(i);
+    }
+
+}
 void DomParser::correctInterface(Node *startNode)
 {
-
-
     if(startNode->type() == Node::E_UNIT)
     {
         UnitNode *unit = static_cast<UnitNode* > (startNode);

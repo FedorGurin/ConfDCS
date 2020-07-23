@@ -25,17 +25,17 @@
 //    parent->addChild(this);
 //    addParent(parent);
 //}
-CoordNode::CoordNode(QString strSetI_,PinNode::TYPE_INTERFACE type)
+CoordNode::CoordNode(QString strSetCoord_)
 {
-    strSetI         = strSetI_;
+    strSetCoord         = strSetCoord_;
     preStr          = "";
-    type_interface  = type;
+    //type_interface  = type;
     num = 0;
 }
 
-void CoordNode::addPinToInterface(PinNode* pin)
+void CoordNode::addWireToCoord(WireNode* pin)
 {
-    pins.push_back(pin);
+    wires.push_back(pin);
 }
 //Node *InterfaceNode::clone()
 //{

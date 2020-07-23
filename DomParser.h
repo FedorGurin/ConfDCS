@@ -89,6 +89,8 @@ public:
     Node* rootItemData;
     //! сохранение в файл соединений
     void saveCSVCon(Node *startNode, QTextStream& out);
+    void recSaveCSVCoords(Node *startNode, QTextStream& out);
+
     //! список деревьев для каждого файла
     QList<Node* > listRootItemNode;
     QList<Node* > listRootUnit;
@@ -102,6 +104,7 @@ public:
     void recFindWireWithout(Node *without, Node *startNode);
     void saveForGraphviz(QString namePath, QString nameFile, Node* rootNode, std::function<void(DomParser&,Node *, QTextStream&)> funcSave);
     void saveCSVConnection(Node* rootNode, QTextStream&);
+    void saveCSVCoords(Node* rootNode, QTextStream&);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
     //! сохранение данных в один файл для в внешнюю БД
@@ -156,6 +159,7 @@ private:
     void saveGraphWire(Node *startNode, QTextStream& out);
     void correctWire(Node *startNode);
     void correctInterface(Node *startNode);
+    void correctCoords(Node* startNode);
     void calcNumInterface(Node *startNode);
     //! найти блоки которые ссылаются на указанный, или данный блок на них
     void findNeighborUnit(Node* unitNode,QList<Node*> &listNode);

@@ -96,6 +96,34 @@ void UnitNode::scanInterface(Node* startNode)
         scanInterface(i);
     }
 }
+void UnitNode::scanCoords(Node* startNode)
+{
+    bool find = false;
+    if(startNode->type() == E_WIRE)
+    {
+        WireNode *wire = static_cast<WireNode* > (startNode);
+        for(auto j :coords)
+        {
+            if(j->strSetCoord == wire->idNameCoord)
+            {
+                j->addWireToCoord(wire);
+                find = true;
+                break;
+            }
+        }
+        if(find == false)
+        {
+            CoordNode *c = new CoordNode(wire->idNameCoord);
+            coords.push_back(c);
+            c->addWireToCoord(wire);
+        }
+        return;
+    }
+    for(auto i:startNode->child)
+    {
+        scanCoords(i);
+    }
+}
 UnitNode::~UnitNode()
 {
     // TODO Auto-generated destructor stub

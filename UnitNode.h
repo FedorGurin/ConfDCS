@@ -17,6 +17,8 @@ public:
     virtual int type()const{return Node::E_UNIT;}
     //! поиск инетерфейсов
     void scanInterface(Node *startNode);
+    //! поиск жгутов
+    void scanCoords(Node *startNode);
     //! поиск предыдущих интерфейсов
     int findPrevInterface(PinNode *,InterfaceNode *ifNode);
     //!

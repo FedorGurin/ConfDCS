@@ -8,8 +8,12 @@ class WireNode:public Node
 public:
 
     WireNode(QString id,
-             QString type,Node*);
+             QString type,
+             QString idName_,
+             Node*);
     WireNode();
+
+    QString idNameCoord;
     //! тип кабеля
     QString typeWire;
     //! длинна провода, м

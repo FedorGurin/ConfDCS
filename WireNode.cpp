@@ -1,15 +1,22 @@
 
 #include "WireNode.h"
 #include "./globalFunc/gl_func.h"
-
+#include <QDebug>
 WireNode::WireNode(QString id,
                    QString type,
+                   QString idNameCoord_,
                    Node *parent):Node()
 {
 //    displayName = element.attribute("displayName","None");
     idName      = id;
 
-    typeWire    = type;
+    idNameCoord.clear();
+    if(idNameCoord_.isEmpty() == false)
+    {
+        idNameCoord = idNameCoord_;
+        qDebug()<<idNameCoord<<"\n";
+    }
+        typeWire    = type;
     toPin       = nullptr;
     fullConnected = false;
 //    pathName    = idName;
@@ -34,6 +41,7 @@ Node *WireNode::clone()
 {
     WireNode *rootNode = new WireNode;
 
+    rootNode->idNameCoord   = this->idNameCoord;
     rootNode->idName        = this->idName;
     rootNode->displayName   = this->displayName;
     rootNode->comment       = this->comment;
@@ -42,7 +50,7 @@ Node *WireNode::clone()
     rootNode->fullConnected = false;//this->fullConnected;
 
     rootNode->typeWire    = this->typeWire;
-       for(auto i:child)
+    for(auto i:child)
     {
         Node* new_node = i->clone();
         rootNode->addChild(new_node);
