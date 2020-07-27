@@ -329,8 +329,8 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     continue;
 
                 pin = static_cast<PinNode* > (j->parent);
-                //if(pin->io == PinNode::E_OUT)
-                //{
+                if(pin->io == PinNode::E_OUT)
+                {
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
                     out<<c->typeConnectorWire<<";";
                     out<<pin->idName << ";";
@@ -339,8 +339,11 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
 
                     PinNode *toPin = static_cast<PinNode* > (j->toPin);
                     if(toPin == nullptr)
-                        out<<tr("не подключен")<<";";
-                        out<<tr("свободный конец")<<";";
+                    {
+                       out<<tr("-")<<";";
+                       out<<tr("свободный конец")<<";";
+
+                    }
                     else
                     {
                         out<<toPin->idName<<";";
@@ -350,7 +353,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     out<<j->typeWire<<";";
                     out<<"\n";
 
-                //}
+                }
             }
         }
     }
@@ -405,11 +408,10 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
  void DomParser::saveCSVCoords(Node* rootNode, QTextStream& out)
  {
         out.setCodec("UTF-8");
-//        out<<tr("Блок(Источник)")<<";"<<tr("Разъем(Источник)")<<";"<<tr("Клемма(Источник)")<<";"
-//           <<tr("Бирка провода") <<";"
-//           <<tr("Блок(Приемник)")<<";"<<tr("Разъем(Приемник)")<<";"<<tr("Клемма(Приемник)")<<";"
-//           <<tr("Тип провода") <<";"<<tr("Интерфейс")<<"\n";
-//        out.flush();
+        out<<tr("Разъем")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
+           <<tr("Жгут") <<";"
+           <<tr("Клемма")<<";"<<tr("Разъем")<<";"<<tr("Тип провод")<<"\n";
+        out.flush();
         recSaveCSVCoords(rootNode,out);
  }
 void DomParser::mergeNodes(Node* root,Node* from)
