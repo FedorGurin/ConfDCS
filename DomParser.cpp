@@ -329,8 +329,8 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     continue;
 
                 pin = static_cast<PinNode* > (j->parent);
-                if(pin->io == PinNode::E_OUT)
-                {
+                //if(pin->io == PinNode::E_OUT)
+                //{
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
                     out<<c->typeConnectorWire<<";";
                     out<<pin->idName << ";";
@@ -339,16 +339,18 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
 
                     PinNode *toPin = static_cast<PinNode* > (j->toPin);
                     if(toPin == nullptr)
-                        out<<"not connected;";
+                        out<<tr("не подключен")<<";";
+                        out<<tr("свободный конец")<<";";
                     else
                     {
                         out<<toPin->idName<<";";
                         ConnectorNode *c = static_cast<ConnectorNode* > (toPin->parent);
                         out<<c->typeConnectorWire<<";";
                     }
+                    out<<j->typeWire<<";";
                     out<<"\n";
 
-                }
+                //}
             }
         }
     }
