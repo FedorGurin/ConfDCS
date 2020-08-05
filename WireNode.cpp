@@ -16,7 +16,9 @@ WireNode::WireNode(QString id,
         idNameCoord = idNameCoord_;
         qDebug()<<idNameCoord<<"\n";
     }
-        typeWire    = type;
+    typeWire.clear();
+    if(type != "-")
+        typeWire =  type;
     toPin       = nullptr;
     fullConnected = false;
 //    pathName    = idName;

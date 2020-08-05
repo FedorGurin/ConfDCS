@@ -12,9 +12,9 @@ public:
              QString idName_,
              Node*);
     WireNode();
-
+    //! уникальное имя жгута
     QString idNameCoord;
-    //! тип кабеля
+    //! имя типа провода
     QString typeWire;
     //! длинна провода, м
     float length;

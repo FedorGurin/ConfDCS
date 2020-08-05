@@ -58,7 +58,11 @@ PinNode::PinNode(QString id,
     if(strCord_ != "-")
         strCord = strCord_;
 
-    strTypeWire     = strTypeWire_;
+    strTypeWire.clear();
+
+    if(strTypeWire_ != "-")
+        strTypeWire     = strTypeWire_;
+
     if(strTypeI == "-")
         strTypeI = nameSignal;
     strCircuit.append(strCircuit_);

@@ -619,6 +619,16 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                                 w0->idNameCoord = w->idNameCoord;
                             }
                         }
+                        if(w->typeWire != w0->typeWire)
+                        {
+                            if(w->typeWire.isEmpty() && w0->typeWire.isEmpty()==false)
+                            {
+                                w->typeWire = w0->typeWire;
+                            }else if(w0->typeWire.isEmpty() == true && w->typeWire.isEmpty() == false)
+                            {
+                                w0->typeWire = w->typeWire;
+                            }
+                        }
                     }
                 }
             }
