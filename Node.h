@@ -16,13 +16,14 @@ public:
     enum Type{E_EMPTY       , // узел не определен
               E_SYSTEM      , // система
               E_UNIT        , // блок
-              E_CONNECTOR   , // разъем
+              E_CONNECTOR   , // разъем              
+              E_LOCATION    ,
               E_PIN         , // контакт
               E_WIRE        , // провод соединения
               E_INTERFACE   };// информационный интерфейс
 
-
-    QString displayName;//имя которое будет отображаться пользователю
+//имя которое будет отображаться пользователю
+    QString displayName;
     //! имя идентификатор
     QString idName;
     //! псевдоним

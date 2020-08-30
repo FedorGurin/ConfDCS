@@ -7,7 +7,7 @@ UnitNode::UnitNode(QString value,Node *parent):Node()
     idName      = value;
     pathName    = idName;
     isStend     = false;
-    strLocation.clear();
+    idUnitLocation.clear();
 
     listForCompleter<<displayName;
 
@@ -16,7 +16,7 @@ UnitNode::UnitNode(QString value,Node *parent):Node()
 }
 UnitNode::UnitNode():Node()
 {
-    strLocation.clear();
+    idUnitLocation.clear();
     isStend = false;
 }
 int UnitNode::findPrevInterface(PinNode *n,InterfaceNode *ifNode)
