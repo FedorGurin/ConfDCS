@@ -429,6 +429,32 @@ void DomParser::mergeNodes(Node* root,Node* from)
         {
             if(i->idName == from->idName)
             {
+                if(i->type() == Node::E_CONNECTOR && from->type() == Node::E_CONNECTOR )
+                {
+                    ConnectorNode * con = static_cast<ConnectorNode* > (i);
+                    ConnectorNode * conFrom = static_cast<ConnectorNode* > (from);
+
+                    if(con->typeConnectorBlock != conFrom->typeConnectorBlock)
+                    {
+                        if(con->typeConnectorBlock.isEmpty() && conFrom->typeConnectorBlock.isEmpty() == false)
+                        {
+                            con->typeConnectorBlock = conFrom->typeConnectorBlock;
+                        }else if(conFrom->typeConnectorBlock.isEmpty() == true && con->typeConnectorBlock.isEmpty() == false)
+                        {
+                            conFrom->typeConnectorBlock = con->typeConnectorBlock;
+                        }
+                    }
+                    if(con->typeConnectorWire != conFrom->typeConnectorWire)
+                    {
+                        if(con->typeConnectorWire.isEmpty() && conFrom->typeConnectorWire.isEmpty() == false)
+                        {
+                            con->typeConnectorWire = conFrom->typeConnectorWire;
+                        }else if(conFrom->typeConnectorWire.isEmpty() == true && con->typeConnectorWire.isEmpty() == false)
+                        {
+                            conFrom->typeConnectorWire = con->typeConnectorWire;
+                        }
+                    }
+                }
                 if(i->type() == Node::E_PIN  && from->type() == Node::E_PIN )
                 {
                     PinNode * pin       = static_cast<PinNode* > (i);
@@ -454,6 +480,7 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     {
                         pin->strCord = pinFrom->strCord;
                     }
+
 
                 }
 
@@ -521,12 +548,12 @@ void DomParser::parseData(QString line, Node *parent)
 
     Node *node = nullptr;
     Node *nodeParent = parent;
-    node = findNodeByIdName(listLine[E_ID_SYSTEM], nodeParent,Node::E_SYSTEM);
+//    node = findNodeByIdName(listLine[E_ID_SYSTEM], nodeParent,Node::E_SYSTEM);
 
-    if(node == nullptr)
-        nodeParent = new SystemNode(listLine[E_ID_SYSTEM],nodeParent);
-    else
-        nodeParent = node;
+//    if(node == nullptr)
+//        nodeParent = new SystemNode(listLine[E_ID_SYSTEM],nodeParent);
+//    else
+//        nodeParent = node;
 
     node = findNodeByIdName(listLine[E_ID_UNIT], nodeParent,Node::E_UNIT);
     if(node == nullptr)
@@ -1051,9 +1078,9 @@ void DomParser::saveDataToCVS(QString nameFile, Node* rootNode,std::function<voi
 void DomParser::saveToCVS(Node *startNode, QTextStream& out, QVector<QString> *list)
 {
 
-    if(startNode->type() == Node::E_SYSTEM)
+  /*  if(startNode->type() == Node::E_SYSTEM)
         (*list)[E_ID_SYSTEM] = startNode->displayName;
-    else if(startNode->type() == Node::E_UNIT)
+    else*/ if(startNode->type() == Node::E_UNIT)
     {
         (*list)[E_ID_UNIT] = startNode->idName;
         (*list)[E_UNIT_NAME] = startNode->displayName;
