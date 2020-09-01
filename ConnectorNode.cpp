@@ -8,10 +8,14 @@ ConnectorNode::ConnectorNode(QString id,
 {
 //    displayName = element.attribute("displayName","");
     idName        = id;
-    typeConnectorBlock = typeConBlock;
-    typeConnectorWire  = typeConWire;
+    typeConnectorBlock.clear();
+    typeConnectorWire.clear();
+    if(typeConBlock!="-")
+        typeConnectorBlock = typeConBlock;
+    if(typeConWire!="-")
+        typeConnectorWire = typeConWire;
 
-    //    isDisplay   = ((element.attribute("isDisplay")).toInt());
+     //    isDisplay   = ((element.attribute("isDisplay")).toInt());
 
     pathName    = idName;
 

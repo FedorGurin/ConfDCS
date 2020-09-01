@@ -7,9 +7,33 @@ UnitNode::UnitNode(QString value,Node *parent):Node()
     idName      = value;
     pathName    = idName;
     isStend     = false;
+    isTransit   = false;
     idUnitLocation.clear();
 
     listForCompleter<<displayName;
+
+    parent->addChild(this);
+    addParent(parent);
+}
+UnitNode::UnitNode (QString fName_,
+          QString sName_,
+          QString stend_,
+          QString install_,
+          QString trans_,
+          QString id_,
+          QString loc_,
+          QString p_sys_,
+          QString size_,
+          QString pos_,
+          QString class_,
+          QString alias_,
+          QString nameCoord_,
+          Node* parent)
+{
+    displayName = fName_;
+    idName = id_;
+    isStend = (stend_.toLower() == "да");
+    isTransit = (trans_.toLower() == "да");
 
     parent->addChild(this);
     addParent(parent);
@@ -59,6 +83,8 @@ Node *UnitNode::clone()
     rootNode->displayName   = this->displayName;
     rootNode->comment       = this->comment;
     rootNode->pathName      = this->pathName;
+    rootNode->isStend       = this->isStend;
+    rootNode->isTransit       = this->isTransit;
 
 
     for(auto i:child)

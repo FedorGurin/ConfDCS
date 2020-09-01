@@ -126,13 +126,14 @@ void DomParser::loadDataPIC(QString nameDir)
 //! загрузка из
 void DomParser::loadData(QString dir, EPropertySaveToGV type)
 {
+    bool okDesData = false;
     //! создаем корень структуры
     rootItemData         = new Node;
     rootItemData->idName = "Ка-226";
 
     //! указатели на функции
     std::function<void(DomParser&, QString,Node*)> f_parseData     = &DomParser::parseData;
-    std::function<void(DomParser&, QString,Node*)> f_parseLocation = &DomParser::parseLocation;
+    std::function<void(DomParser&, QString,Node*)> f_parseSpec = &DomParser::parseLocation;
 
     //! функция сохранения всех соединений (проводов)
     std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV;
@@ -141,16 +142,16 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     else if(type == E_INTERFACES)
         f_saveNodeGV = &DomParser::saveNodeInterfaceGW;
 
+    //! открываем файлы со спецификацией
+    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/spec",listRootItemNode,f_parseSpec );
+    if(okDesData == false)
+        return;
 
     //! открываем файлы с данными соединений и блоков
-    bool okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv" + dir,listRootItemNode,f_parseData );
+    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv" + dir,listRootItemNode,f_parseData );
     if(okDesData == false)
         return;
 
-    //! открываем файлы с данными геометрии
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/spec",listRootUnit,f_parseLocation );
-    if(okDesData == false)
-        return;
 
     //! реализация соединений
     for(auto i:listRootItemNode)
@@ -429,6 +430,32 @@ void DomParser::mergeNodes(Node* root,Node* from)
         {
             if(i->idName == from->idName)
             {
+                if(i->type() == Node::E_CONNECTOR && from->type() == Node::E_CONNECTOR )
+                {
+                    ConnectorNode * con = static_cast<ConnectorNode* > (i);
+                    ConnectorNode * conFrom = static_cast<ConnectorNode* > (from);
+
+                    if(con->typeConnectorBlock != conFrom->typeConnectorBlock)
+                    {
+                        if(con->typeConnectorBlock.isEmpty() && conFrom->typeConnectorBlock.isEmpty() == false)
+                        {
+                            con->typeConnectorBlock = conFrom->typeConnectorBlock;
+                        }else if(conFrom->typeConnectorBlock.isEmpty() == true && con->typeConnectorBlock.isEmpty() == false)
+                        {
+                            conFrom->typeConnectorBlock = con->typeConnectorBlock;
+                        }
+                    }
+                    if(con->typeConnectorWire != conFrom->typeConnectorWire)
+                    {
+                        if(con->typeConnectorWire.isEmpty() && conFrom->typeConnectorWire.isEmpty() == false)
+                        {
+                            con->typeConnectorWire = conFrom->typeConnectorWire;
+                        }else if(conFrom->typeConnectorWire.isEmpty() == true && con->typeConnectorWire.isEmpty() == false)
+                        {
+                            conFrom->typeConnectorWire = con->typeConnectorWire;
+                        }
+                    }
+                }
                 if(i->type() == Node::E_PIN  && from->type() == Node::E_PIN )
                 {
                     PinNode * pin       = static_cast<PinNode* > (i);
@@ -454,6 +481,7 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     {
                         pin->strCord = pinFrom->strCord;
                     }
+
 
                 }
 
@@ -521,12 +549,12 @@ void DomParser::parseData(QString line, Node *parent)
 
     Node *node = nullptr;
     Node *nodeParent = parent;
-    node = findNodeByIdName(listLine[E_ID_SYSTEM], nodeParent,Node::E_SYSTEM);
+//    node = findNodeByIdName(listLine[E_ID_SYSTEM], nodeParent,Node::E_SYSTEM);
 
-    if(node == nullptr)
-        nodeParent = new SystemNode(listLine[E_ID_SYSTEM],nodeParent);
-    else
-        nodeParent = node;
+//    if(node == nullptr)
+//        nodeParent = new SystemNode(listLine[E_ID_SYSTEM],nodeParent);
+//    else
+//        nodeParent = node;
 
     node = findNodeByIdName(listLine[E_ID_UNIT], nodeParent,Node::E_UNIT);
     if(node == nullptr)
@@ -564,24 +592,46 @@ void DomParser::parseData(QString line, Node *parent)
 }
 void DomParser::parseLocation(QString line, Node *parent)
 {
+    Node *node = nullptr;
+    Node *nodeParent = parent;
+
     QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
-    if(listLine.empty() == true || listLine.size() != (E_GEO_COORD +1))
+    if(listLine.empty() == true || listLine.size() != (E_GEO_NAME_COORD +1))
         return;
-
+    //! пропустить первую строчку
     if((listLine[0] == "Наименование блока") &&
         listLine[1] == "Cокращение")
         return;
 
-    TGeometry geo;
-    geo.fullName  = listLine[E_GEO_FULL  ];
-    geo.shortName = listLine[E_GEO_SHORT ];
-    geo.isStend   = listLine[E_GEO_STEND ].toLower() == "да" ? true:false;
-    geo.id        = listLine[E_GEO_ID    ];
-    geo.parent    = listLine[E_GEO_PARENT];
-    geo.size      = listLine[E_GEO_SIZE  ];
-    geo.coord     = listLine[E_GEO_COORD ];
-    listGeo.push_back(geo);
+    node = findNodeByIdName(listLine[E_GEO_ID], nodeParent,Node::E_UNIT);
+    if(node == nullptr)
+    {
+        node = new UnitNode(listLine[E_GEO_FULL],
+                                  listLine[E_GEO_SHORT],
+                                  listLine[E_GEO_STEND],
+                                  listLine[E_GEO_INSTALL],
+                                  listLine[E_GEO_TRANSIT],
+                                  listLine[E_GEO_ID],
+                                  listLine[E_GEO_LOCATION],
+                                  listLine[E_GEO_PARENT_SYS],
+                                  listLine[E_GEO_SIZE],
+                                  listLine[E_GEO_POS],
+                                  listLine[E_GEO_CLASS],
+                                  listLine[E_GEO_ALIAS],
+                                  listLine[E_GEO_NAME_COORD],
+                                  nodeParent);
+    }
+
+//    TGeometry geo;
+//    geo.fullName  = listLine[E_GEO_FULL  ];
+//    geo.shortName = listLine[E_GEO_SHORT ];
+//    geo.isStend   = listLine[E_GEO_STEND ].toLower() == "да" ? true:false;
+//    geo.id        = listLine[E_GEO_ID    ];
+//    geo.parent    = listLine[E_GEO_PARENT];
+//    geo.size      = listLine[E_GEO_SIZE  ];
+//    geo.coord     = listLine[E_GEO_COORD ];
+//    listGeo.push_back(geo);
 }
 
 
@@ -1051,9 +1101,9 @@ void DomParser::saveDataToCVS(QString nameFile, Node* rootNode,std::function<voi
 void DomParser::saveToCVS(Node *startNode, QTextStream& out, QVector<QString> *list)
 {
 
-    if(startNode->type() == Node::E_SYSTEM)
+  /*  if(startNode->type() == Node::E_SYSTEM)
         (*list)[E_ID_SYSTEM] = startNode->displayName;
-    else if(startNode->type() == Node::E_UNIT)
+    else*/ if(startNode->type() == Node::E_UNIT)
     {
         (*list)[E_ID_UNIT] = startNode->idName;
         (*list)[E_UNIT_NAME] = startNode->displayName;

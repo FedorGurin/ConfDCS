@@ -1,5 +1,6 @@
 #include "formCurciut.h"
 #include "ui_formCurciut.h"
+#include "UnitNode.h"
 
 FormCurciut::FormCurciut(QWidget *parent) :
     QWidget(parent),
@@ -22,9 +23,13 @@ void FormCurciut::recAddFindSystem(Node *root)
 {
     if(root->type() == Node::E_UNIT)
     {
+        UnitNode *unit = static_cast<UnitNode* > (root);
         ui->listWidgetSys1->addItem(root->displayName);
         ui->listWidgetSys2->addItem(root->displayName);
+        if(unit->isTransit == true)
+            ui->listWidgetSysMiddle->addItem(root->displayName);
     }
+
 
     for(auto i: root->child)
         recAddFindSystem(i);
