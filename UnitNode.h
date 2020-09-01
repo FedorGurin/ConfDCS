@@ -11,6 +11,20 @@ class UnitNode :public Node
 {
 public:
     UnitNode (QString,Node *);
+    UnitNode (QString fName_,
+              QString sName_,
+              QString stend_,
+              QString install_,
+              QString trans_,
+              QString id_,
+              QString loc_,
+              QString p_sys_,
+              QString size_,
+              QString pos_,
+              QString class_,
+              QString alias_,
+              QString nameCoord_,
+              Node* node);
     UnitNode();
 
     //! тип объекта
@@ -37,6 +51,8 @@ public:
     QList<Node* > childUnit;// дочерние элементы
     //! признак стендового набора оборудования
     bool isStend;
+    //! признак того, что блок может пропускать линии данных через себя
+    bool isTransit;
 
     //! отображение клемм друг-на-друга(или здесь возможно должна быть dll)
     //QMap<PinNode*,QList<PinNode* > > mapPin;

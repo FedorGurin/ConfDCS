@@ -17,10 +17,16 @@ public:
         E_GEO_FULL  ,
         E_GEO_SHORT ,
         E_GEO_STEND ,
+        E_GEO_INSTALL,
+        E_GEO_TRANSIT,
         E_GEO_ID    ,
-        E_GEO_PARENT,
+        E_GEO_LOCATION,
+        E_GEO_PARENT_SYS,
         E_GEO_SIZE  ,
-        E_GEO_COORD
+        E_GEO_POS,
+        E_GEO_CLASS, //! класс объекта
+        E_GEO_ALIAS,
+        E_GEO_NAME_COORD //! имя жгута
     };
     typedef  struct TGeometry_
     {
