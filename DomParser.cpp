@@ -208,8 +208,8 @@ void DomParser::recSaveLocationBetween(Node* startNode, QTextStream& out, QStrin
                 if(wire->fullConnected == true)
                 {
                     //UnitNode *unitTo = static_cast<UnitNode* > (wire->toPin->parent->parent);
-                    //if((unitFrom->strLocation == filter) != (unitTo->strLocation == filter))
-                    if(unitFrom->strLocation == filter)
+                    //if((unitFrom->idUnitLocation == filter) != (unitTo->idUnitLocation == filter))
+                    if(unitFrom->idUnitLocation == filter)
                     {
                         out<<pin->parent->parent->idName<<";"
                           <<pin->parent->idName<<";"
@@ -255,7 +255,7 @@ void DomParser::fillGeometryUnit(Node* root)
         if(n != nullptr)
         {
             UnitNode * node     = static_cast<UnitNode* >(n);
-            node->strLocation   = i.parent;
+            node->idUnitLocation   = i.parent;
             node->isStend       = i.isStend;
         }
     }

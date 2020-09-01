@@ -29,8 +29,12 @@ public:
     QList<InterfaceNode *> unknownInf;
     //! список жгутов
     QList<CoordNode *> coords;
-    //! место расположение
-    QString strLocation;
+    //! идентификатор блока расположения
+    QString idUnitLocation;
+
+    //! блок в котором контруктивно распологается данный блок(если nullptr, значит объект вверхнего уровня)
+    UnitNode *parentUnit;
+    QList<Node* > childUnit;// дочерние элементы
     //! признак стендового набора оборудования
     bool isStend;
 
