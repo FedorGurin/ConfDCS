@@ -415,6 +415,35 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
+void DomParser::pasteUnitBetween(Node *unitFrom, Node* unitTransit, Node *unitTo  )
+{
+    if(unitFrom != unitTo)
+        return;
+
+    QList<Node* > nodeWireConnect;
+    QList<Node* > nodeWireTransit;
+    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
+    grabberNodeByType(unitTransit,Node::E_WIRE,nodeWireTransit);
+
+    for(auto i:nodeWireConnect)
+    {
+        WireNode *wire = static_cast<WireNode* > (i);
+        if(wire->fullConnected == true)
+        {
+            for(auto j:nodeWireTransit)
+            {
+                WireNode *wireTr = static_cast<WireNode* > (j);
+                if(wireTr->fullConnected == false)
+                {
+                    wire->toPin = wireTr->parent;
+                    wireTr->toPin = wire->parent;
+                    wireTr->fullConnected = true;
+                }
+            }
+        }
+    }
+}
+
 void DomParser::mergeNodes(Node* root,Node* from)
 {
     bool isFind = false;

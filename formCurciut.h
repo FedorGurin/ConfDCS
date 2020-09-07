@@ -25,6 +25,7 @@ public slots:
     void slotPushGen();
     void slotDataBase();
     void slotLoadData();
+    void slotCut();
 };
 
 #endif // FORMCURCIUT_H

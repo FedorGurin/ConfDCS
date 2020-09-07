@@ -84,6 +84,8 @@ public:
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
 
+    void pasteUnitBetween(Node *unitFrom, Node* unitTransit, Node *unitTo );
+
     //! поиск узла по типу
     Node* findNodeByType(Node* node, Node::Type t, EDirection dir);
     Node* findNodeByIdName(QString nameItem, Node *node, Node::Type t=Node::E_EMPTY);

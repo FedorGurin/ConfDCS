@@ -15,9 +15,16 @@ FormCurciut::FormCurciut(QWidget *parent) :
         ui->listWidgetSys1->addItem(i->displayName);
         ui->listWidgetSys2->addItem(i->displayName);
     }*/
-    connect(ui->pushButton,SIGNAL(clicked()),this,SLOT(slotPushGen()));
-    connect(ui->pushButtonDataBase,SIGNAL(clicked()),this,SLOT(slotDataBase()));
-    connect(ui->pushButtonLoad,SIGNAL(clicked()),this,SLOT(slotLoadData()));
+    connect(ui->pushButton,         SIGNAL(clicked()),this,SLOT(slotPushGen()));
+    connect(ui->pushButtonDataBase, SIGNAL(clicked()),this,SLOT(slotDataBase()));
+    connect(ui->pushButtonLoad,     SIGNAL(clicked()),this,SLOT(slotLoadData()));
+    connect(ui->pushButtonCut,      SIGNAL(clicked()),this,SLOT(slotCut()));
+}
+void FormCurciut::slotCut()
+{
+    domParser->pasteUnitBetween(recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text()),
+                                recFindNodeByName(domParser->rootItemData,ui->listWidgetSysMiddle->currentItem()->text()),
+                                recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text()));
 }
 void FormCurciut::recAddFindSystem(Node *root)
 {
@@ -29,8 +36,6 @@ void FormCurciut::recAddFindSystem(Node *root)
         if(unit->isTransit == true)
             ui->listWidgetSysMiddle->addItem(root->displayName);
     }
-
-
     for(auto i: root->child)
         recAddFindSystem(i);
 }

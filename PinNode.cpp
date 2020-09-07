@@ -82,7 +82,7 @@ PinNode::PinNode(QString id,
     addParent(parent);
     for(int i = 0;i < numClone;i++)
     {
-        if(strLabel_ != "-")
+        //if(strLabel_ != "-")
             new WireNode(strLabel_,strTypeWire_,strCord,this);
     }
 }
