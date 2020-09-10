@@ -13,8 +13,8 @@ CONFIG +=build_all lib
 #TRANSLATIONS = ui_eng.ts
 CODECFORTR = utf8
 QT += network \
-    xml \
-    svg \
+    xml \    
+ #   svg \
     widgets
 
 
