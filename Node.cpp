@@ -8,6 +8,7 @@ Node::Node(QString name)
     parent      = nullptr;
     pathName    = "";
     displayName = "";
+    //alias       = "";
     idName      = name;
     left        = nullptr;
     right       = nullptr;
@@ -23,6 +24,7 @@ Node* Node::clone()
     rootNode->displayName   = this->displayName;
     rootNode->comment       = this->comment;
     rootNode->pathName      = this->pathName;
+    //rootNode->alias         = this->alias;
 
     for(auto i:child)
     {

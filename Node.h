@@ -26,8 +26,8 @@ public:
     QString displayName;
     //! имя идентификатор
     QString idName;
-    //! псевдоним
-    QString alias;
+//    //! псевдоним
+//    QString alias;
     //! комментарий к узлу
     QString comment;
     //! имя пути к данному узлу

@@ -8,6 +8,7 @@ UnitNode::UnitNode(QString value,Node *parent):Node()
     pathName    = idName;
     isStend     = false;
     isTransit   = false;
+    alias.clear();
     idUnitLocation.clear();
 
     listForCompleter<<displayName;
@@ -34,6 +35,11 @@ UnitNode::UnitNode (QString fName_,
     idName = id_;
     isStend = (stend_.toLower() == "да");
     isTransit = (trans_.toLower() == "да");
+
+    alias.clear();
+
+    if(alias_ !="-")
+        alias = alias_;
 
     parent->addChild(this);
     addParent(parent);
@@ -85,6 +91,7 @@ Node *UnitNode::clone()
     rootNode->pathName      = this->pathName;
     rootNode->isStend       = this->isStend;
     rootNode->isTransit       = this->isTransit;
+    rootNode->alias         = this->alias;
 
 
     for(auto i:child)

@@ -59,6 +59,8 @@ void DomParser::loadDataPIC(QString nameDir)
             //qDebug()<<name<<"\n";
             //! нужно найти блок с соотвествующим идентификатором
             UnitNode* unit = static_cast<UnitNode* > (findNodeByIdName(name,rootItemData,Node::E_UNIT));
+            if(unit == nullptr)
+                continue;
             if(objJson.contains("channels") && objJson["channels"].isArray())
             {
                 QJsonArray objArray = objJson["channels"].toArray();
@@ -1740,13 +1742,35 @@ void DomParser::correctWire(Node *startNode)
                 PinNode *curPin = static_cast<PinNode* > (wire->parent);
                 if(curPin->io == PinNode::E_OUT)
                 {
-                    wire->idName = curPin->parent->parent->idName + "-" +
-                               curPin->parent->idName +"-" + curPin->idName;
+                    UnitNode* parent0 = static_cast<UnitNode *> (findNodeByType(curPin,Node::E_UNIT,EDirection::E_UP));
+
+                    if(parent0->alias.isEmpty() == true)
+                    {
+                        wire->idName = parent0->idName + "-" +
+                             curPin->parent->idName +"-" + curPin->idName;
+                    }else
+                    {
+                        wire->idName = parent0->alias +
+                             curPin->parent->idName + curPin->idName;
+                    }
 
                 }else if(wire->fullConnected)
                 {
-                    wire->idName = pin->parent->parent->idName + "-" +
-                               pin->parent->idName +"-" + pin->idName;
+
+                    UnitNode* parent0 = static_cast<UnitNode *> (findNodeByType(pin,Node::E_UNIT,EDirection::E_UP));
+
+                    if(parent0->alias.isEmpty() == true)
+                    {
+                        wire->idName = parent0->idName + "-" +
+                             pin->parent->idName +"-" + pin->idName;
+                    }else
+                    {
+                        wire->idName = parent0->alias +
+                             pin->parent->idName + pin->idName;
+                    }
+
+//                    wire->idName = pin->parent->parent->idName + "-" +
+//                               pin->parent->idName +"-" + pin->idName;
 
                     curPin->strTypeI = pin->strTypeI;
 
