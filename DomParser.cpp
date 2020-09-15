@@ -125,6 +125,12 @@ void DomParser::loadDataPIC(QString nameDir)
 
 
 //}
+
+void DomParser::joingInterface(Node *startNode)
+{
+
+}
+
 //! загрузка из
 void DomParser::loadData(QString dir, EPropertySaveToGV type)
 {
@@ -183,6 +189,8 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     correctInterface(rootItemData);
     correctWire     (rootItemData);
     correctCoords(rootItemData);
+    //! объединение интерфейсов в зависимости от подключения
+    joingInterface(rootItemData);
     fillGeometryUnit(rootItemData);
 
     //! заполнение интtрфейсов
@@ -421,11 +429,11 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
  }
 void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
 {
-//    if(unitFrom != unitTo)
-//        return;
+    if(unitFrom == unitTo)
+        return;
 
-//    QList<Node* > nodeWireConnect;
-//    QList<Node* > nodeWireTransit;
+    QList<Node* > nodeWireConnect;
+    QList<Node* > nodeWireTransit;
 
 //    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
 //    grabberNodeByType(unitTransit,Node::E_WIRE,nodeWireTransit);

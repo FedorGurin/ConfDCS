@@ -169,6 +169,7 @@ private:
     void correctWire(Node *startNode);
     //! коррекция имен проводов
     void correctInterface(Node *startNode);
+    void joingInterface(Node *startNode);
     //! коррекция имен жгутов
     void correctCoords(Node* startNode);
     void calcNumInterface(Node *startNode);

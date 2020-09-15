@@ -4,6 +4,7 @@
 
 UnitNode::UnitNode(QString value,Node *parent):Node()
 {
+    parentUnit  = 0;
     idName      = value;
     pathName    = idName;
     isStend     = false;
@@ -36,6 +37,7 @@ UnitNode::UnitNode (QString fName_,
     isStend = (stend_.toLower() == "да");
     isTransit = (trans_.toLower() == "да");
 
+    parentUnit = 0;
     alias.clear();
     nameCoord.clear();
 

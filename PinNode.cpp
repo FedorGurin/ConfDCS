@@ -52,7 +52,9 @@ PinNode::PinNode(QString id,
     strNumClone     = strNumClone_;
     strSw           = strSw_;
     strLabel        = strLabel_;
-    strTypeI        = strTypeI_;
+    strTypeI.clear();
+    if(strTypeI_ !="-")
+         strTypeI        = strTypeI_;
 
     strCord.clear();
     if(strCord_ != "-")
