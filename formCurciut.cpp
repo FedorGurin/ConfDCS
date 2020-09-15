@@ -1,7 +1,7 @@
 #include "formCurciut.h"
 #include "ui_formCurciut.h"
 #include "UnitNode.h"
-
+#include <QMessageBox>
 FormCurciut::FormCurciut(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormCurciut)
@@ -22,9 +22,30 @@ FormCurciut::FormCurciut(QWidget *parent) :
 }
 void FormCurciut::slotCut()
 {
-    domParser->pasteUnitBetween(recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text()),
-                                recFindNodeByName(domParser->rootItemData,ui->listWidgetSysMiddle->currentItem()->text()),
-                                recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text()));
+    QList<Node *> nodes;
+
+    QList<QListWidgetItem*> items = ui->listWidgetSysMiddle->selectedItems();
+
+    for(auto i:items)
+    {
+
+        Node *node = recFindNodeByName(domParser->rootItemData,i->text());
+        if(node == nullptr)
+            continue;
+        nodes.push_back(node);
+    }
+    if(ui->listWidgetSys1->currentItem() == nullptr || ui->listWidgetSys2->currentItem() == nullptr)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Not selected systems");
+        msgBox.exec();
+
+    }else
+    {
+        domParser->pasteUnitBetween(recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text()),
+                                    nodes,
+                                    recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text()));
+    }
 }
 void FormCurciut::recAddFindSystem(Node *root)
 {

@@ -178,8 +178,10 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
 
     //! соединение всех проводов для уже объединенной модели
     connectWires    (rootItemData);
+
     //! выделение интерфейсов в  уже объединенной модели
     correctInterface(rootItemData);
+    correctWire     (rootItemData);
     correctCoords(rootItemData);
     fillGeometryUnit(rootItemData);
 
@@ -417,35 +419,39 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
-void DomParser::pasteUnitBetween(Node *unitFrom, Node* unitTransit, Node *unitTo  )
+void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
 {
-    if(unitFrom != unitTo)
-        return;
+//    if(unitFrom != unitTo)
+//        return;
 
-    QList<Node* > nodeWireConnect;
-    QList<Node* > nodeWireTransit;
-    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
-    grabberNodeByType(unitTransit,Node::E_WIRE,nodeWireTransit);
+//    QList<Node* > nodeWireConnect;
+//    QList<Node* > nodeWireTransit;
 
-    for(auto i:nodeWireConnect)
-    {
-        WireNode *wire = static_cast<WireNode* > (i);
-        if(wire->fullConnected == true)
-        {
-            for(auto j:nodeWireTransit)
-            {
-                WireNode *wireTr = static_cast<WireNode* > (j);
-                if(wireTr->fullConnected == false)
-                {
-                    wire->toPin = wireTr->parent;
-                    wireTr->toPin = wire->parent;
-                    wireTr->fullConnected = true;
-                }
-            }
-        }
-    }
+//    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
+//    grabberNodeByType(unitTransit,Node::E_WIRE,nodeWireTransit);
+
+//    for(auto i:nodeWireConnect)
+//    {
+//        WireNode *wire = static_cast<WireNode* > (i);
+//        if(wire->fullConnected == true)
+//        {
+//            for(auto j:nodeWireTransit)
+//            {
+//                WireNode *wireTr = static_cast<WireNode* > (j);
+//                if(wireTr->fullConnected == false)
+//                {
+//                    wire->toPin = wireTr->parent;
+//                    wireTr->toPin = wire->parent;
+//                    wireTr->fullConnected = true;
+//                }
+//            }
+//        }
+//    }
 }
+//void DomParser::swapNode()
+//{
 
+//}
 void DomParser::mergeNodes(Node* root,Node* from)
 {
     bool isFind = false;
@@ -512,8 +518,22 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     {
                         pin->strCord = pinFrom->strCord;
                     }
+                }
+                if(i->type() == Node::E_UNIT && from->type() == Node::E_UNIT)
+                {
+                    UnitNode *unit       = static_cast<UnitNode* > (i);
+                    UnitNode *unitFrom   = static_cast<UnitNode* > (from);
 
-
+                    if(unit->alias != unitFrom->alias)
+                    {
+                        if(unit->alias.isEmpty() && unitFrom->alias.isEmpty() == false)
+                        {
+                            unit->alias = unitFrom->alias;
+                        }else if(unitFrom->alias.isEmpty() == true && unit->alias.isEmpty() == false)
+                        {
+                            unitFrom->alias = unit->alias;
+                        }
+                    }
                 }
 
                 //! должны проверить
@@ -566,7 +586,7 @@ Node* DomParser::recFindNodeWithIdName(QString &idName,Node *startNode, Node::Ty
 }
 void DomParser::parseData(QString line, Node *parent)
 {
-    QStringList listLine = line.split(";", QString::SkipEmptyParts);
+    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
 
     if(listLine.empty() == true)
         return;
@@ -626,7 +646,7 @@ void DomParser::parseLocation(QString line, Node *parent)
     Node *node = nullptr;
     Node *nodeParent = parent;
 
-    QStringList listLine = line.split(";", QString::SkipEmptyParts);
+    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
 
     if(listLine.empty() == true || listLine.size() != (E_GEO_NAME_COORD +1))
         return;
@@ -1712,7 +1732,8 @@ void DomParser::saveNodeVarWithNe(Node *startNode, QTextStream& out)
                          out<<" style=\"bold\"";
                      else
                          out<<" style=\"filled\"";
-                         out<<"];\n";
+
+                   out<<"];\n";
 
                   if(wire->toPin != nullptr)
                   {
@@ -1737,7 +1758,17 @@ void DomParser::correctWire(Node *startNode)
         if(wire->toPin !=nullptr)
         {
               PinNode *pin = static_cast<PinNode* > (wire->toPin);
-              if(pin != nullptr)
+             /* if(pin == nullptr)
+              {
+                  UnitNode* parent0 = static_cast<UnitNode *> (findNodeByType(pin,Node::E_UNIT,EDirection::E_UP));
+                  if(parent0->alias.isEmpty() == false)
+                  {
+                      wire->idName = parent0->alias +
+                           pin->parent->idName + pin->idName;
+                  }
+              }
+              else */
+              if(pin == nullptr)
               {
                 PinNode *curPin = static_cast<PinNode* > (wire->parent);
                 if(curPin->io == PinNode::E_OUT)

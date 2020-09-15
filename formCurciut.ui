@@ -190,7 +190,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="listWidgetSysMiddle"/>
+           <widget class="QListWidget" name="listWidgetSysMiddle">
+            <property name="selectionMode">
+             <enum>QAbstractItemView::MultiSelection</enum>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

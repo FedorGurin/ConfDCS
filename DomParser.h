@@ -84,7 +84,7 @@ public:
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
 
-    void pasteUnitBetween(Node *unitFrom, Node* unitTransit, Node *unitTo );
+    void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo );
 
     //! поиск узла по типу
     Node* findNodeByType(Node* node, Node::Type t, EDirection dir);
@@ -165,8 +165,11 @@ private:
     void saveNodeVarWithNe(Node *startNode, QTextStream& out);
     void saveGraphConnector(Node *startNode, QTextStream& out);
     void saveGraphWire(Node *startNode, QTextStream& out);
+    //! коррекция имен бирок
     void correctWire(Node *startNode);
+    //! коррекция имен проводов
     void correctInterface(Node *startNode);
+    //! коррекция имен жгутов
     void correctCoords(Node* startNode);
     void calcNumInterface(Node *startNode);
     //! найти блоки которые ссылаются на указанный, или данный блок на них

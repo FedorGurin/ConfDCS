@@ -37,6 +37,10 @@ UnitNode::UnitNode (QString fName_,
     isTransit = (trans_.toLower() == "да");
 
     alias.clear();
+    nameCoord.clear();
+
+    if(nameCoord_ != "-")
+        nameCoord = nameCoord_;
 
     if(alias_ !="-")
         alias = alias_;
@@ -90,8 +94,9 @@ Node *UnitNode::clone()
     rootNode->comment       = this->comment;
     rootNode->pathName      = this->pathName;
     rootNode->isStend       = this->isStend;
-    rootNode->isTransit       = this->isTransit;
+    rootNode->isTransit     = this->isTransit;
     rootNode->alias         = this->alias;
+    rootNode->nameCoord     = this->nameCoord;
 
 
     for(auto i:child)
