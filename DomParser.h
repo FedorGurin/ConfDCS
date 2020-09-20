@@ -160,7 +160,7 @@ private:
     void saveToCVS(Node *startNode, QTextStream& out,QVector<QString> *str);
 
     void saveNode(Node *startNode, QTextStream& out);
-    void saveNodeVar1(Node *startNode, QTextStream& out);
+    void saveNodeWiresGW(Node *startNode, QTextStream& out);
     void saveNodeInterfaceGW(Node *startNode, QTextStream& out);
     void saveNodeVarWithNe(Node *startNode, QTextStream& out);
     void saveGraphConnector(Node *startNode, QTextStream& out);

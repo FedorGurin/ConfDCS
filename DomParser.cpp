@@ -144,11 +144,12 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     std::function<void(DomParser&, QString,Node*)> f_parseSpec = &DomParser::parseLocation;
 
     //! функция сохранения всех соединений (проводов)
-    std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV;
+    std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV = nullptr;
     if(type == E_WIRES)
-        f_saveNodeGV = &DomParser::saveNodeVar1;
+        f_saveNodeGV = &DomParser::saveNodeWiresGW;
     else if(type == E_INTERFACES)
         f_saveNodeGV = &DomParser::saveNodeInterfaceGW;
+//    else if(type == E_CORDS)
 
     //! открываем файлы со спецификацией
     okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/spec",listRootItemNode,f_parseSpec );
@@ -1428,7 +1429,7 @@ void DomParser::saveNodeInterfaceGW(Node *startNode, QTextStream& out)
     }
 
 }
-void DomParser::saveNodeVar1(Node *startNode, QTextStream& out)
+void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
 {
     if(startNode->type() == Node::E_CONNECTOR)
     {
@@ -1519,7 +1520,7 @@ void DomParser::saveNodeVar1(Node *startNode, QTextStream& out)
     }
     for(auto i:startNode->child)
     {
-        saveNodeVar1(i,out);
+        saveNodeWiresGW(i,out);
     }
 
 }
