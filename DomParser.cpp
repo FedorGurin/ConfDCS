@@ -347,6 +347,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                 {
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
                     out<<c->typeConnectorWire<<";";
+                    out<<c->idName <<";";
                     out<<pin->idName << ";";
                     out<<j->idName<<";";
                     out<<j->idNameCoord<<";";
@@ -362,6 +363,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     {
                         out<<toPin->idName<<";";
                         ConnectorNode *c = static_cast<ConnectorNode* > (toPin->parent);
+                        out<<c->idName <<";";
                         out<<c->typeConnectorWire<<";";
                     }
                     out<<j->typeWire<<";";
