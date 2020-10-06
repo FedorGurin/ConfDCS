@@ -60,6 +60,8 @@ public:
         E_TYPE_CONNECTOR_BLOCK     ,   //! тип разъема со стороны блока
         E_TYPE_CONNECTOR_WIRE      ,   //! тип разъема со стороны жгута
         E_TYPE_WIRE                ,   //! тип провода
+        E_TYPE_WIRE_PIN            ,   //! тип жилы провода
+        E_ID_WIRE                  ,   //! идентификатор провода
         E_CURCUIT                  ,   //! имя схемы
         E_SET_TYPE_I               ,   //! идентификатор интерфейса
         E_CORD                         //! имя жгута
