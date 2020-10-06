@@ -144,11 +144,12 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     std::function<void(DomParser&, QString,Node*)> f_parseSpec = &DomParser::parseLocation;
 
     //! функция сохранения всех соединений (проводов)
-    std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV;
+    std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV = nullptr;
     if(type == E_WIRES)
-        f_saveNodeGV = &DomParser::saveNodeVar1;
+        f_saveNodeGV = &DomParser::saveNodeWiresGW;
     else if(type == E_INTERFACES)
         f_saveNodeGV = &DomParser::saveNodeInterfaceGW;
+//    else if(type == E_CORDS)
 
     //! открываем файлы со спецификацией
     okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/spec",listRootItemNode,f_parseSpec );
@@ -346,6 +347,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                 {
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
                     out<<c->typeConnectorWire<<";";
+                    out<<c->idName <<";";
                     out<<pin->idName << ";";
                     out<<j->idName<<";";
                     out<<j->idNameCoord<<";";
@@ -361,6 +363,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     {
                         out<<toPin->idName<<";";
                         ConnectorNode *c = static_cast<ConnectorNode* > (toPin->parent);
+                        out<<c->idName <<";";
                         out<<c->typeConnectorWire<<";";
                     }
                     out<<j->typeWire<<";";
@@ -421,9 +424,9 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
  void DomParser::saveCSVCoords(Node* rootNode, QTextStream& out)
  {
         out.setCodec("UTF-8");
-        out<<tr("Разъем")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
+        out<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<tr("Клемма")<<";"<<tr("Бирка")<<";"
            <<tr("Жгут") <<";"
-           <<tr("Клемма")<<";"<<tr("Разъем")<<";"<<tr("Тип провод")<<"\n";
+           <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Тип провод")<<"\n";
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
@@ -1428,7 +1431,7 @@ void DomParser::saveNodeInterfaceGW(Node *startNode, QTextStream& out)
     }
 
 }
-void DomParser::saveNodeVar1(Node *startNode, QTextStream& out)
+void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
 {
     if(startNode->type() == Node::E_CONNECTOR)
     {
@@ -1519,7 +1522,7 @@ void DomParser::saveNodeVar1(Node *startNode, QTextStream& out)
     }
     for(auto i:startNode->child)
     {
-        saveNodeVar1(i,out);
+        saveNodeWiresGW(i,out);
     }
 
 }
@@ -1776,7 +1779,7 @@ void DomParser::correctWire(Node *startNode)
                   }
               }
               else */
-              if(pin == nullptr)
+              if(pin != nullptr)
               {
                 PinNode *curPin = static_cast<PinNode* > (wire->parent);
                 if(curPin->io == PinNode::E_OUT)
