@@ -21,7 +21,7 @@ public:
     QString typeConnectorBlock;
     QString typeConnectorWire;
     //! соединен со следующим разъемом
-    ConnectorNode *connetWith;
+    ConnectorNode *connectWith;
     //! деструктор
     virtual ~ConnectorNode();
 };

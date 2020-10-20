@@ -10,9 +10,10 @@ ConnectorNode::ConnectorNode(QString id,
     idName        = id;
     typeConnectorBlock.clear();
     typeConnectorWire.clear();
-    if(typeConBlock!="-")
+    connectWith = nullptr;
+    if(typeConBlock != "-")
         typeConnectorBlock = typeConBlock;
-    if(typeConWire!="-")
+    if(typeConWire != "-")
         typeConnectorWire = typeConWire;
 
      //    isDisplay   = ((element.attribute("isDisplay")).toInt());
@@ -26,6 +27,7 @@ ConnectorNode::ConnectorNode(QString id,
 }
 ConnectorNode::ConnectorNode():Node()
 {
+    connectWith = nullptr;
 
 }
 Node *ConnectorNode::clone()

@@ -34,13 +34,24 @@ void FormCurciut::slotCut()
             continue;
         nodes.push_back(node);
     }
-    if(ui->listWidgetSys1->currentItem() == nullptr || ui->listWidgetSys2->currentItem() == nullptr)
+    if(ui->listWidgetSys1->currentItem() == nullptr && ui->listWidgetSys2->currentItem() == nullptr)
     {
         QMessageBox msgBox;
         msgBox.setText("Not selected systems");
         msgBox.exec();
+    }else if(ui->listWidgetSys1->currentItem() == nullptr || (ui->listWidgetSys2->currentItem() == nullptr))
+    {
+        QString nameItem;
 
-    }else
+        if(ui->listWidgetSys1->currentItem() != nullptr)
+            nameItem = ui->listWidgetSys1->currentItem()->text();
+        else
+            nameItem = ui->listWidgetSys2->currentItem()->text();
+
+        Node *selectNode = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
+        domParser->pasteUnitThrough(selectNode,nodes);
+    }
+    else
     {
         domParser->pasteUnitBetween(recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text()),
                                     nodes,

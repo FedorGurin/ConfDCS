@@ -87,6 +87,8 @@ public:
     void loadDataPIC(QString dir);
 
     void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo );
+    //! вставить блок через список блоков
+    void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit);
 
     //! поиск узла по типу
     Node* findNodeByType(Node* node, Node::Type t, EDirection dir);

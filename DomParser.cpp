@@ -430,6 +430,13 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
+void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit)
+{
+    QList<Node* > pins;
+    grabberNodeByType(unitFrom,Node::E_PIN,pins);
+    //for()
+
+}
 void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
 {
     if(unitFrom == unitTo)
@@ -597,7 +604,7 @@ Node* DomParser::recFindNodeWithIdName(QString &idName,Node *startNode, Node::Ty
 }
 void DomParser::parseData(QString line, Node *parent)
 {
-    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
     if(listLine.empty() == true)
         return;
@@ -657,7 +664,7 @@ void DomParser::parseLocation(QString line, Node *parent)
     Node *node = nullptr;
     Node *nodeParent = parent;
 
-    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
     if(listLine.empty() == true || listLine.size() != (E_GEO_NAME_COORD +1))
         return;
