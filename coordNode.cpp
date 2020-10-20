@@ -1,4 +1,4 @@
-#include "CoordNode.h"
+#include "coordNode.h"
 
 
 //InterfaceNode::InterfaceNode(QString id,       // идентификатор интерфейса

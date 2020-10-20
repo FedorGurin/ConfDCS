@@ -1,5 +1,5 @@
 
-#include "WireNode.h"
+#include "wireNode.h"
 #include "./globalFunc/gl_func.h"
 #include <QDebug>
 WireNode::WireNode(QString id,

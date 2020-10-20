@@ -1,6 +1,6 @@
-#include "PinNode.h"
-#include "WireNode.h"
-#include "SystemNode.h"
+#include "pinNode.h"
+#include "wireNode.h"
+#include "systemNode.h"
 
 PinNode::PinNode(QString id,
                  QString strSignal_,
@@ -35,21 +35,23 @@ PinNode::PinNode(QString id,
     strIO = strIo_.toLower();
     type_interface = E_UNDEF_INTER;
 
-    if(strInterface_.toLower() == "arinc 429")
-        type_interface = E_ARINC_429;
-    if(strInterface_.toLower() == "питание" )
-        type_interface = E_POWER;
-    if(strInterface_.toLower() == "рк" )
-        type_interface = E_RK;
-    if(strInterface_.toLower() == "аналог" )
-        type_interface = E_ANALOG;
-    if(strInterface_.toLower() == "звук" )
-        type_interface = E_SOUND;
-    if(strInterface_.toLower() == "rs-232" )
-        type_interface = E_RS_232;
-    if(strInterface_.toLower() == "rs-422" )
-        type_interface = E_RS_422;
     strInterface    = strInterface_;
+
+    if(strInterface.contains("arinc 429", Qt::CaseInsensitive))
+        type_interface = E_ARINC_429;
+    if(strInterface.contains("питание", Qt::CaseInsensitive))
+        type_interface = E_POWER;
+    if(strInterface.contains("рк", Qt::CaseInsensitive))
+        type_interface = E_RK;
+    if(strInterface.contains("аналог", Qt::CaseInsensitive))
+        type_interface = E_ANALOG;
+    if(strInterface.contains("звук", Qt::CaseInsensitive))
+        type_interface = E_SOUND;
+    if(strInterface.contains("rs-232", Qt::CaseInsensitive))
+        type_interface = E_RS_232;
+    if(strInterface.contains("rs-422", Qt::CaseInsensitive))
+        type_interface = E_RS_422;
+
     nameSignal      = strSignal_;
     strNumClone     = strNumClone_;
     strSw           = strSw_;

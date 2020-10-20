@@ -1,4 +1,4 @@
-#include "SettingXML.h"
+#include "settingXML.h"
 #include "./globalFunc/gl_func.h"
 #include <QFile>
 #include <QApplication>
@@ -15,12 +15,12 @@
 #define DATA_FILE "data.xml"
 
 //! инициализация статического объекта
-SettingXML* SettingXML::setting=nullptr;
+SettingXML* SettingXML::setting = nullptr;
 
 SettingXML* SettingXML::getObj()
 {
-    if(setting==nullptr)
-        setting=new SettingXML();
+    if(setting == nullptr)
+        setting = new SettingXML();
     return setting;
 }
 

@@ -1,4 +1,4 @@
-#include "ConnectorNode.h"
+#include "connectorNode.h"
 #include "./globalFunc/gl_func.h"
 
 ConnectorNode::ConnectorNode(QString id,

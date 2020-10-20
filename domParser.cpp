@@ -1,14 +1,14 @@
-#include "DomParser.h"
+#include "domParser.h"
 
 
-#include "UnitNode.h"
-#include "ConnectorNode.h"
+#include "unitNode.h"
+#include "connectorNode.h"
 #include "globalFunc/gl_func.h"
 
-#include "WireNode.h"
-#include "SystemNode.h"
-#include "PinNode.h"
-#include "SettingXML.h"
+#include "wireNode.h"
+#include "systemNode.h"
+#include "pinNode.h"
+#include "settingXML.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -434,7 +434,16 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit)
 {
     QList<Node* > pins;
     grabberNodeByType(unitFrom,Node::E_PIN,pins);
-    //for()
+    UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
+    grabberNodeByType(unitNode,Node::E_PIN,pinsTransit);
+
+
+    for(auto i:pins)
+    {
+        PinNode * curNode = static_cast<PinNode* > (i);
+
+        curNode->
+    }
 
 }
 void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
@@ -679,19 +688,19 @@ void DomParser::parseLocation(QString line, Node *parent)
     if(node == nullptr)
     {
         node = new UnitNode(listLine[E_GEO_FULL],
-                                  listLine[E_GEO_SHORT],
-                                  listLine[E_GEO_STEND],
-                                  listLine[E_GEO_INSTALL],
-                                  listLine[E_GEO_TRANSIT],
-                                  listLine[E_GEO_ID],
-                                  listLine[E_GEO_LOCATION],
-                                  listLine[E_GEO_PARENT_SYS],
-                                  listLine[E_GEO_SIZE],
-                                  listLine[E_GEO_POS],
-                                  listLine[E_GEO_CLASS],
-                                  listLine[E_GEO_ALIAS],
-                                  listLine[E_GEO_NAME_COORD],
-                                  nodeParent);
+                            listLine[E_GEO_SHORT],
+                            listLine[E_GEO_STEND],
+                            listLine[E_GEO_INSTALL],
+                            listLine[E_GEO_TRANSIT],
+                            listLine[E_GEO_ID],
+                            listLine[E_GEO_LOCATION],
+                            listLine[E_GEO_PARENT_SYS],
+                            listLine[E_GEO_SIZE],
+                            listLine[E_GEO_POS],
+                            listLine[E_GEO_CLASS],
+                            listLine[E_GEO_ALIAS],
+                            listLine[E_GEO_NAME_COORD],
+                            nodeParent);
     }
 
 //    TGeometry geo;

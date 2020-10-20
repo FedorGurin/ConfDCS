@@ -1,6 +1,6 @@
 #include "formCurciut.h"
 #include "ui_formCurciut.h"
-#include "UnitNode.h"
+#include "unitNode.h"
 #include <QMessageBox>
 FormCurciut::FormCurciut(QWidget *parent) :
     QWidget(parent),

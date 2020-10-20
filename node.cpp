@@ -1,5 +1,5 @@
 
-#include "Node.h"
+#include "node.h"
 
 quint64 Node::countId = 0;
 Node::Node(QString name)

@@ -25,20 +25,20 @@ QT += network \
 # Input
 HEADERS += \
     mainwindow.h \
-    Node.h \
-    DomParser.h \
+    node.h \
+    domParser.h \
     globalFunc/Vector3D_D.h \
-    SettingXML.h \
+    settingXML.h \
     globalFunc/mercator.h \    
-    SystemNode.h \
-    UnitNode.h \
-    ConnectorNode.h \
-    PinNode.h \
-    WireNode.h \
+    systemNode.h \
+    unitNode.h \
+    connectorNode.h \
+    pinNode.h \
+    wireNode.h \
     globalFunc/gl_func.h \
     formCurciut.h \
-    InterfaceNode.h \
-    CoordNode.h
+    interfaceNode.h \
+    coordNode.h
    
     
 
@@ -50,20 +50,20 @@ FORMS +=\
 SOURCES += globalFunc/gl_func.cpp \
     main.cpp \
     mainwindow.cpp \
-    Node.cpp \
-    DomParser.cpp \
+    node.cpp \
+    domParser.cpp \
     globalFunc/Vector3D_D.cpp \
     globalFunc/Matrix3D_D.cpp \   
     globalFunc/mercator.cpp \  
-    SettingXML.cpp \
-    SystemNode.cpp \
-    UnitNode.cpp \
-    ConnectorNode.cpp \
-    PinNode.cpp \
-    WireNode.cpp \
+    settingXML.cpp \
+    systemNode.cpp \
+    unitNode.cpp \
+    connectorNode.cpp \
+    pinNode.cpp \
+    wireNode.cpp \
     formCurciut.cpp \
-    InterfaceNode.cpp \
-    CoordNode.cpp
+    interfaceNode.cpp \
+    coordNode.cpp
 
 
 

@@ -1,4 +1,4 @@
-#include "SystemNode.h"
+#include "systemNode.h"
 
 /*#include "WireNode.h"
 #include "PinNode.h"*/
