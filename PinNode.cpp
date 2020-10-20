@@ -13,6 +13,8 @@ PinNode::PinNode(QString id,
                  QString strTypeI_,
                  QString strCircuit_,
                  QString strCord_,
+                 QString strTypeWirePin_,
+                 QString strIDWire_,
                  Node *parent):Node()
 {
     io = E_UNDEF_IO;
@@ -56,6 +58,14 @@ PinNode::PinNode(QString id,
     if(strTypeI_ !="-")
          strTypeI        = strTypeI_;
 
+    strIDWire.clear();
+    if(strIDWire_ != "-")
+        strIDWire = strIDWire_;
+
+    strTypeWirePin.clear();
+    if(strTypeWirePin_ != "-")
+        strTypeWirePin = strTypeWirePin_;
+
     strCord.clear();
     if(strCord_ != "-")
         strCord = strCord_;
@@ -84,7 +94,7 @@ PinNode::PinNode(QString id,
     addParent(parent);
     for(int i = 0;i < numClone;i++)
     {
-        //if(strLabel_ != "-")
+        if(strLabel_ != "-")
             new WireNode(strLabel_,strTypeWire_,strCord,this);
     }
 }

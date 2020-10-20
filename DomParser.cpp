@@ -655,6 +655,8 @@ void DomParser::parseData(QString line, Node *parent)
                                  listLine[E_SET_TYPE_I],
                                  listLine[E_CURCUIT],
                                  listLine[E_CORD],
+                                 listLine[E_TYPE_WIRE_PIN],
+                                 listLine[E_ID_WIRE],
                                  nodeParent);
     else
         nodeParent = node;
@@ -711,7 +713,7 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
     {
         if(startNode->type() == Node::E_WIRE &&
            startNode->parent->id != wire->parent->id &&
-           wire->idName == startNode->idName)
+           wire->idName == startNode->idName )
         {
             WireNode *w  = static_cast<WireNode* > (wire);
             WireNode *w0 = static_cast<WireNode* > (startNode);
@@ -1121,7 +1123,7 @@ void DomParser::saveAllInfo( Node* rootNode, QTextStream& out)
 {
     QVector<QString> list;
     list.resize(E_CORD +1);
-    out<<tr("Сигнала;Блок;Родительская система;Идентификатор источника;Разъем;Клемма;Размнож;Направление;Бирка провода;Коммутация(питания/инф);Тип интерфейса;Тип разъема(со стороны блока);Тип разъема(со стороны блока);Тип провода;Схема;Интерфейс;Имя жгута;\n");
+    out<<tr("Сигнала;Блок;Идентификатор источника;Разъем;Клемма;Размнож;Направление;Бирка провода;Коммутация(питания/инф);Тип интерфейса;Тип разъема(со стороны блока);Тип разъема(со стороны блока);Тип провода;Тип жилы;Идент. проводов;Схема;Интерфейс;Имя жгута;\n");
     out.flush();
 
     saveToCVS(rootNode,out,&list);
@@ -1183,6 +1185,12 @@ void DomParser::saveToCVS(Node *startNode, QTextStream& out, QVector<QString> *l
         (*list)[E_TYPE_CONNECTOR_BLOCK ] = node->typeConnectorBlock;
         (*list)[E_TYPE_CONNECTOR_WIRE ] = node->typeConnectorWire;
 
+        if((*list)[E_TYPE_CONNECTOR_BLOCK ].isEmpty())
+            (*list)[E_TYPE_CONNECTOR_BLOCK ] = "-";
+
+        if((*list)[E_TYPE_CONNECTOR_WIRE ].isEmpty())
+            (*list)[E_TYPE_CONNECTOR_WIRE ] = "-";
+
     }else if(startNode->type() == Node::E_PIN)
     {
         (*list)[E_CURCUIT ].clear();
@@ -1194,11 +1202,12 @@ void DomParser::saveToCVS(Node *startNode, QTextStream& out, QVector<QString> *l
         (*list)[E_SW]           = node->strSw;
         (*list)[E_TYPE_I ]      = node->strInterface;
         (*list)[E_TYPE_WIRE ]   = node->strTypeWire;
+        (*list)[E_TYPE_WIRE_PIN ]   = node->strTypeWirePin;
+        (*list)[E_ID_WIRE ]   = node->strIDWire;
+
+
         (*list)[E_SET_TYPE_I ]  = node->strTypeI + node->prefTypeI;
         (*list)[E_CORD ]        = node->strCord;
-
-
-
 
         for(auto i:node->strCircuit)
         {
@@ -1208,6 +1217,27 @@ void DomParser::saveToCVS(Node *startNode, QTextStream& out, QVector<QString> *l
                 (*list)[E_CURCUIT ]     += (i);
             }
         }
+
+        if((*list)[E_TYPE_I ].isEmpty())
+            (*list)[E_TYPE_I ] = "-";
+
+        if((*list)[E_TYPE_WIRE ].isEmpty())
+            (*list)[E_TYPE_WIRE ] = "-";
+
+        if((*list)[E_TYPE_WIRE_PIN ].isEmpty())
+            (*list)[E_TYPE_WIRE_PIN ] = "-";
+
+        if((*list)[E_ID_WIRE ].isEmpty())
+            (*list)[E_ID_WIRE ] = "-";
+
+        if((*list)[E_SET_TYPE_I ].isEmpty())
+            (*list)[E_SET_TYPE_I ] = "-";
+
+        if((*list)[E_CORD ].isEmpty())
+            (*list)[E_CORD ] = "-";
+
+        if((*list)[E_CURCUIT ].isEmpty())
+            (*list)[E_CURCUIT ] = "-";
 
         if(node->child.isEmpty() == true)
         {

@@ -42,6 +42,8 @@ public:
             QString strSetI,
             QString strCircuit,
             QString strCord,
+            QString strTypeWirePin_,
+            QString strIDWire_,
             Node*);
     PinNode();
     //! название сигнала
@@ -62,6 +64,10 @@ public:
     QString prefTypeI;
     //! название типа бирки
     QString strTypeWire;
+    //! тип жилы провода
+    QString strTypeWirePin;
+    //! идентификатор провода
+    QString strIDWire;
     //! имя жгута
     QString strCord;
     //! номер схемы
