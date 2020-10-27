@@ -435,15 +435,15 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit)
     QList<Node* > pins;
     grabberNodeByType(unitFrom,Node::E_PIN,pins);
     UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
-    grabberNodeByType(unitNode,Node::E_PIN,pinsTransit);
+//    grabberNodeByType(unitNode,Node::E_PIN,pinsTransit);
 
 
-    for(auto i:pins)
-    {
-        PinNode * curNode = static_cast<PinNode* > (i);
+//    for(auto i:pins)
+//    {
+//        PinNode * curNode = static_cast<PinNode* > (i);
 
-        curNode->
-    }
+//        curNode->
+//    }
 
 }
 void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )

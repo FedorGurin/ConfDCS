@@ -1,6 +1,8 @@
 #include "formCurciut.h"
 #include "ui_formCurciut.h"
 #include "unitNode.h"
+
+#include <QVector>
 #include <QMessageBox>
 FormCurciut::FormCurciut(QWidget *parent) :
     QWidget(parent),
@@ -19,6 +21,79 @@ FormCurciut::FormCurciut(QWidget *parent) :
     connect(ui->pushButtonDataBase, SIGNAL(clicked()),this,SLOT(slotDataBase()));
     connect(ui->pushButtonLoad,     SIGNAL(clicked()),this,SLOT(slotLoadData()));
     connect(ui->pushButtonCut,      SIGNAL(clicked()),this,SLOT(slotCut()));
+    connect(ui->listWidgetSys1,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
+    connect(ui->listWidgetSys2,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
+    connect(ui->listWidgetSysMiddle,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
+
+}
+void FormCurciut::slotItemSelection()
+{
+    //! список файлов с узлами
+    QVector<Node *> findNodes;
+
+    QList<QListWidgetItem*> listSys1      = ui->listWidgetSys1->selectedItems();
+    QList<QListWidgetItem*> listSys2      = ui->listWidgetSys2->selectedItems();
+    QList<QListWidgetItem*> listSysMiddle = ui->listWidgetSysMiddle->selectedItems();
+
+    ui->listWidgetInter->clear();
+
+    if(listSys1.isEmpty() == false)
+    {
+        //! нужно найти все интерфейсы
+        for(auto i:listSys1)
+        {
+            //! поиск по имени
+            Node* node = recFindNodeByName(domParser->rootItemData,i->text());
+            if(node != nullptr)
+                findNodes.append(node);
+        }
+    }
+    if(listSys2.isEmpty() == false)
+    {
+        //! нужно найти все интерфейсы
+        for(auto i:listSys2)
+        {
+            //! поиск по имени
+            Node* node = recFindNodeByName(domParser->rootItemData,i->text());
+            if(node != nullptr)
+                findNodes.append(node);
+        }
+    }
+    if(listSysMiddle.isEmpty() == false)
+    {
+        //! нужно найти все интерфейсы
+        for(auto i:listSysMiddle)
+        {
+            //! поиск по имени
+            Node* node = recFindNodeByName(domParser->rootItemData,i->text());
+            if(node != nullptr)
+                findNodes.append(node);
+        }
+    }
+    QVector<PinNode::TYPE_INTERFACE> vec;
+    for(auto i:findNodes)
+    {
+        if(i->type() == Node::E_UNIT)
+        {
+            UnitNode *unit = static_cast<UnitNode* >(i);
+            for(auto j:unit->interfaces)
+            {
+                if(checkHasInterfaces(vec,j->type_interface) == false)
+                    vec.append(j->type_interface);
+            }
+        }
+    }
+}
+bool FormCurciut::checkHasInterfaces(QVector<PinNode::TYPE_INTERFACE> &vec, PinNode::TYPE_INTERFACE type)
+{
+    for(int i = 0; i < vec.size(); i++)
+    {
+        if(vec[i] == type)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 void FormCurciut::slotCut()
 {

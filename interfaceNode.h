@@ -49,13 +49,15 @@ public:
     //! добавление контакта в интерфейс
     void addPinToInterface(PinNode* );
     QString preStr;
+    //! кол-во слов
     int num;
     //! массив пинов, которые входят в интерфейс
     QList<PinNode*> pins;
     //! название интерфейса
     QString strSetI;
-    //! Описание канала
+    //! описание канала
     TCh ch;
+    //! список параметров
     QVector<TParam> params;
     //! тип интерфейса
     PinNode::TYPE_INTERFACE type_interface; //! Arinc-429, РК, питание 

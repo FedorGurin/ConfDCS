@@ -51,6 +51,12 @@ PinNode::PinNode(QString id,
         type_interface = E_RS_232;
     if(strInterface.contains("rs-422", Qt::CaseInsensitive))
         type_interface = E_RS_422;
+    if(strInterface.contains("arinc 646", Qt::CaseInsensitive))
+        type_interface = E_ARINC_646;
+    if(strInterface.contains("шим", Qt::CaseInsensitive))
+        type_interface = E_PWM;
+    if(strInterface.contains("корпус", Qt::CaseInsensitive))
+        type_interface = E_GROUND_I;
 
     nameSignal      = strSignal_;
     strNumClone     = strNumClone_;

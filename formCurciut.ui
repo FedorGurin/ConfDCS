@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>702</width>
-    <height>556</height>
+    <width>979</width>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,74 +103,60 @@
          <property name="title">
           <string>Настройки</string>
          </property>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>12</x>
-            <y>29</y>
-            <width>192</width>
-            <height>73</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QCheckBox" name="checkBoxLoad">
-             <property name="text">
-              <string>Загрузка исходных данных</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkBoxLoadParsed">
-             <property name="text">
-              <string>Загрузка обработанных данных</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonLoad">
-             <property name="text">
-              <string>Загрузка</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QGroupBox" name="groupBox_5">
-          <property name="geometry">
-           <rect>
-            <x>210</x>
-            <y>20</y>
-            <width>411</width>
-            <height>151</height>
-           </rect>
-          </property>
-          <property name="title">
-           <string>Текущая системы</string>
-          </property>
-          <widget class="QWidget" name="">
-           <property name="geometry">
-            <rect>
-             <x>12</x>
-             <y>29</y>
-             <width>91</width>
-             <height>111</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Интерфейс</string>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QCheckBox" name="checkBoxLoad">
+                <property name="text">
+                 <string>Загрузка исходных данных</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxLoadParsed">
+                <property name="text">
+                 <string>Загрузка обработанных данных</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonLoad">
+                <property name="text">
+                 <string>Загрузка</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_5">
+              <property name="title">
+               <string>Текущая системы</string>
               </property>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item>
+                  <widget class="QLabel" name="label_4">
+                   <property name="text">
+                    <string>Интерфейс</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QListWidget" name="listWidgetInter"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </widget>
             </item>
-            <item>
-             <widget class="QListWidget" name="listWidgetInter"/>
-            </item>
            </layout>
-          </widget>
-         </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>

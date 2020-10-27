@@ -29,7 +29,8 @@ public:
         E_PWM           ,//!  ШИМ
         E_VHF           ,//!  высокочастотный сигнал
         E_ETHERNET      ,//!  Ethernet
-        E_ARINC_646      //!  Arinc-646
+        E_ARINC_646     ,//!  Arinc646
+        E_GROUND_I       //!  Земля
     };
     PinNode(QString id,
             QString strSignal,
