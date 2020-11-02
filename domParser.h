@@ -25,7 +25,7 @@ public:
         E_GEO_TRANSIT,
         E_GEO_ID    ,
         E_GEO_LOCATION,
-        E_GEO_PARENT_SYS,
+        E_GEO_PARENT_SYS, // родительская система
         E_GEO_SIZE  ,
         E_GEO_POS,
         E_GEO_CLASS, //! класс объекта
@@ -106,6 +106,7 @@ public:
     //! сохранение в файл соединений
     void saveCSVCon(Node *startNode, QTextStream& out);
     void recSaveCSVCoords(Node *startNode, QTextStream& out);
+    void saveCoordToFile(Node *unitNode);
 
     //! список деревьев для каждого файла
     QList<Node* > listRootItemNode;
@@ -121,6 +122,7 @@ public:
     void saveForGraphviz(QString namePath, QString nameFile, Node* rootNode, std::function<void(DomParser&,Node *, QTextStream&)> funcSave);
     void saveCSVConnection(Node* rootNode, QTextStream&);
     void saveCSVCoords(Node* rootNode, QTextStream&);
+
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
     //! сохранение данных в один файл для в внешнюю БД

@@ -210,6 +210,11 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
     saveDataToCVS("parsed/export/coords",rootItemData, f_saveCoords);
 }
+void DomParser::saveCoordToFile(Node *unitNode)
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
+    saveDataToCVS("parsed/export/coords" + unitNode->idName,unitNode, f_saveCoords);
+}
 void DomParser::parseInCon(UnitNode *unit)
 {
     QFile file(qApp->applicationDirPath() +  "/csv/curcuit_inside/" + unit->nameInternalFile);
@@ -397,22 +402,24 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
             CoordNode * coord = static_cast <CoordNode *> (i);
             for(auto j: coord->wires)
             {
-                if(j->idNameCoord.isEmpty() == true)
-                    continue;
+
 
                 PinNode *pin = nullptr;
-                if(j->parent->type() != Node::E_PIN)
-                    continue;
+                //if(j->parent->type() != Node::E_PIN)
+                //    continue;
 
                 pin = static_cast<PinNode* > (j->parent);
-                if(pin->io == PinNode::E_OUT)
-                {
+                if(pin->strCord.isEmpty() == true)
+                    continue;
+
+                //if(pin->io == PinNode::E_OUT)
+                //{
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
                     out<<c->typeConnectorWire<<";";
                     out<<c->idName <<";";
                     out<<pin->idName << ";";
                     out<<j->idName<<";";
-                    out<<j->idNameCoord<<";";
+                    out<<pin->strCord<<";";
 
                     PinNode *toPin = static_cast<PinNode* > (j->toPin);
                     if(toPin == nullptr)
@@ -431,7 +438,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     out<<j->typeWire<<";";
                     out<<"\n";
 
-                }
+                //}
             }
         }
     }
@@ -492,11 +499,12 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
-void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces)
+void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
     QList<Node* > pins;
     QList<Node* > pinSelected;
     QList<Node* > pinsUnitTransit;
+    UnitNode *unitFrom = static_cast<UnitNode * > (unitFrom_);
 
     grabberNodeByType(unitFrom,Node::E_PIN,pins);
     UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
@@ -533,8 +541,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVect
                  WireNode *wireTransit = nullptr;
                  if(wires.isEmpty())
                      wireTransit = new WireNode (pinTransit->strLabel,
-                                          pinTransit->strTypeWire,
-                                          pinTransit->strCord,pinTransit);
+                                          pinTransit->strTypeWire,pinTransit);
                  else
                      wireTransit = static_cast<WireNode *> (wires.first());
                  UnitNode *tempUnit = static_cast<UnitNode *> (findNodeByType(pinTransit,Node::E_UNIT,EDirection::E_UP));
@@ -556,6 +563,8 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVect
                      else
                          pinTransit->io = PinNode::E_IN;
 
+                     pinTransit->strInterface = pinSel->strInterface;
+                     pinTransit->type_interface = pinSel->type_interface;
 
                      wireTransit->fullConnected = true;
                      wirePinSel->fullConnected = true;
@@ -564,7 +573,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVect
                      WireNode *sys2 = nullptr;
 
                      if(toPin->child.isEmpty())
-                         sys2 = new WireNode(toPin->strLabel,toPin->strTypeI,toPin->strCord,toPin);
+                         sys2 = new WireNode(toPin->strLabel,toPin->strTypeI,toPin);
                      else
                          sys2 = static_cast<WireNode *> (toPin->child.first());
                      sys2->toPin = pinFree;
@@ -572,6 +581,10 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVect
                          pinFree->io = PinNode::E_OUT;
                      else
                          pinFree->io = PinNode::E_IN;
+
+                     pinFree->strInterface = toPin->strInterface;
+                     pinFree->type_interface = toPin->type_interface;
+
                      sys2->fullConnected = true;
 
                      WireNode *freeWire = static_cast<WireNode *> (pinFree->child.first());
@@ -581,6 +594,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVect
                      correctWire(pinTransit);
                      correctWire(toPin);
                      correctWire(pinSel);
+
                      break;
                  }
 
@@ -618,6 +632,9 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVect
 
 //        curNode->
 //    }
+
+     unitFrom->coords.clear();
+     correctCoords(unitFrom);
 
 }
 void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
@@ -715,10 +732,11 @@ void DomParser::mergeNodes(Node* root,Node* from)
                                 pin->strCircuit.append(j);
                         }
                     }
-                    if(pinFrom->strCord.isEmpty() == true)
+                    if(pinFrom->strCord.isEmpty() == false)
                     {
                         pin->strCord = pinFrom->strCord;
-                    }
+                    }else
+                        pinFrom->strCord = pin->strCord;
                 }
                 if(i->type() == Node::E_UNIT && from->type() == Node::E_UNIT)
                 {
@@ -912,14 +930,14 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                     {
                         w0->fullConnected = true;
                         w->fullConnected  = true;
-                        if(w->idNameCoord != w0->idNameCoord)
+                        if(pin->strCord != pin0->strCord)
                         {
-                            if(w->idNameCoord.isEmpty() && w0->idNameCoord.isEmpty()==false)
+                            if(pin->strCord.isEmpty() && pin0->strCord.isEmpty()==false)
                             {
-                                w->idNameCoord = w0->idNameCoord;
-                            }else if(w0->idNameCoord.isEmpty() == true && w->idNameCoord.isEmpty() == false)
+                                pin->strCord = pin0->strCord;
+                            }else if(pin0->strCord.isEmpty() == true && pin->strCord.isEmpty() == false)
                             {
-                                w0->idNameCoord = w->idNameCoord;
+                                pin0->strCord = pin->strCord;
                             }
                         }
                         if(w->typeWire != w0->typeWire)
@@ -2033,7 +2051,7 @@ void DomParser::correctWire(Node *startNode)
 //                    wire->idName = pin->parent->parent->idName + "-" +
 //                               pin->parent->idName +"-" + pin->idName;
 
-                    curPin->strTypeI = pin->strTypeI;
+                    //curPin->strTypeI = pin->strTypeI;
 
                 }
               }
@@ -2091,7 +2109,10 @@ void DomParser::correctCoords(Node* startNode)
 {
     if(startNode->type() == Node::E_UNIT)
     {
+
         UnitNode *unit = static_cast<UnitNode* > (startNode);
+        if(unit->idParentSys == "ИМК")
+            return;
         unit->scanCoords(unit);
        // unit->calcInterface();
         return;
@@ -2118,4 +2139,5 @@ void DomParser::correctInterface(Node *startNode)
 }
 DomParser::~DomParser() {
         // TODO Auto-generated destructor stub
+    procDot.terminate();
 }

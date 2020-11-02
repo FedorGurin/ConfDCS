@@ -45,6 +45,7 @@ UnitNode::UnitNode (QString fName_,
     alias.clear();
     nameCoord.clear();
     rootInternal = nullptr;
+    idParentSys  = p_sys_;
 
     if(nameCoord_ != "-")
         nameCoord = nameCoord_;
@@ -117,11 +118,11 @@ PinNode* UnitNode::findSameConnection(PinNode *pin)
 
         WireNode *wire = nullptr;
         if(curPin->child.isEmpty() == true)
-            wire = new WireNode(curPin->strLabel,curPin->strTypeI,curPin->strCord,curPin);
+            wire = new WireNode(curPin->strLabel,curPin->strTypeI,curPin);
         else
             wire = static_cast<WireNode* > (curPin->child.first());
 
-        if(wire->fullConnected == false)
+        if(wire->fullConnected == false && curPin->type_interface != PinNode::E_TEST)
             return curPin;
     }
     return nullptr;
@@ -204,9 +205,10 @@ void UnitNode::scanCoords(Node* startNode)
     if(startNode->type() == E_WIRE)
     {
         WireNode *wire = static_cast<WireNode* > (startNode);
+        PinNode *pin = static_cast<PinNode *> (wire->parent);
         for(auto j :coords)
         {
-            if(j->strSetCoord == wire->idNameCoord)
+            if(j->strSetCoord == pin->strCord)
             {
                 j->addWireToCoord(wire);
                 find = true;
@@ -215,14 +217,15 @@ void UnitNode::scanCoords(Node* startNode)
         }
         if(find == false)
         {
-            CoordNode *c = new CoordNode(wire->idNameCoord);
+            CoordNode *c = new CoordNode(pin->strCord);
             coords.push_back(c);
             c->addWireToCoord(wire);
         }
-        return;
+
     }
     for(auto i:startNode->child)
     {
+
         scanCoords(i);
     }
 }

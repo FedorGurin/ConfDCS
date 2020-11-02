@@ -9,11 +9,11 @@ public:
 
     WireNode(QString id,
              QString type,
-             QString idName_,
+            // QString idName_,
              Node*);
     WireNode();
     //! уникальное имя жгута
-    QString idNameCoord;
+    //QString idNameCoord;
     //! имя типа провода
     QString typeWire;
     //! длинна провода, м

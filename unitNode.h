@@ -51,6 +51,7 @@ public:
     QList<CoordNode *> coords;
     //! идентификатор блока расположения
     QString idUnitLocation;
+    QString idParentSys;
 
     //! дерево описывающее детализацию данного блока
     Node *rootInternal;

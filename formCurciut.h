@@ -30,6 +30,8 @@ public slots:
     void slotPushGen();
     void slotDataBase();
     void slotLoadData();
+    //! генерация жгутов
+    void slotGenRoute();
     //! функция врезки данных
     void slotCut();
     void slotItemSelection();

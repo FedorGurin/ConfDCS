@@ -21,11 +21,21 @@ FormCurciut::FormCurciut(QWidget *parent) :
     connect(ui->pushButtonDataBase, SIGNAL(clicked()),this,SLOT(slotDataBase()));
     connect(ui->pushButtonLoad,     SIGNAL(clicked()),this,SLOT(slotLoadData()));
     connect(ui->pushButtonCut,      SIGNAL(clicked()),this,SLOT(slotCut()));
+    connect(ui->pushButtonRoute,      SIGNAL(clicked()),this,SLOT(slotGenRoute()));
     connect(ui->listWidgetSys1,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetSys2,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetSysMiddle,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetInter,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelectionInterfaces()));
 
+}
+void FormCurciut::slotGenRoute()
+{
+    QList<QListWidgetItem*> listSys1      = ui->listWidgetSys1->selectedItems();
+    if(listSys1.isEmpty() == false)
+    {
+        for(auto i: listSys1)
+            domParser->saveCoordToFile(recFindNodeByName(domParser->rootItemData,i->text()));
+    }
 }
 void FormCurciut::slotItemSelectionInterfaces()
 {
@@ -69,17 +79,17 @@ void FormCurciut::slotItemSelection()
                 findNodes.append(node);
         }
     }
-    if(listSysMiddle.isEmpty() == false)
-    {
-        //! нужно найти все интерфейсы
-        for(auto i:listSysMiddle)
-        {
-            //! поиск по имени
-            Node* node = recFindNodeByName(domParser->rootItemData,i->text());
-            if(node != nullptr)
-                findNodes.append(node);
-        }
-    }
+//    if(listSysMiddle.isEmpty() == false)
+//    {
+//        //! нужно найти все интерфейсы
+//        for(auto i:listSysMiddle)
+//        {
+//            //! поиск по имени
+//            Node* node = recFindNodeByName(domParser->rootItemData,i->text());
+//            if(node != nullptr)
+//                findNodes.append(node);
+//        }
+//    }
     actListInterfaces.clear();
     //curInterfaces.clear();
     QVector<PinNode::TYPE_INTERFACE> vec;
@@ -118,9 +128,12 @@ void FormCurciut::slotCut()
 {
     QList<Node *> nodes;
 
-    QList<QListWidgetItem*> items = ui->listWidgetSysMiddle->selectedItems();
 
-    for(auto i:items)
+    QList<QListWidgetItem*> listSys1      = ui->listWidgetSys1->selectedItems();
+    QList<QListWidgetItem*> listSys2      = ui->listWidgetSys2->selectedItems();
+    QList<QListWidgetItem*> listSysMiddle = ui->listWidgetSysMiddle->selectedItems();
+
+    for(auto i:listSysMiddle)
     {
 
         Node *node = recFindNodeByName(domParser->rootItemData,i->text());
@@ -128,21 +141,21 @@ void FormCurciut::slotCut()
             continue;
         nodes.push_back(node);
     }
-    if(ui->listWidgetSys1->currentItem() == nullptr && ui->listWidgetSys2->currentItem() == nullptr)
+    if((listSys1.isEmpty() == true) && (listSys2.isEmpty() == true))
     {
         QMessageBox msgBox;
         msgBox.setText("Not selected systems");
         msgBox.exec();
-    }else if(ui->listWidgetSys1->currentItem() == nullptr || (ui->listWidgetSys2->currentItem() == nullptr))
+    }else if((listSys1.isEmpty() == true) || (listSys2.isEmpty() == true))
     {
         QString nameItem;
 
-        if(ui->listWidgetSys1->currentItem() != nullptr)
-            nameItem = ui->listWidgetSys1->currentItem()->text();
+        if(listSys1.isEmpty() == false)
+            nameItem = listSys1.first()->text();
         else
-            nameItem = ui->listWidgetSys2->currentItem()->text();
+            nameItem = listSys2.first()->text();
 
-        Node *selectNode = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
+        Node *selectNode = recFindNodeByName(domParser->rootItemData,nameItem);
         domParser->pasteUnitThrough(selectNode,nodes,curInterfaces);
     }
     else
