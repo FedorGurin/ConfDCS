@@ -24,7 +24,17 @@ FormCurciut::FormCurciut(QWidget *parent) :
     connect(ui->listWidgetSys1,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetSys2,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetSysMiddle,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
+    connect(ui->listWidgetInter,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelectionInterfaces()));
 
+}
+void FormCurciut::slotItemSelectionInterfaces()
+{
+    curInterfaces.clear();
+    QList<QListWidgetItem*> listItems      = ui->listWidgetInter->selectedItems();
+    for(auto i : listItems)
+    {
+        curInterfaces.append((PinNode::TYPE_INTERFACE)(i->data(50).toInt()));
+    }
 }
 void FormCurciut::slotItemSelection()
 {
@@ -70,6 +80,8 @@ void FormCurciut::slotItemSelection()
                 findNodes.append(node);
         }
     }
+    actListInterfaces.clear();
+    //curInterfaces.clear();
     QVector<PinNode::TYPE_INTERFACE> vec;
     for(auto i:findNodes)
     {
@@ -79,10 +91,17 @@ void FormCurciut::slotItemSelection()
             for(auto j:unit->interfaces)
             {
                 if(checkHasInterfaces(vec,j->type_interface) == false)
+                {
                     vec.append(j->type_interface);
+                    QListWidgetItem *act = new QListWidgetItem(j->strTypeInerface);
+                    actListInterfaces.append(act);
+                    act->setData(50,j->type_interface);
+                }
             }
         }
     }
+    for(auto i : actListInterfaces)
+        ui->listWidgetInter->addItem(i);
 }
 bool FormCurciut::checkHasInterfaces(QVector<PinNode::TYPE_INTERFACE> &vec, PinNode::TYPE_INTERFACE type)
 {
@@ -124,7 +143,7 @@ void FormCurciut::slotCut()
             nameItem = ui->listWidgetSys2->currentItem()->text();
 
         Node *selectNode = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
-        domParser->pasteUnitThrough(selectNode,nodes);
+        domParser->pasteUnitThrough(selectNode,nodes,curInterfaces);
     }
     else
     {

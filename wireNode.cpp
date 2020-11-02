@@ -9,6 +9,7 @@ WireNode::WireNode(QString id,
 {
 //    displayName = element.attribute("displayName","None");
     idName      = id;
+    length = 0;
 
     idNameCoord.clear();
     if(idNameCoord_.isEmpty() == false)
@@ -36,6 +37,7 @@ WireNode::WireNode():Node()
 {
     toPin       = nullptr;
     fullConnected = false;
+    length = 0;
 
 }
 

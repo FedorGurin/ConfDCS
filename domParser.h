@@ -5,8 +5,12 @@
 #include <QDomDocument>
 #include <QObject>
 #include <QProcess>
+#include <QFile>
+#include <QTextStream>
 #include <functional>
 #include "Node.h"
+#include "pinNode.h"
+#include "unitNode.h"
 
 class DomParser : public QObject {
 
@@ -88,7 +92,7 @@ public:
 
     void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo );
     //! вставить блок через список блоков
-    void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit);
+    void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
     //! поиск узла по типу
     Node* findNodeByType(Node* node, Node::Type t, EDirection dir);
@@ -177,11 +181,16 @@ private:
     //! коррекция имен жгутов
     void correctCoords(Node* startNode);
     void calcNumInterface(Node *startNode);
+    //! засгрузить описание внтуренних подлкючений
+    void loadInternalConnection(void);
+    void parseInCon(UnitNode *);
     //! найти блоки которые ссылаются на указанный, или данный блок на них
     void findNeighborUnit(Node* unitNode,QList<Node*> &listNode);
     //! найти список проводов выходящих в другие контейнеры(например все првода выходящие из кабины)
     void saveConnectionLocations(Node *root,QString loacation1);
     QProcess procDot;
+    QFile fileLog;
+    QTextStream outLog;
 //   ! Соединение двух деревьев(дерево с данными и с вариантами)
 //    void joiningTrees(GenericNode*,VariantNode*);// Стыковка двух деревьев
 

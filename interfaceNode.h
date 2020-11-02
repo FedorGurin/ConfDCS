@@ -44,7 +44,7 @@ class InterfaceNode//:public Node
 {
 public:
 
-    InterfaceNode(QString strSetI_,PinNode::TYPE_INTERFACE type);
+    InterfaceNode(QString strSetI_,PinNode::TYPE_INTERFACE type,QString strInterface);
     InterfaceNode(QJsonObject &json);
     //! добавление контакта в интерфейс
     void addPinToInterface(PinNode* );
@@ -55,6 +55,9 @@ public:
     QList<PinNode*> pins;
     //! название интерфейса
     QString strSetI;
+    //! название типа интферфейса
+    QString strTypeInerface;
+
     //! описание канала
     TCh ch;
     //! список параметров

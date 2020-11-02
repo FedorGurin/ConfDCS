@@ -24,7 +24,7 @@ PinNode::PinNode(QString id,
     if(strIo_.toLower() == "выдача")
         io = E_OUT;
 
-    if(strIo_.toLower() == "прием/выдача" || strIo_.toLower() == "выдача/прием")
+    if(strIo_.toLower() == "прием/выдача" || strIo_.toLower() == "выдача/прием" || strIo_.toLower() == "-")
         io = E_BI;
 
     if(strIo_.toLower() == "заземление" || strIo_.toLower() == "земля")
@@ -33,6 +33,7 @@ PinNode::PinNode(QString id,
     if(strIo_.toLower() == "экран")
         io = E_SHIELD;
     strIO = strIo_.toLower();
+    //! интерфейс не опредлен
     type_interface = E_UNDEF_INTER;
 
     strInterface    = strInterface_;
@@ -109,7 +110,7 @@ PinNode::PinNode(QString id,
 PinNode::PinNode():Node()
 {
     io = E_UNDEF_IO;
-     prefTypeI ="";
+    prefTypeI ="";
 }
 Node *PinNode::clone()
 {
