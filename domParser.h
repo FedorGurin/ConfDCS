@@ -116,7 +116,7 @@ public:
 
     //! вернуть указатель на корень для дерева с описанием данных
     //Node* rootNodeData(){return rootItemData;}
-
+    void mergeString(QString &value1,QString &value2);
     void recFindWire(Node *startNode, Node *rootNode);
     void recFindWireWithout(Node *without, Node *startNode);
     void saveForGraphviz(QString namePath, QString nameFile, Node* rootNode, std::function<void(DomParser&,Node *, QTextStream&)> funcSave);
@@ -162,6 +162,8 @@ private:
     void mergeNodes(Node *root,Node* from);
     void grabberNodeByType(Node *root,Node::Type t,QList<Node* > &list);
     bool checkAvalibleLinkLeft(Node *wire, Node *toPin);
+    bool hasConnectThrough(PinNode* pin,QList<Node*> unitTransit);
+    bool hasFullConnected(PinNode *pin);
     //! заполнение информацией о расположении блоков
 
     void recFillGeometry(Node* node, TGeometry geo);

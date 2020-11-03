@@ -32,7 +32,8 @@ public:
         E_ETHERNET      ,//!  Ethernet
         E_ARINC_646     ,//!  Arinc646
         E_GROUND_I      ,//!  Земля
-        E_SHEILD
+        E_SHEILD        ,
+        E_PPS            //! метка единного времени
     };
     PinNode(QString id,
             QString strSignal,

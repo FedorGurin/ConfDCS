@@ -436,6 +436,8 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                         out<<c->typeConnectorWire<<";";
                     }
                     out<<j->typeWire<<";";
+                    out<<pin->strIDWire << ";";
+                    out<<pin->strTypeWirePin <<";";
                     out<<"\n";
 
                 //}
@@ -493,12 +495,45 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
  void DomParser::saveCSVCoords(Node* rootNode, QTextStream& out)
  {
         out.setCodec("UTF-8");
-        out<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<tr("Клемма")<<";"<<tr("Бирка")<<";"
+        out<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
            <<tr("Жгут") <<";"
-           <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Тип провод")<<"\n";
+           <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Тип провод")<<";"
+           <<tr("Идент. провода")<<";" <<tr("Тип жилы")<<"\n";
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
+bool DomParser::hasConnectThrough(PinNode* pin,QList<Node*> unitTransit)
+{
+    if(pin->child.isEmpty())
+        return false;
+    WireNode *wireNode = static_cast<WireNode * > ( pin->child.first());
+    if(wireNode->toPin != nullptr)
+    {
+        Node * fNode = findNodeByType(wireNode->toPin,Node::E_UNIT,EDirection::E_UP);
+        if(fNode != nullptr)
+        {
+            //UnitNode *unitFNode = static_cast<UnitNode* > (fNode);
+
+            for(auto k:unitTransit)
+            {
+                if(k == fNode)
+                    return true;
+            }
+
+        }
+    }
+    return false;
+}
+bool DomParser::hasFullConnected(PinNode *pin)
+{
+    Node *node = findNodeByType(pin,Node::E_WIRE,EDirection::E_DOWN);
+    if(node != nullptr)
+    {
+        WireNode *wire = static_cast<WireNode *>(node);
+        return wire->fullConnected;
+    }
+    return false;
+}
 void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
     QList<Node* > pins;
@@ -507,7 +542,8 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
     UnitNode *unitFrom = static_cast<UnitNode * > (unitFrom_);
 
     grabberNodeByType(unitFrom,Node::E_PIN,pins);
-    UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
+
+    //UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
     for(auto i : pins)
     {
         PinNode *pin = static_cast<PinNode *> (i);
@@ -525,10 +561,15 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
     {
          grabberNodeByType(i,Node::E_PIN,pinsUnitTransit);
     }
-
+    //! контакты выбранной системы
     for(auto i:pinSelected)
     {
+        //! текущий pin
         PinNode *pinSel = static_cast<PinNode *> (i);
+        //! проверка, что текущий pin уже пропущен через транзитную систему
+        if(hasConnectThrough(pinSel,unitTransit) == true || hasFullConnected(pinSel) == false)
+            continue;
+        //! контакты транзитной системы
         for(auto j:pinsUnitTransit)
         {
             PinNode *pinTransit = static_cast <PinNode *> (j);
@@ -550,7 +591,8 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
                  {
                      //! сохраним адресат
 
-
+                     if(pinSel->child.isEmpty() == true)
+                         continue;
                      wireTransit->toPin = pinSel;
 
                      WireNode *wirePinSel = static_cast<WireNode *> (pinSel->child.first());
@@ -906,7 +948,19 @@ void DomParser::parseLocation(QString line, Node *parent)
 }
 
 
-
+void DomParser::mergeString(QString &value1,QString &value2)
+{
+    if(value1 != value2)
+    {
+        if(value1.isEmpty() && value2.isEmpty()==false)
+        {
+            value1 = value2;
+        }else if(value1.isEmpty() == true && value2.isEmpty() == false)
+        {
+            value2 = value1;
+        }
+    }
+}
 void DomParser::recFindWireWithout(Node *wire, Node *startNode)
 {
     if(startNode->parent!= nullptr)
@@ -930,26 +984,33 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                     {
                         w0->fullConnected = true;
                         w->fullConnected  = true;
-                        if(pin->strCord != pin0->strCord)
-                        {
-                            if(pin->strCord.isEmpty() && pin0->strCord.isEmpty()==false)
-                            {
-                                pin->strCord = pin0->strCord;
-                            }else if(pin0->strCord.isEmpty() == true && pin->strCord.isEmpty() == false)
-                            {
-                                pin0->strCord = pin->strCord;
-                            }
-                        }
-                        if(w->typeWire != w0->typeWire)
-                        {
-                            if(w->typeWire.isEmpty() && w0->typeWire.isEmpty()==false)
-                            {
-                                w->typeWire = w0->typeWire;
-                            }else if(w0->typeWire.isEmpty() == true && w->typeWire.isEmpty() == false)
-                            {
-                                w0->typeWire = w->typeWire;
-                            }
-                        }
+
+                        mergeString(pin->strCord,pin0->strCord);
+                        mergeString(w->typeWire,w0->typeWire);
+                        mergeString(pin->strIDWire,pin0->strIDWire);
+                        mergeString(pin->strTypeWirePin,pin0->strTypeWirePin);
+
+
+//                        if(pin->strCord != pin0->strCord)
+//                        {
+//                            if(pin->strCord.isEmpty() && pin0->strCord.isEmpty()==false)
+//                            {
+//                                pin->strCord = pin0->strCord;
+//                            }else if(pin0->strCord.isEmpty() == true && pin->strCord.isEmpty() == false)
+//                            {
+//                                pin0->strCord = pin->strCord;
+//                            }
+//                        }
+//                        if(w->typeWire != w0->typeWire)
+//                        {
+//                            if(w->typeWire.isEmpty() && w0->typeWire.isEmpty()==false)
+//                            {
+//                                w->typeWire = w0->typeWire;
+//                            }else if(w0->typeWire.isEmpty() == true && w->typeWire.isEmpty() == false)
+//                            {
+//                                w0->typeWire = w->typeWire;
+//                            }
+//                        }
                     }
                 }
             }

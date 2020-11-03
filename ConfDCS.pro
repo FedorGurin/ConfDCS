@@ -65,6 +65,9 @@ SOURCES += globalFunc/gl_func.cpp \
     interfaceNode.cpp \
     coordNode.cpp
 
+DISTFILES += \
+    README.md
+
 
 
 

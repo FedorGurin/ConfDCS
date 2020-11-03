@@ -46,6 +46,8 @@ PinNode::PinNode(QString id,
         type_interface = E_RK;
     if(strInterface.contains("аналог", Qt::CaseInsensitive))
         type_interface = E_ANALOG;
+    if(strInterface.contains("pps", Qt::CaseInsensitive))
+        type_interface = E_PPS;
     if(strInterface.contains("звук", Qt::CaseInsensitive))
         type_interface = E_SOUND;
     if(strInterface.contains("rs-232", Qt::CaseInsensitive))
@@ -145,6 +147,8 @@ Node *PinNode::clone()
    rootNode->strCircuit   = this-> strCircuit ;
    rootNode->prefTypeI    = this-> prefTypeI;
    rootNode->strCord      = this->strCord;
+   rootNode->strIDWire    = this->strIDWire;
+   rootNode->strTypeWirePin = this->strTypeWirePin;
     for(auto i:child)
     {
         Node* new_node = i->clone();
