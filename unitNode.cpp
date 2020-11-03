@@ -4,9 +4,10 @@
 
 UnitNode::UnitNode(QString value,Node *parent):Node()
 {
-    parentUnit  = 0;
+    rootInternal  = 0;
     idName      = value;
     pathName    = idName;
+    rootInternal = nullptr;
     isStend     = false;
     isTransit   = false;
     alias.clear();
@@ -37,9 +38,14 @@ UnitNode::UnitNode (QString fName_,
     isStend = (stend_.toLower() == "да");
     isTransit = (trans_.toLower() == "да");
 
-    parentUnit = 0;
+    nameInternalFile.clear();
+    if(class_ != "-")
+        nameInternalFile = class_;
+    rootInternal = 0;
     alias.clear();
     nameCoord.clear();
+    rootInternal = nullptr;
+    idParentSys  = p_sys_;
 
     if(nameCoord_ != "-")
         nameCoord = nameCoord_;
@@ -54,6 +60,7 @@ UnitNode::UnitNode():Node()
 {
     idUnitLocation.clear();
     isStend = false;
+    rootInternal = nullptr;
 }
 int UnitNode::findPrevInterface(PinNode *n,InterfaceNode *ifNode)
 {
@@ -87,6 +94,60 @@ void UnitNode::calcInterface()
         }
     }
 }
+bool UnitNode::recCheckConnectedPin(QPair<PinNode *, PinNode *> p, PinNode *pin)
+{
+
+//    if(pin == pin1)
+//        recCheckConnectedPin()
+
+    return true;
+
+}
+PinNode* UnitNode::findSameConnection(PinNode *pin)
+{
+    PinNode *curPin = pin;
+    for(auto i : pins_internal)
+    {
+        PinNode *pin1 = i.first;
+        PinNode *pin2 = i.second;
+
+        if(curPin == pin1)
+            curPin = pin2;
+        else if(curPin == pin2)
+            curPin = pin1;
+
+        WireNode *wire = nullptr;
+        if(curPin->child.isEmpty() == true)
+            wire = new WireNode(curPin->strLabel,curPin->strTypeI,curPin);
+        else
+            wire = static_cast<WireNode* > (curPin->child.first());
+
+        if(wire->fullConnected == false && curPin->type_interface != PinNode::E_TEST)
+            return curPin;
+    }
+    return nullptr;
+}
+bool UnitNode::checkConnectedPins(PinNode * pin)
+{
+    PinNode *curPin = pin;
+    for(auto i : pins_internal)
+    {
+        PinNode *pin1 = i.first;
+        PinNode *pin2 = i.second;
+
+        if(curPin == pin1)
+            curPin = pin2;
+        else if(curPin == pin2)
+            curPin = pin1;
+
+        if(curPin->child.isEmpty())
+            continue;
+        WireNode* wire = static_cast<WireNode* > (curPin->child.first());
+        if(wire->fullConnected == true)
+            return true;
+    }
+    return false;
+}
 Node *UnitNode::clone()
 {
     UnitNode *rootNode = new UnitNode;
@@ -99,6 +160,8 @@ Node *UnitNode::clone()
     rootNode->isTransit     = this->isTransit;
     rootNode->alias         = this->alias;
     rootNode->nameCoord     = this->nameCoord;
+    rootNode->nameInternalFile = this->nameInternalFile;
+    rootNode->rootInternal     = this->rootInternal;
 
 
     for(auto i:child)
@@ -125,7 +188,7 @@ void UnitNode::scanInterface(Node* startNode)
         }
         if(find == false)
         {
-            InterfaceNode *intf = new InterfaceNode(pin->strTypeI,pin->type_interface);
+            InterfaceNode *intf = new InterfaceNode(pin->strTypeI,pin->type_interface,pin->strInterface);
             interfaces.push_back(intf);
             intf->addPinToInterface(pin);
         }
@@ -142,9 +205,10 @@ void UnitNode::scanCoords(Node* startNode)
     if(startNode->type() == E_WIRE)
     {
         WireNode *wire = static_cast<WireNode* > (startNode);
+        PinNode *pin = static_cast<PinNode *> (wire->parent);
         for(auto j :coords)
         {
-            if(j->strSetCoord == wire->idNameCoord)
+            if(j->strSetCoord == pin->strCord)
             {
                 j->addWireToCoord(wire);
                 find = true;
@@ -153,14 +217,15 @@ void UnitNode::scanCoords(Node* startNode)
         }
         if(find == false)
         {
-            CoordNode *c = new CoordNode(wire->idNameCoord);
+            CoordNode *c = new CoordNode(pin->strCord);
             coords.push_back(c);
             c->addWireToCoord(wire);
         }
-        return;
+
     }
     for(auto i:startNode->child)
     {
+
         scanCoords(i);
     }
 }

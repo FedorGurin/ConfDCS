@@ -2,6 +2,7 @@
 #define FORMCURCIUT_H
 
 #include <QWidget>
+#include <QListWidgetItem>
 #include "DomParser.h"
 #include "pinNode.h"
 namespace Ui {
@@ -21,13 +22,20 @@ public:
      DomParser *domParser;
 private:
     Ui::FormCurciut *ui;
+    //! список выбраннхы интерфейсов
+    QVector<QListWidgetItem *> actListInterfaces;
+    QVector<PinNode::TYPE_INTERFACE> curInterfaces;
 public slots:
     void slotFormCurc(QString string);
     void slotPushGen();
     void slotDataBase();
     void slotLoadData();
+    //! генерация жгутов
+    void slotGenRoute();
+    //! функция врезки данных
     void slotCut();
     void slotItemSelection();
+    void slotItemSelectionInterfaces();
 };
 
 #endif // FORMCURCIUT_H

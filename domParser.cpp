@@ -190,6 +190,8 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     correctInterface(rootItemData);
     correctWire     (rootItemData);
     correctCoords(rootItemData);
+    //! загрузить внутрение соединения
+    loadInternalConnection();
     //! объединение интерфейсов в зависимости от подключения
     joingInterface(rootItemData);
     fillGeometryUnit(rootItemData);
@@ -207,6 +209,71 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
 
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
     saveDataToCVS("parsed/export/coords",rootItemData, f_saveCoords);
+}
+void DomParser::saveCoordToFile(Node *unitNode)
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
+    saveDataToCVS("parsed/export/coords" + unitNode->idName,unitNode, f_saveCoords);
+}
+void DomParser::parseInCon(UnitNode *unit)
+{
+    QFile file(qApp->applicationDirPath() +  "/csv/curcuit_inside/" + unit->nameInternalFile);
+    bool fileOpen = file.open(QIODevice::ReadOnly|QIODevice::Text);
+    if(fileOpen == true)
+    {
+       QTextStream in(&file);
+       in.setCodec("UTF-8");
+
+       QString line = in.readLine();
+       while(line.isEmpty() == false)
+       {
+           QStringList listLine = line.split(";", QString::SkipEmptyParts);
+
+           if(listLine.empty() == true)
+               return;
+           if(listLine.contains("разъем",  Qt::CaseInsensitive))
+           {
+                line = in.readLine();
+               continue;
+           }
+
+           PinNode * fPinNode1 = nullptr;
+           Node * fConNode1 = findNodeByIdName(listLine[0],unit,Node::E_CONNECTOR);
+           if(fConNode1 != nullptr)
+           {
+               fPinNode1 = static_cast<PinNode *> (findNodeByIdName(listLine[1],fConNode1,Node::E_PIN));
+           }
+
+           PinNode * fPinNode2 = nullptr;
+           Node * fConNode2 = findNodeByIdName(listLine[2],unit,Node::E_CONNECTOR);
+           if(fConNode2 != nullptr)
+           {
+               fPinNode2 = static_cast<PinNode *> (findNodeByIdName(listLine[3],fConNode2,Node::E_PIN));
+           }
+           if(fPinNode1 != nullptr && fPinNode2 != nullptr)
+           {
+               unit->pins_internal.append(QPair(fPinNode1,fPinNode2));
+           }
+           line = in.readLine();
+       };
+       file.close();
+
+    }
+}
+void DomParser::loadInternalConnection(void)
+{
+    QList<Node *> units;
+    grabberNodeByType(rootItemData,Node::E_UNIT,units);
+
+    for(auto i:units)
+    {
+        UnitNode *unit = static_cast<UnitNode *> (i);
+        if(unit->nameInternalFile.isEmpty() == false)
+        {
+            parseInCon(unit);
+
+        }
+    }
 }
 void DomParser::recSaveLocationBetween(Node* startNode, QTextStream& out, QString filter)
 {
@@ -335,22 +402,24 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
             CoordNode * coord = static_cast <CoordNode *> (i);
             for(auto j: coord->wires)
             {
-                if(j->idNameCoord.isEmpty() == true)
-                    continue;
+
 
                 PinNode *pin = nullptr;
-                if(j->parent->type() != Node::E_PIN)
-                    continue;
+                //if(j->parent->type() != Node::E_PIN)
+                //    continue;
 
                 pin = static_cast<PinNode* > (j->parent);
-                if(pin->io == PinNode::E_OUT)
-                {
+                if(pin->strCord.isEmpty() == true)
+                    continue;
+
+                //if(pin->io == PinNode::E_OUT)
+                //{
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
                     out<<c->typeConnectorWire<<";";
                     out<<c->idName <<";";
                     out<<pin->idName << ";";
                     out<<j->idName<<";";
-                    out<<j->idNameCoord<<";";
+                    out<<pin->strCord<<";";
 
                     PinNode *toPin = static_cast<PinNode* > (j->toPin);
                     if(toPin == nullptr)
@@ -369,7 +438,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     out<<j->typeWire<<";";
                     out<<"\n";
 
-                }
+                //}
             }
         }
     }
@@ -430,11 +499,130 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
-void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit)
+void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
     QList<Node* > pins;
+    QList<Node* > pinSelected;
+    QList<Node* > pinsUnitTransit;
+    UnitNode *unitFrom = static_cast<UnitNode * > (unitFrom_);
+
     grabberNodeByType(unitFrom,Node::E_PIN,pins);
     UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
+    for(auto i : pins)
+    {
+        PinNode *pin = static_cast<PinNode *> (i);
+        for(auto j: listInterfaces)
+        {
+            if(pin->type_interface == j)
+            {
+                pinSelected.append(pin);
+            }
+        }
+    }
+
+    //! список систем через которые нужно провести сигналы
+    for(auto i:unitTransit)
+    {
+         grabberNodeByType(i,Node::E_PIN,pinsUnitTransit);
+    }
+
+    for(auto i:pinSelected)
+    {
+        PinNode *pinSel = static_cast<PinNode *> (i);
+        for(auto j:pinsUnitTransit)
+        {
+            PinNode *pinTransit = static_cast <PinNode *> (j);
+
+            if(pinSel->type_interface == pinTransit->type_interface ||
+               pinTransit->type_interface == PinNode::E_UNDEF_INTER)
+            {
+                 QList<Node* > wires;
+                 grabberNodeByType(pinTransit,Node::E_WIRE,wires);
+                 WireNode *wireTransit = nullptr;
+                 if(wires.isEmpty())
+                     wireTransit = new WireNode (pinTransit->strLabel,
+                                          pinTransit->strTypeWire,pinTransit);
+                 else
+                     wireTransit = static_cast<WireNode *> (wires.first());
+                 UnitNode *tempUnit = static_cast<UnitNode *> (findNodeByType(pinTransit,Node::E_UNIT,EDirection::E_UP));
+
+                 if(tempUnit->checkConnectedPins(pinTransit) == false)
+                 {
+                     //! сохраним адресат
+
+
+                     wireTransit->toPin = pinSel;
+
+                     WireNode *wirePinSel = static_cast<WireNode *> (pinSel->child.first());
+                     //! сохраняем Pin на который указывала 1ая система
+                     PinNode *toPin = static_cast<PinNode *> (wirePinSel->toPin);
+                     //! теперь первая система указывает на транзитную систему
+                     wirePinSel->toPin = pinTransit;
+                     if(pinSel->io == PinNode::E_IN)
+                         pinTransit->io = PinNode::E_OUT;
+                     else
+                         pinTransit->io = PinNode::E_IN;
+
+                     pinTransit->strInterface = pinSel->strInterface;
+                     pinTransit->type_interface = pinSel->type_interface;
+
+                     wireTransit->fullConnected = true;
+                     wirePinSel->fullConnected = true;
+                     //! ищем свободный пин для связи транзитной системы с 2ой системой
+                     PinNode* pinFree = tempUnit->findSameConnection(pinTransit);
+                     WireNode *sys2 = nullptr;
+
+                     if(toPin->child.isEmpty())
+                         sys2 = new WireNode(toPin->strLabel,toPin->strTypeI,toPin);
+                     else
+                         sys2 = static_cast<WireNode *> (toPin->child.first());
+                     sys2->toPin = pinFree;
+                     if(toPin->io == PinNode::E_IN)
+                         pinFree->io = PinNode::E_OUT;
+                     else
+                         pinFree->io = PinNode::E_IN;
+
+                     pinFree->strInterface = toPin->strInterface;
+                     pinFree->type_interface = toPin->type_interface;
+
+                     sys2->fullConnected = true;
+
+                     WireNode *freeWire = static_cast<WireNode *> (pinFree->child.first());
+                     freeWire->toPin = toPin;
+                     freeWire->fullConnected = true;
+                     correctWire(pinFree);
+                     correctWire(pinTransit);
+                     correctWire(toPin);
+                     correctWire(pinSel);
+
+                     break;
+                 }
+
+//                 WireNode *wire = static_cast<WireNode *> (wires.first());
+//                 if(wire->fullConnected == false)
+//                 {
+//                     UnitNode *tempUnit = static_cast<UnitNode *> (findNodeByType(pinTransit,Node::E_UNIT,EDirection::E_UP));
+//                     if(tempUnit->checkConnectedPins(pinTransit) == false)
+//                     {
+//                         PinNode* pinFree = tempUnit->findFree(pinTransit);
+
+//                         PinNode *toPin = wire->toPin;
+//                         wire->toPin = pinSel;
+//                         WireNode *wirePinSel = static_cast<WireNode *> (pinSel->child.first());
+//                         wirePinSel->toPin = pinFree;
+
+//                         WireNode *sys2 = static_cast<WireNode *> (toPin->child->first());
+//                         sys2->toPin = pinFree;
+//                         //! нужно вставить промежуточный элемент
+//                     }
+
+
+//                     //! LJK;TY
+//                 }
+            }
+
+        }
+    }
 //    grabberNodeByType(unitNode,Node::E_PIN,pinsTransit);
 
 
@@ -444,6 +632,9 @@ void DomParser::pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit)
 
 //        curNode->
 //    }
+
+     unitFrom->coords.clear();
+     correctCoords(unitFrom);
 
 }
 void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
@@ -541,10 +732,11 @@ void DomParser::mergeNodes(Node* root,Node* from)
                                 pin->strCircuit.append(j);
                         }
                     }
-                    if(pinFrom->strCord.isEmpty() == true)
+                    if(pinFrom->strCord.isEmpty() == false)
                     {
                         pin->strCord = pinFrom->strCord;
-                    }
+                    }else
+                        pinFrom->strCord = pin->strCord;
                 }
                 if(i->type() == Node::E_UNIT && from->type() == Node::E_UNIT)
                 {
@@ -680,8 +872,7 @@ void DomParser::parseLocation(QString line, Node *parent)
     if(listLine.empty() == true || listLine.size() != (E_GEO_NAME_COORD +1))
         return;
     //! пропустить первую строчку
-    if((listLine[0] == "Наименование блока") &&
-        listLine[1] == "Cокращение")
+    if(listLine[0].contains("название", Qt::CaseInsensitive))
         return;
 
     node = findNodeByIdName(listLine[E_GEO_ID], nodeParent,Node::E_UNIT);
@@ -739,14 +930,14 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                     {
                         w0->fullConnected = true;
                         w->fullConnected  = true;
-                        if(w->idNameCoord != w0->idNameCoord)
+                        if(pin->strCord != pin0->strCord)
                         {
-                            if(w->idNameCoord.isEmpty() && w0->idNameCoord.isEmpty()==false)
+                            if(pin->strCord.isEmpty() && pin0->strCord.isEmpty()==false)
                             {
-                                w->idNameCoord = w0->idNameCoord;
-                            }else if(w0->idNameCoord.isEmpty() == true && w->idNameCoord.isEmpty() == false)
+                                pin->strCord = pin0->strCord;
+                            }else if(pin0->strCord.isEmpty() == true && pin->strCord.isEmpty() == false)
                             {
-                                w0->idNameCoord = w->idNameCoord;
+                                pin0->strCord = pin->strCord;
                             }
                         }
                         if(w->typeWire != w0->typeWire)
@@ -1860,7 +2051,7 @@ void DomParser::correctWire(Node *startNode)
 //                    wire->idName = pin->parent->parent->idName + "-" +
 //                               pin->parent->idName +"-" + pin->idName;
 
-                    curPin->strTypeI = pin->strTypeI;
+                    //curPin->strTypeI = pin->strTypeI;
 
                 }
               }
@@ -1918,7 +2109,10 @@ void DomParser::correctCoords(Node* startNode)
 {
     if(startNode->type() == Node::E_UNIT)
     {
+
         UnitNode *unit = static_cast<UnitNode* > (startNode);
+        if(unit->idParentSys == "ИМК")
+            return;
         unit->scanCoords(unit);
        // unit->calcInterface();
         return;
@@ -1945,4 +2139,5 @@ void DomParser::correctInterface(Node *startNode)
 }
 DomParser::~DomParser() {
         // TODO Auto-generated destructor stub
+    procDot.terminate();
 }

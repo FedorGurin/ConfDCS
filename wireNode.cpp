@@ -4,18 +4,19 @@
 #include <QDebug>
 WireNode::WireNode(QString id,
                    QString type,
-                   QString idNameCoord_,
+                  // QString idNameCoord_,
                    Node *parent):Node()
 {
 //    displayName = element.attribute("displayName","None");
     idName      = id;
+    length = 0;
 
-    idNameCoord.clear();
-    if(idNameCoord_.isEmpty() == false)
-    {
-        idNameCoord = idNameCoord_;
-        qDebug()<<idNameCoord<<"\n";
-    }
+   //
+//    if(idNameCoord_.isEmpty() == false)
+//    {
+//        idNameCoord = idNameCoord_;
+//        qDebug()<<idNameCoord<<"\n";
+//    }
     typeWire.clear();
     if(type != "-")
         typeWire =  type;
@@ -36,6 +37,7 @@ WireNode::WireNode():Node()
 {
     toPin       = nullptr;
     fullConnected = false;
+    length = 0;
 
 }
 
@@ -43,7 +45,7 @@ Node *WireNode::clone()
 {
     WireNode *rootNode = new WireNode;
 
-    rootNode->idNameCoord   = this->idNameCoord;
+    //rootNode->idNameCoord   = this->idNameCoord;
     rootNode->idName        = this->idName;
     rootNode->displayName   = this->displayName;
     rootNode->comment       = this->comment;

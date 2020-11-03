@@ -25,9 +25,10 @@
 //    parent->addChild(this);
 //    addParent(parent);
 //}
-InterfaceNode::InterfaceNode(QString strSetI_,PinNode::TYPE_INTERFACE type)
+InterfaceNode::InterfaceNode(QString strSetI_,PinNode::TYPE_INTERFACE type,QString strInterface)
 {
     strSetI         = strSetI_;
+    strTypeInerface = strInterface;
     preStr          = "";
     type_interface  = type;
     num = 0;

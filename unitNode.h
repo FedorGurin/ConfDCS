@@ -6,6 +6,8 @@
 #include "InterfaceNode.h"
 #include "CoordNode.h"
 #include <QLibrary>
+#include <QPair>
+#include <pinNode.h>
 //! класс описания блока
 class UnitNode :public Node
 {
@@ -37,6 +39,10 @@ public:
     int findPrevInterface(PinNode *,InterfaceNode *ifNode);
     //!
     void calcInterface();
+    //! проверка, что node имеет уже подключение (или подключение через другие клеммы)
+    bool checkConnectedPins(PinNode *pin);
+    bool recCheckConnectedPin(QPair<PinNode *, PinNode *> p, PinNode *pin);
+    PinNode* findSameConnection(PinNode *node);
     //! список интерфейсов
     QList<InterfaceNode *> interfaces;
     //! список интерфейсов
@@ -45,10 +51,13 @@ public:
     QList<CoordNode *> coords;
     //! идентификатор блока расположения
     QString idUnitLocation;
+    QString idParentSys;
 
-    //! блок в котором контруктивно распологается данный блок(если nullptr, значит объект вверхнего уровня)
-    UnitNode *parentUnit;
-    QList<Node* > childUnit;// дочерние элементы
+    //! дерево описывающее детализацию данного блока
+    Node *rootInternal;
+
+    //UnitNode *parentUnit;
+    //QList<Node* > childUnit;// дочерние элементы
     //! признак стендового набора оборудования
     bool isStend;
     //! признак того, что блок может пропускать линии данных через себя
@@ -56,10 +65,13 @@ public:
     //! псевдоним блока для именования бирок
     QString alias;
     QString nameCoord;
+    //! имя файла с описанием внутренних параметров
+    QString nameInternalFile;
     //! отображение клемм друг-на-друга(или здесь возможно должна быть dll)
     //QMap<PinNode*,QList<PinNode* > > mapPin;
     //! библиотека обеспечивающая внутреннию логику
     QLibrary libMap;
+    QVector<QPair<PinNode *, PinNode * > > pins_internal;
     //! клонирование узла
     virtual Node *clone();
     virtual ~UnitNode();

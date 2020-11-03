@@ -18,6 +18,7 @@ public:
     enum TYPE_INTERFACE
     {
         E_UNDEF_INTER   ,//!  не определен/неизвестен
+        E_TEST          ,//!  для измерений или контроля
         E_ARINC_429     ,//!  Arinc429
         E_RK            ,//!  РК
         E_POWER         ,//!  питание
@@ -30,7 +31,8 @@ public:
         E_VHF           ,//!  высокочастотный сигнал
         E_ETHERNET      ,//!  Ethernet
         E_ARINC_646     ,//!  Arinc646
-        E_GROUND_I       //!  Земля
+        E_GROUND_I      ,//!  Земля
+        E_SHEILD
     };
     PinNode(QString id,
             QString strSignal,

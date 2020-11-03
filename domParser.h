@@ -5,8 +5,12 @@
 #include <QDomDocument>
 #include <QObject>
 #include <QProcess>
+#include <QFile>
+#include <QTextStream>
 #include <functional>
 #include "Node.h"
+#include "pinNode.h"
+#include "unitNode.h"
 
 class DomParser : public QObject {
 
@@ -21,7 +25,7 @@ public:
         E_GEO_TRANSIT,
         E_GEO_ID    ,
         E_GEO_LOCATION,
-        E_GEO_PARENT_SYS,
+        E_GEO_PARENT_SYS, // родительская система
         E_GEO_SIZE  ,
         E_GEO_POS,
         E_GEO_CLASS, //! класс объекта
@@ -88,7 +92,7 @@ public:
 
     void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo );
     //! вставить блок через список блоков
-    void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit);
+    void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
     //! поиск узла по типу
     Node* findNodeByType(Node* node, Node::Type t, EDirection dir);
@@ -102,6 +106,7 @@ public:
     //! сохранение в файл соединений
     void saveCSVCon(Node *startNode, QTextStream& out);
     void recSaveCSVCoords(Node *startNode, QTextStream& out);
+    void saveCoordToFile(Node *unitNode);
 
     //! список деревьев для каждого файла
     QList<Node* > listRootItemNode;
@@ -117,6 +122,7 @@ public:
     void saveForGraphviz(QString namePath, QString nameFile, Node* rootNode, std::function<void(DomParser&,Node *, QTextStream&)> funcSave);
     void saveCSVConnection(Node* rootNode, QTextStream&);
     void saveCSVCoords(Node* rootNode, QTextStream&);
+
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
     //! сохранение данных в один файл для в внешнюю БД
@@ -177,11 +183,16 @@ private:
     //! коррекция имен жгутов
     void correctCoords(Node* startNode);
     void calcNumInterface(Node *startNode);
+    //! засгрузить описание внтуренних подлкючений
+    void loadInternalConnection(void);
+    void parseInCon(UnitNode *);
     //! найти блоки которые ссылаются на указанный, или данный блок на них
     void findNeighborUnit(Node* unitNode,QList<Node*> &listNode);
     //! найти список проводов выходящих в другие контейнеры(например все првода выходящие из кабины)
     void saveConnectionLocations(Node *root,QString loacation1);
     QProcess procDot;
+    QFile fileLog;
+    QTextStream outLog;
 //   ! Соединение двух деревьев(дерево с данными и с вариантами)
 //    void joiningTrees(GenericNode*,VariantNode*);// Стыковка двух деревьев
 

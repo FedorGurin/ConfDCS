@@ -24,7 +24,7 @@ PinNode::PinNode(QString id,
     if(strIo_.toLower() == "выдача")
         io = E_OUT;
 
-    if(strIo_.toLower() == "прием/выдача" || strIo_.toLower() == "выдача/прием")
+    if(strIo_.toLower() == "прием/выдача" || strIo_.toLower() == "выдача/прием" || strIo_.toLower() == "-")
         io = E_BI;
 
     if(strIo_.toLower() == "заземление" || strIo_.toLower() == "земля")
@@ -33,6 +33,7 @@ PinNode::PinNode(QString id,
     if(strIo_.toLower() == "экран")
         io = E_SHIELD;
     strIO = strIo_.toLower();
+    //! интерфейс не опредлен
     type_interface = E_UNDEF_INTER;
 
     strInterface    = strInterface_;
@@ -53,10 +54,18 @@ PinNode::PinNode(QString id,
         type_interface = E_RS_422;
     if(strInterface.contains("arinc 646", Qt::CaseInsensitive))
         type_interface = E_ARINC_646;
+    if(strInterface.contains("arinc 717", Qt::CaseInsensitive))
+        type_interface = E_ARINC_717;
     if(strInterface.contains("шим", Qt::CaseInsensitive))
         type_interface = E_PWM;
-    if(strInterface.contains("корпус", Qt::CaseInsensitive))
+    if(strInterface.contains("земля", Qt::CaseInsensitive))
         type_interface = E_GROUND_I;
+    if(strInterface.contains("контроль", Qt::CaseInsensitive))
+        type_interface = E_TEST;
+    if(strInterface.contains("корпус", Qt::CaseInsensitive) ||
+       strInterface.contains("экран", Qt::CaseInsensitive) )
+        type_interface = E_SHEILD;
+
 
     nameSignal      = strSignal_;
     strNumClone     = strNumClone_;
@@ -103,13 +112,13 @@ PinNode::PinNode(QString id,
     for(int i = 0;i < numClone;i++)
     {
         if(strLabel_ != "-")
-            new WireNode(strLabel_,strTypeWire_,strCord,this);
+            new WireNode(strLabel_,strTypeWire_,this);
     }
 }
 PinNode::PinNode():Node()
 {
     io = E_UNDEF_IO;
-     prefTypeI ="";
+    prefTypeI ="";
 }
 Node *PinNode::clone()
 {
