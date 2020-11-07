@@ -6,7 +6,6 @@ ConnectorNode::ConnectorNode(QString id,
                              QString typeConWire,
                              Node *parent):Node()
 {
-//    displayName = element.attribute("displayName","");
     idName        = id;
     typeConnectorBlock.clear();
     typeConnectorWire.clear();
@@ -15,11 +14,7 @@ ConnectorNode::ConnectorNode(QString id,
         typeConnectorBlock = typeConBlock;
     if(typeConWire != "-")
         typeConnectorWire = typeConWire;
-
-     //    isDisplay   = ((element.attribute("isDisplay")).toInt());
-
     pathName    = idName;
-
     listForCompleter<<displayName;
 
     parent->addChild(this);

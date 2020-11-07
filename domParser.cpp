@@ -732,26 +732,29 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     ConnectorNode * con = static_cast<ConnectorNode* > (i);
                     ConnectorNode * conFrom = static_cast<ConnectorNode* > (from);
 
-                    if(con->typeConnectorBlock != conFrom->typeConnectorBlock)
-                    {
-                        if(con->typeConnectorBlock.isEmpty() && conFrom->typeConnectorBlock.isEmpty() == false)
-                        {
-                            con->typeConnectorBlock = conFrom->typeConnectorBlock;
-                        }else if(conFrom->typeConnectorBlock.isEmpty() == true && con->typeConnectorBlock.isEmpty() == false)
-                        {
-                            conFrom->typeConnectorBlock = con->typeConnectorBlock;
-                        }
-                    }
-                    if(con->typeConnectorWire != conFrom->typeConnectorWire)
-                    {
-                        if(con->typeConnectorWire.isEmpty() && conFrom->typeConnectorWire.isEmpty() == false)
-                        {
-                            con->typeConnectorWire = conFrom->typeConnectorWire;
-                        }else if(conFrom->typeConnectorWire.isEmpty() == true && con->typeConnectorWire.isEmpty() == false)
-                        {
-                            conFrom->typeConnectorWire = con->typeConnectorWire;
-                        }
-                    }
+                    mergeString(con->typeConnectorBlock,conFrom->typeConnectorBlock);
+                    mergeString(con->typeConnectorWire,conFrom->typeConnectorWire);
+
+//                    if(con->typeConnectorBlock != conFrom->typeConnectorBlock)
+//                    {
+//                        if(con->typeConnectorBlock.isEmpty() && conFrom->typeConnectorBlock.isEmpty() == false)
+//                        {
+//                            con->typeConnectorBlock = conFrom->typeConnectorBlock;
+//                        }else if(conFrom->typeConnectorBlock.isEmpty() == true && con->typeConnectorBlock.isEmpty() == false)
+//                        {
+//                            conFrom->typeConnectorBlock = con->typeConnectorBlock;
+//                        }
+//                    }
+//                    if(con->typeConnectorWire != conFrom->typeConnectorWire)
+//                    {
+//                        if(con->typeConnectorWire.isEmpty() && conFrom->typeConnectorWire.isEmpty() == false)
+//                        {
+//                            con->typeConnectorWire = conFrom->typeConnectorWire;
+//                        }else if(conFrom->typeConnectorWire.isEmpty() == true && con->typeConnectorWire.isEmpty() == false)
+//                        {
+//                            conFrom->typeConnectorWire = con->typeConnectorWire;
+//                        }
+//                    }
                 }
                 if(i->type() == Node::E_PIN  && from->type() == Node::E_PIN )
                 {
@@ -785,6 +788,8 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     UnitNode *unit       = static_cast<UnitNode* > (i);
                     UnitNode *unitFrom   = static_cast<UnitNode* > (from);
 
+                    mergeString(unit->alias,unitFrom->alias);
+                    /*
                     if(unit->alias != unitFrom->alias)
                     {
                         if(unit->alias.isEmpty() && unitFrom->alias.isEmpty() == false)
@@ -794,7 +799,7 @@ void DomParser::mergeNodes(Node* root,Node* from)
                         {
                             unitFrom->alias = unit->alias;
                         }
-                    }
+                    }*/
                 }
 
                 //! должны проверить

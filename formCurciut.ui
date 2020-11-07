@@ -116,6 +116,16 @@
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="checkBoxStend">
+                <property name="text">
+                 <string>Только стендовый комплект</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="checkBoxLoadParsed">
                 <property name="text">
                  <string>Загрузка обработанных данных</string>
