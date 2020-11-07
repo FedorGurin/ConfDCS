@@ -54,6 +54,8 @@ PinNode::PinNode(QString id,
         type_interface = E_RS_232;
     if(strInterface.contains("rs-422", Qt::CaseInsensitive))
         type_interface = E_RS_422;
+    if(strInterface.contains("свч", Qt::CaseInsensitive))
+        type_interface = E_VHF;
     if(strInterface.contains("arinc 646", Qt::CaseInsensitive))
         type_interface = E_ARINC_646;
     if(strInterface.contains("arinc 717", Qt::CaseInsensitive))
