@@ -50,9 +50,9 @@ PinNode::PinNode(QString id,
         type_interface = E_PPS;
     if(strInterface.contains("звук", Qt::CaseInsensitive))
         type_interface = E_SOUND;
-    if(strInterface.contains("rs-232", Qt::CaseInsensitive))
+    if(strInterface.contains("232", Qt::CaseInsensitive))
         type_interface = E_RS_232;
-    if(strInterface.contains("rs-422", Qt::CaseInsensitive))
+    if(strInterface.contains("422", Qt::CaseInsensitive))
         type_interface = E_RS_422;
     if(strInterface.contains("свч", Qt::CaseInsensitive))
         type_interface = E_VHF;

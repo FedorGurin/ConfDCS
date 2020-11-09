@@ -151,6 +151,8 @@ private:
     //! разбор XML файла, и формирование дерева с описанием данных
     void parseData(QString line, Node *parent);//рекурсивная
     void parseLocation(QString line, Node *parent);
+    //! зачитать файл с трансформациями
+    void parseTransData(QString line, Node *parent = nullptr);
 
     void recSaveLocationBetween(Node* rootNode, QTextStream&, QString filter);
     //! открыть XML файл с описанием данных
@@ -195,6 +197,9 @@ private:
     QProcess procDot;
     QFile fileLog;
     QTextStream outLog;
+
+    //QFile fileTransform;
+    //QTextStream outTransform;
 //   ! Соединение двух деревьев(дерево с данными и с вариантами)
 //    void joiningTrees(GenericNode*,VariantNode*);// Стыковка двух деревьев
 
