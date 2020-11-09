@@ -556,20 +556,25 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
         }
     }
 
-    //! список систем через которые нужно провести сигналы
+    // список систем через которые нужно провести сигналы
     for(auto i:unitTransit)
     {
          grabberNodeByType(i,Node::E_PIN,pinsUnitTransit);
     }
-    //! контакты выбранной системы
+    // контакты выбранной системы
     for(auto i:pinSelected)
     {
-        //! текущий pin
+        // текущий pin
         PinNode *pinSel = static_cast<PinNode *> (i);
-        //! проверка, что текущий pin уже пропущен через транзитную систему
+        // проверка, что текущий pin уже пропущен через транзитную систему
         if(hasConnectThrough(pinSel,unitTransit) == true || hasFullConnected(pinSel) == false)
             continue;
-        //! контакты транзитной системы
+        if(pinSel->child.isEmpty() == true)
+            continue;
+
+        for(auto k:pinSel->child)
+        {
+        // контакты транзитной системы
         for(auto j:pinsUnitTransit)
         {
             PinNode *pinTransit = static_cast <PinNode *> (j);
@@ -577,6 +582,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
             if(pinSel->type_interface == pinTransit->type_interface ||
                pinTransit->type_interface == PinNode::E_UNDEF_INTER)
             {
+                 // если pin транзитной системы нас устраивает
                  QList<Node* > wires;
                  grabberNodeByType(pinTransit,Node::E_WIRE,wires);
                  WireNode *wireTransit = nullptr;
@@ -589,16 +595,16 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
 
                  if(tempUnit->checkConnectedPins(pinTransit) == false)
                  {
-                     //! сохраним адресат
+                     // сохраним адресат
 
                      if(pinSel->child.isEmpty() == true)
                          continue;
                      wireTransit->toPin = pinSel;
 
-                     WireNode *wirePinSel = static_cast<WireNode *> (pinSel->child.first());
-                     //! сохраняем Pin на который указывала 1ая система
+                     WireNode *wirePinSel = static_cast<WireNode *> (k);
+                     // сохраняем Pin на который указывала 1ая система
                      PinNode *toPin = static_cast<PinNode *> (wirePinSel->toPin);
-                     //! теперь первая система указывает на транзитную систему
+                     // теперь первая система указывает на транзитную систему
                      wirePinSel->toPin = pinTransit;
                      if(pinSel->io == PinNode::E_IN)
                          pinTransit->io = PinNode::E_OUT;
@@ -610,14 +616,22 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
 
                      wireTransit->fullConnected = true;
                      wirePinSel->fullConnected = true;
-                     //! ищем свободный пин для связи транзитной системы с 2ой системой
+                     // ищем свободный пин для связи транзитной системы с 2ой системой
                      PinNode* pinFree = tempUnit->findSameConnection(pinTransit);
                      WireNode *sys2 = nullptr;
 
                      if(toPin->child.isEmpty())
                          sys2 = new WireNode(toPin->strLabel,toPin->strTypeI,toPin);
                      else
-                         sys2 = static_cast<WireNode *> (toPin->child.first());
+                     {
+                         for(auto l:toPin->child)
+                         {
+                             sys2 = static_cast<WireNode *> (l);
+                             if(sys2->toPin == i)
+                                 break;
+                         }
+
+                     }
                      sys2->toPin = pinFree;
                      if(toPin->io == PinNode::E_IN)
                          pinFree->io = PinNode::E_OUT;
@@ -663,6 +677,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
 //                 }
             }
 
+        }
         }
     }
 //    grabberNodeByType(unitNode,Node::E_PIN,pinsTransit);
@@ -735,26 +750,6 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     mergeString(con->typeConnectorBlock,conFrom->typeConnectorBlock);
                     mergeString(con->typeConnectorWire,conFrom->typeConnectorWire);
 
-//                    if(con->typeConnectorBlock != conFrom->typeConnectorBlock)
-//                    {
-//                        if(con->typeConnectorBlock.isEmpty() && conFrom->typeConnectorBlock.isEmpty() == false)
-//                        {
-//                            con->typeConnectorBlock = conFrom->typeConnectorBlock;
-//                        }else if(conFrom->typeConnectorBlock.isEmpty() == true && con->typeConnectorBlock.isEmpty() == false)
-//                        {
-//                            conFrom->typeConnectorBlock = con->typeConnectorBlock;
-//                        }
-//                    }
-//                    if(con->typeConnectorWire != conFrom->typeConnectorWire)
-//                    {
-//                        if(con->typeConnectorWire.isEmpty() && conFrom->typeConnectorWire.isEmpty() == false)
-//                        {
-//                            con->typeConnectorWire = conFrom->typeConnectorWire;
-//                        }else if(conFrom->typeConnectorWire.isEmpty() == true && con->typeConnectorWire.isEmpty() == false)
-//                        {
-//                            conFrom->typeConnectorWire = con->typeConnectorWire;
-//                        }
-//                    }
                 }
                 if(i->type() == Node::E_PIN  && from->type() == Node::E_PIN )
                 {
@@ -782,6 +777,33 @@ void DomParser::mergeNodes(Node* root,Node* from)
                         pin->strCord = pinFrom->strCord;
                     }else
                         pinFrom->strCord = pin->strCord;
+
+                    //! добавление размноженных проводов
+                    Node *findW = nullptr;
+                    for(auto w0:pinFrom->child)
+                    {
+                        findW = nullptr;
+
+                        for(auto w1:pin->child)
+                        {
+                            if(w0->idName == w1->idName)
+                            {
+                                findW = w1;
+                                break;
+                            }
+                        }
+                        if(findW == nullptr)
+                        {
+                            findW = w0->clone();
+                            pin->addChild(findW);
+                            //findW->addParent(pin);
+                            //pin->child.append(findW);
+                        }
+                    }
+                    if(pin->child.size() != pinFrom->child.size())
+                    {
+                        printf("");
+                    }
                 }
                 if(i->type() == Node::E_UNIT && from->type() == Node::E_UNIT)
                 {
