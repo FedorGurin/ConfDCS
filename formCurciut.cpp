@@ -133,6 +133,25 @@ void FormCurciut::slotCut()
     QList<QListWidgetItem*> listSys2      = ui->listWidgetSys2->selectedItems();
     QList<QListWidgetItem*> listSysMiddle = ui->listWidgetSysMiddle->selectedItems();
 
+    if(ui->checkBoxUseFileTransform->isChecked() == true)
+    {
+        for(auto i:domParser->vecTransform)
+        {
+            curInterfaces.clear();
+            for(int j = 2;j < i.size();j++)
+            {
+
+                curInterfaces.append((PinNode::TYPE_INTERFACE)(i[j].toInt()));
+            }
+            Node *node = recFindNodeByName(domParser->rootItemData,i[0]);
+            if(node != nullptr)
+                 nodes.push_back(node);
+
+            Node *selectNode = recFindNodeByName(domParser->rootItemData,i[1]);
+            domParser->pasteUnitThrough(selectNode,nodes,curInterfaces);
+        }
+        return;
+    }
     for(auto i:listSysMiddle)
     {
 
@@ -157,6 +176,7 @@ void FormCurciut::slotCut()
 
         Node *selectNode = recFindNodeByName(domParser->rootItemData,nameItem);
         domParser->pasteUnitThrough(selectNode,nodes,curInterfaces);
+        domParser->saveTransform(nameItem,nodes.first()->displayName,curInterfaces);
     }
     else
     {

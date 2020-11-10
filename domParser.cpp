@@ -162,7 +162,7 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     if(okDesData == false)
         return;
 
-    //! открываем файлы с данными соединений и блоков
+    //! открываем файлы с трансформациями
     okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/transform",listRootItemNode,f_parseTrans );
     if(okDesData == false)
         return;
@@ -219,6 +219,22 @@ void DomParser::saveCoordToFile(Node *unitNode)
 {
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
     saveDataToCVS("parsed/export/coords" + unitNode->idName,unitNode, f_saveCoords);
+}
+void DomParser::saveTransform(QString sys1,QString sys2,QVector<PinNode::TYPE_INTERFACE> listInterfaces)
+{
+    QFile file(qApp->applicationDirPath() +  "/csv/transform/Список вставок"  + ".csv");
+    bool fileOpen = file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append);
+    if(fileOpen == true)
+    {
+       QTextStream out(&file);
+       //out.setCodec("CP1251");
+       out.setCodec("UTF-8");
+       out<<sys1<<";"<<sys2<<";";
+       for(auto i:listInterfaces)
+           out<<QString::number(i)<<";";
+       out<<"\n";
+       out.flush();
+    }
 }
 void DomParser::parseInCon(UnitNode *unit)
 {
@@ -879,67 +895,18 @@ Node* DomParser::recFindNodeWithIdName(QString &idName,Node *startNode, Node::Ty
 }
 void DomParser::parseTransData(QString line, Node *parent)
 {
-    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
-    if(listLine.empty() == true)
-        return;
+//    if(listLine.empty() == true)
+//        return;
 
-    if(listLine.size() != E_CORD +1)
-        return;
-
-    if((listLine[0] == "Сигнала" || listLine[0] == "Сигнал") &&
-       (listLine[1] == "Блок" || listLine[1] == "Блоки")  )
-        return;
-
-    Node *node = nullptr;
-    Node *nodeParent = parent;
-//    node = findNodeByIdName(listLine[E_ID_SYSTEM], nodeParent,Node::E_SYSTEM);
-
-//    if(node == nullptr)
-//        nodeParent = new SystemNode(listLine[E_ID_SYSTEM],nodeParent);
-//    else
-//        nodeParent = node;
-
-    node = findNodeByIdName(listLine[E_ID_UNIT], nodeParent,Node::E_UNIT);
-    if(node == nullptr)
-    {
-        nodeParent = new UnitNode(listLine[E_ID_UNIT], nodeParent);
-        nodeParent->displayName = listLine[E_UNIT_NAME];
-    }else
-        nodeParent = node;
-
-    node = findNodeByIdName(listLine[E_CONNECTOR], nodeParent, Node::E_CONNECTOR);
-    if(node == nullptr)
-        nodeParent = new ConnectorNode(listLine[E_CONNECTOR],
-                                       listLine[E_TYPE_CONNECTOR_BLOCK],
-                                       listLine[E_TYPE_CONNECTOR_WIRE],
-                                       nodeParent);
-    else
-        nodeParent = node;
-    //! создание объекта - клемма в разъеме
-    node = findNodeByIdName(listLine[E_PIN], nodeParent, Node::E_PIN);
-    if(node == nullptr)
-        nodeParent = new PinNode(listLine[E_PIN],
-                                 listLine[E_NAME],
-                                 listLine[E_IO],
-                                 listLine[E_MULT],
-                                 listLine[E_SW],
-                                 listLine[E_LABEL],
-                                 listLine[E_TYPE_WIRE],
-                                 listLine[E_TYPE_I],
-                                 listLine[E_SET_TYPE_I],
-                                 listLine[E_CURCUIT],
-                                 listLine[E_CORD],
-                                 listLine[E_TYPE_WIRE_PIN],
-                                 listLine[E_ID_WIRE],
-                                 nodeParent);
-    else
-        nodeParent = node;
-
+//    if(listLine.size() != 2)
+//        return;
+    vecTransform.append(listLine);
 }
 void DomParser::parseData(QString line, Node *parent)
 {
-    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
     if(listLine.empty() == true)
         return;
@@ -1001,7 +968,7 @@ void DomParser::parseLocation(QString line, Node *parent)
     Node *node = nullptr;
     Node *nodeParent = parent;
 
-    QStringList listLine = line.split(";", Qt::SkipEmptyParts);
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
     if(listLine.empty() == true || listLine.size() != (E_GEO_NAME_COORD +1))
         return;
