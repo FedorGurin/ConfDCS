@@ -143,11 +143,11 @@ void FormCurciut::slotCut()
 
                 curInterfaces.append((PinNode::TYPE_INTERFACE)(i[j].toInt()));
             }
-            Node *node = recFindNodeByName(domParser->rootItemData,i[0]);
+            Node *node = recFindNodeByName(domParser->rootItemData,i[1]);
             if(node != nullptr)
                  nodes.push_back(node);
 
-            Node *selectNode = recFindNodeByName(domParser->rootItemData,i[1]);
+            Node *selectNode = recFindNodeByName(domParser->rootItemData,i[0]);
             domParser->pasteUnitThrough(selectNode,nodes,curInterfaces);
         }
         return;

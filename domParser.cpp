@@ -143,6 +143,7 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     std::function<void(DomParser&, QString,Node*)> f_parseData     = &DomParser::parseData;
     std::function<void(DomParser&, QString,Node*)> f_parseSpec     = &DomParser::parseLocation;
     std::function<void(DomParser&, QString,Node*)> f_parseTrans    = &DomParser::parseTransData;
+    std::function<void(DomParser&, QString,Node*)> f_parseAlias    = &DomParser::parseAlias;
 
     //! функция сохранения всех соединений (проводов)
     std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV = nullptr;
@@ -164,6 +165,11 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
 
     //! открываем файлы с трансформациями
     okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/transform",listRootItemNode,f_parseTrans );
+    if(okDesData == false)
+        return;
+
+    //! открываем файлы с псевдонимами
+    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/alias",listRootItemNode,f_parseAlias );
     if(okDesData == false)
         return;
 
@@ -715,13 +721,39 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
      correctCoords(unitFrom);
 
 }
-void DomParser::pasteUnitBetween(Node *unitFrom, QList<Node* > unitsTransit, Node *unitTo  )
+void DomParser::pasteUnitBetween(Node *unitFrom_, QList<Node* > unitsTransit_, Node *unitTo_,  QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
-    if(unitFrom == unitTo)
+    if(unitFrom_ == unitTo_)
         return;
 
-    QList<Node* > nodeWireConnect;
-    QList<Node* > nodeWireTransit;
+    QList<Node* > pinsUnitFrom;
+    QList<Node* > pinSelected;
+    QList<Node* > pinsUnitTransit;
+    QList<Node* > wireUnitFrom;
+
+    UnitNode *unitFrom = static_cast<UnitNode * > (unitFrom_);
+    UnitNode *unitTo   = static_cast<UnitNode * > (unitTo_);
+
+    // собираем все пины в один список
+    grabberNodeByType(unitFrom,Node::E_PIN,pinsUnitFrom);
+    // убираем все пины которые не связанны с unitTo
+    for(auto i: pinsUnitFrom)
+    {
+        if(i->child.isEmpty() == true)
+            continue;
+
+        for(auto w : i->child)
+        {
+            WireNode *wire   = static_cast<WireNode * > (w);
+            if(wire->toPin == nullptr)
+                continue;
+            Node* fNode = findNodeByType(wire->toPin,Node::E_UNIT,EDirection::E_UP);
+            if(fNode == unitTo_)
+                wireUnitFrom.append(wire);
+
+
+        }
+    }
 
 //    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
 //    grabberNodeByType(unitTransit,Node::E_WIRE,nodeWireTransit);
@@ -903,6 +935,17 @@ void DomParser::parseTransData(QString line, Node *parent)
 //    if(listLine.size() != 2)
 //        return;
     vecTransform.append(listLine);
+}
+void DomParser::parseAlias(QString line, Node *parent)
+{
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
+
+    if(listLine.empty() == true)
+        return;
+
+    if(listLine.size() != 2)
+        return;
+    vecAlias.append(QPair(listLine[0],listLine[1]));
 }
 void DomParser::parseData(QString line, Node *parent)
 {
@@ -2152,6 +2195,14 @@ void DomParser::correctWire(Node *startNode)
                         wire->idName = parent0->alias +
                              curPin->parent->idName + curPin->idName;
                     }
+                    for(auto i : vecAlias)
+                    {
+                        if(wire->idName.contains(i.first,Qt::CaseInsensitive))
+                        {
+                            wire->idName.replace(i.first,i.second);
+                        }
+                    }
+
 
                 }else if(wire->fullConnected)
                 {
@@ -2166,6 +2217,13 @@ void DomParser::correctWire(Node *startNode)
                     {
                         wire->idName = parent0->alias +
                              pin->parent->idName + pin->idName;
+                    }
+                    for(auto i : vecAlias)
+                    {
+                        if(wire->idName.contains(i.first,Qt::CaseInsensitive))
+                        {
+                            wire->idName.replace(i.first,i.second);
+                        }
                     }
 
 //                    wire->idName = pin->parent->parent->idName + "-" +

@@ -90,7 +90,7 @@ public:
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
 
-    void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo );
+    void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo,QVector<PinNode::TYPE_INTERFACE> listInterfaces );
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
