@@ -42,7 +42,10 @@ public:
     //! проверка, что node имеет уже подключение (или подключение через другие клеммы)
     bool checkConnectedPins(PinNode *pin);
     bool recCheckConnectedPin(QPair<PinNode *, PinNode *> p, PinNode *pin);
+    //! поиск свободного контакта имеющего внутренее соединение с контактом \param node
     PinNode* findSameConnection(PinNode *node);
+    //! список контактов имеющих внутренее соединение с указаным \param node
+    QList<PinNode* > findAllInternalConnection(PinNode *node);
     //! список интерфейсов
     QList<InterfaceNode *> interfaces;
     //! список интерфейсов
@@ -71,6 +74,7 @@ public:
     //QMap<PinNode*,QList<PinNode* > > mapPin;
     //! библиотека обеспечивающая внутреннию логику
     QLibrary libMap;
+    //! таблица соединений контактов внутри блока
     QVector<QPair<PinNode *, PinNode * > > pins_internal;
     //! клонирование узла
     virtual Node *clone();

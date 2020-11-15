@@ -32,6 +32,7 @@ public:
         E_GEO_ALIAS,
         E_GEO_NAME_COORD //! имя жгута
     };
+    //! Свойства блока полученные из спецификации
     typedef  struct TGeometry_
     {
         //! полное имя системы
@@ -50,26 +51,26 @@ public:
         QString coord;
     }TGeometry;
     enum {
-        E_NAME                  = 0,   //! имя сигнала
-        E_UNIT_NAME                ,   //! имя блока
-        //E_ID_SYSTEM                ,   //! идентификатор системы
-        E_ID_UNIT                  ,   //! идентификатор блока
-        E_CONNECTOR                ,   //! идентификатор разъема
-        E_PIN                      ,   //! идентификатор контакта
-        E_MULT                     ,   //! кол-во размножений
-        E_IO                       ,   //! каналы входа/выхода
-        E_LABEL                    ,   //! имя бирки
-        E_SW                       ,   //! сигнал должен быть пропущен через коммутацию
-        E_TYPE_I                   ,   //! тип интерфейса
-        E_TYPE_CONNECTOR_BLOCK     ,   //! тип разъема со стороны блока
-        E_TYPE_CONNECTOR_WIRE      ,   //! тип разъема со стороны жгута
-        E_TYPE_WIRE                ,   //! тип провода
-        E_TYPE_WIRE_PIN            ,   //! тип жилы провода
-        E_ID_WIRE                  ,   //! идентификатор провода
-        E_CURCUIT                  ,   //! имя схемы
-        E_SET_TYPE_I               ,   //! идентификатор интерфейса
-        E_CORD                         //! имя жгута
+        E_NAME                  = 0,   /*!< Enum имя сигнала                                      */
+        E_UNIT_NAME                ,   /*!< Enum имя блока                                        */
+        E_ID_UNIT                  ,   /*!< Enum идентификатор блока                              */
+        E_CONNECTOR                ,   /*!< Enum идентификатор разъема                            */
+        E_PIN                      ,   /*!< Enum идентификатор контакта                           */
+        E_MULT                     ,   /*!< Enum кол-во размножений                               */
+        E_IO                       ,   /*!< Enum каналы входа/выхода                              */
+        E_LABEL                    ,   /*!< Enum имя бирки                                        */
+        E_SW                       ,   /*!< Enum сигнал должен быть пропущен через коммутацию     */
+        E_TYPE_I                   ,   /*!< Enum тип интерфейса                                   */
+        E_TYPE_CONNECTOR_BLOCK     ,   /*!< Enum тип разъема со стороны блока                     */
+        E_TYPE_CONNECTOR_WIRE      ,   /*!< Enum тип разъема со стороны жгута                     */
+        E_TYPE_WIRE                ,   /*!< Enum тип провода                                      */
+        E_TYPE_WIRE_PIN            ,   /*!< Enum тип жилы провода                                 */
+        E_ID_WIRE                  ,   /*!< Enum идентификатор провода                            */
+        E_CURCUIT                  ,   /*!< Enum имя схемы                                        */
+        E_SET_TYPE_I               ,   /*!< Enum идентификатор интерфейса                         */
+        E_CORD                         /*!< Enum имя жгута                                        */
     };
+    //! Направление поиска в древовидной структуре
     enum EDirection
     {
         E_UP,
@@ -90,8 +91,24 @@ public:
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
 
-    //! Вставить
-    void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo,QVector<PinNode::TYPE_INTERFACE> listInterfaces );
+    /*! Вставить транзитные системы между блоками unitFrom_ и unitTo_
+     * \param unitFrom - 1ая система
+     * \param unitTo_ - 2ая система
+     * \param unitTransit - список систем через которые будут проходит линии соединения
+     * \param listInterfaces - список интерфейсов которые будут проходить через системы
+    */
+    void pasteUnitBetween(Node *unitFrom,
+                          QList<Node* > unitTransit,
+                          Node *unitTo,
+                          QVector<PinNode::TYPE_INTERFACE> listInterfaces );
+    //! Проверка того, что контакты комплементарны
+    //! \param pin1 - 1 сравнивемый контакт
+    //! \param pin2 - 2ой сравниваемый контакт
+    //! \return true - если контакты комплементарны, false - если нет
+    bool checkInOutPins(PinNode *pin1,PinNode *pin2);
+
+    Node* tracePinToFindFreePin(Node* pin);
+
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
@@ -171,6 +188,7 @@ private:
     bool checkAvalibleLinkLeft(Node *wire, Node *toPin);
     bool hasConnectThrough(PinNode* pin,QList<Node*> unitTransit);
     bool hasFullConnected(PinNode *pin);
+    void traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &curUnit);
     //! заполнение информацией о расположении блоков
 
     void recFillGeometry(Node* node, TGeometry geo);

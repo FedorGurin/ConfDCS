@@ -2,6 +2,7 @@
 #define WIRENODE_H
 #include "Node.h"
 #include <stdint.h>
+#include "pinNode.h"
 //! класс объединения одинаковых полей
 class WireNode:public Node
 {
@@ -11,6 +12,11 @@ public:
              QString type,
             // QString idName_,
              Node*);
+
+    WireNode(PinNode *pinNode)
+    {
+        WireNode(pinNode->strLabel,pinNode->strTypeWire,pinNode);
+    }
     WireNode();
     //! уникальное имя жгута
     //QString idNameCoord;
