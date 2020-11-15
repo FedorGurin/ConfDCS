@@ -1,6 +1,6 @@
 
 #include "unitNode.h"
-#include "./globalFunc/gl_func.h"
+
 
 UnitNode::UnitNode(QString value,Node *parent):Node()
 {
@@ -12,8 +12,6 @@ UnitNode::UnitNode(QString value,Node *parent):Node()
     isTransit   = false;
     alias.clear();
     idUnitLocation.clear();
-
-    listForCompleter<<displayName;
 
     parent->addChild(this);
     addParent(parent);

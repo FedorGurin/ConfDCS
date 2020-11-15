@@ -3,12 +3,12 @@
 
 #include "unitNode.h"
 #include "connectorNode.h"
-#include "globalFunc/gl_func.h"
+
 
 #include "wireNode.h"
 #include "systemNode.h"
 #include "pinNode.h"
-#include "settingXML.h"
+
 
 #include <QFile>
 #include <QTextStream>
@@ -39,7 +39,7 @@ void DomParser::loadDataPIC(QString nameDir)
     QStringList filtres;
     QJsonParseError jsonError;
     filtres<<"*.json";
-    QDir dir(SettingXML::getObj()->dataDir + "/csv"+nameDir);
+    QDir dir("./csv"+nameDir);
 
     QFileInfoList fileList = dir.entryInfoList(filtres, QDir::Files);
 
@@ -154,22 +154,22 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
 //    else if(type == E_CORDS)
 
     //! открываем файлы со спецификацией
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/spec",listRootItemNode,f_parseSpec );
+    okDesData = openFileDesData("./csv/spec",listRootItemNode,f_parseSpec );
     if(okDesData == false)
         return;
 
     //! открываем файлы с данными соединений и блоков
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv" + dir,listRootItemNode,f_parseData );
+    okDesData = openFileDesData("./csv" + dir,listRootItemNode,f_parseData );
     if(okDesData == false)
         return;
 
     //! открываем файлы с трансформациями
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/transform",listRootItemNode,f_parseTrans );
+    okDesData = openFileDesData("./csv/transform",listRootItemNode,f_parseTrans );
     if(okDesData == false)
         return;
 
     //! открываем файлы с псевдонимами
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/alias",listRootItemNode,f_parseAlias );
+    okDesData = openFileDesData("./csv/alias",listRootItemNode,f_parseAlias );
     if(okDesData == false)
         return;
 

@@ -1,6 +1,6 @@
 
 #include "wireNode.h"
-#include "./globalFunc/gl_func.h"
+
 #include <QDebug>
 WireNode::WireNode(QString id,
                    QString type,
@@ -28,7 +28,7 @@ WireNode::WireNode(QString id,
 //    isDisplay   = ((element.attribute("isDisplay")).toInt());
 
     pathName = idName;
-    listForCompleter<<displayName;
+
 
     parent->addChild(this);
     addParent(parent);

@@ -16,7 +16,7 @@ class DomParser : public QObject {
 
 public:
 
-    //! поля таблицы с описанием расположения систем и блоков
+    //! Поля таблицы с описанием расположения систем и блоков
     enum{
         E_GEO_FULL  ,
         E_GEO_SHORT ,
@@ -90,6 +90,7 @@ public:
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
 
+    //! Вставить
     void pasteUnitBetween(Node *unitFrom, QList<Node* > unitTransit, Node *unitTo,QVector<PinNode::TYPE_INTERFACE> listInterfaces );
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
