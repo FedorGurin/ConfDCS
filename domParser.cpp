@@ -723,18 +723,35 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
      correctCoords(unitFrom);
 
 }
-Node* DomParser::tracePinToFindFreePin(Node* pin)
+void DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node *fPin)
 {
+    Node* n = findNodeByType(pin,Node::E_UNIT,EDirection::E_UP);
+    if(n == nullptr)
+        return ;
+    UnitNode *unitNode = static_cast<UnitNode *>(n);
+    PinNode  *pinTrace = static_cast<PinNode* > (pin);
+    if(pin->child.isEmpty() == false)
+    {
     for(auto w : pin->child)
     {
-
-        WireNode *wire   = static_cast<WireNode * > (w);
-        if(wire->toPin == nullptr && wire->fullConnected == false)
-            return pin;
-
-        return tracePinToFindFreePin(wire->toPin);
+       WireNode *wire   = static_cast<WireNode * > (w);
+       if((wire->toPin != nullptr || wire->fullConnected == true) && wire->toPin!=prevPin)
+       {
+           tracePinToFindFreePin(wire->toPin,pin,wire->toPin);
+       }
     }
-    return nullptr;
+    }
+    for(auto i : unitNode->pins_internal)
+    {
+        PinNode *pin1 = i.first;
+        PinNode *pin2 = i.second;
+
+        if(pinTrace == pin1)
+        {
+            pinTrace = pin2;
+            tracePinToFindFreePin(pinTrace,pin1,fPin);
+        }
+    }
 }
 void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wireNode)
 {
@@ -841,7 +858,8 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
             if(checkInOutPins(parentPin,transitPin) &&
                (parentPin->type_interface == transitPin->type_interface))
             {
-                Node *p = tracePinToFindFreePin(transitPin);
+                Node *p = nullptr;
+                tracePinToFindFreePin(transitPin,nullptr,p);
                 if(p != nullptr)
                 {
                     PinNode* fp = static_cast<PinNode *> (p);

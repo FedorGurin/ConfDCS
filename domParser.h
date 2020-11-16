@@ -107,7 +107,7 @@ public:
     //! \return true - если контакты комплементарны, false - если нет
     bool checkInOutPins(PinNode *pin1,PinNode *pin2);
 
-    Node* tracePinToFindFreePin(Node* pin);
+    void tracePinToFindFreePin(Node* pin,Node *prevNode,Node *fPin);
 
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
@@ -212,6 +212,7 @@ private:
     void calcNumInterface(Node *startNode);
     //! засгрузить описание внтуренних подлкючений
     void loadInternalConnection(void);
+    //! разбор файла с внутренними соединиями
     void parseInCon(UnitNode *);
     //! найти блоки которые ссылаются на указанный, или данный блок на них
     void findNeighborUnit(Node* unitNode,QList<Node*> &listNode);
