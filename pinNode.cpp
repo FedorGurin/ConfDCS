@@ -24,6 +24,9 @@ PinNode::PinNode(QString id,
     if(strIo_.toLower() == "выдача")
         io = E_OUT;
 
+    if(strIo_.toLower() == "контроль")
+        io = E_CTRL;
+
     if(strIo_.toLower() == "прием/выдача" || strIo_.toLower() == "выдача/прием" || strIo_.toLower() == "-")
         io = E_BI;
 
@@ -54,7 +57,8 @@ PinNode::PinNode(QString id,
         type_interface = E_RS_232;
     if(strInterface.contains("422", Qt::CaseInsensitive))
         type_interface = E_RS_422;
-    if(strInterface.contains("свч", Qt::CaseInsensitive))
+    if(strInterface.contains("свч", Qt::CaseInsensitive) ||
+       strInterface.contains("вч", Qt::CaseInsensitive))
         type_interface = E_VHF;
     if(strInterface.contains("arinc 646", Qt::CaseInsensitive))
         type_interface = E_ARINC_646;
@@ -115,8 +119,8 @@ PinNode::PinNode(QString id,
     addParent(parent);
     for(int i = 0;i < numClone;i++)
     {
-        if(strLabel_ != "-")
-            new WireNode(strLabel_,strTypeWire_,this);
+        if(strLabel != "-")
+            new WireNode(strLabel,strTypeWire,this);
     }
 }
 PinNode::PinNode():Node()

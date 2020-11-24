@@ -1,6 +1,6 @@
 
 #include "unitNode.h"
-#include "./globalFunc/gl_func.h"
+
 
 UnitNode::UnitNode(QString value,Node *parent):Node()
 {
@@ -12,8 +12,6 @@ UnitNode::UnitNode(QString value,Node *parent):Node()
     isTransit   = false;
     alias.clear();
     idUnitLocation.clear();
-
-    listForCompleter<<displayName;
 
     parent->addChild(this);
     addParent(parent);
@@ -126,6 +124,23 @@ PinNode* UnitNode::findSameConnection(PinNode *pin)
             return curPin;
     }
     return nullptr;
+}
+QList<PinNode* > UnitNode::findAllInternalConnection(PinNode *pin)
+{
+    PinNode *curPin = pin;
+    QList<PinNode *> pins;
+    for(auto i : pins_internal)
+    {
+        PinNode *pin1 = i.first;
+        PinNode *pin2 = i.second;
+
+        if(curPin == pin1)
+            curPin = pin2;
+        else if(curPin == pin2)
+            curPin = pin1;
+        pins.append(curPin);
+     }
+    return pins;
 }
 bool UnitNode::checkConnectedPins(PinNode * pin)
 {

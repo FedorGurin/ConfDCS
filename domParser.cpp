@@ -3,12 +3,12 @@
 
 #include "unitNode.h"
 #include "connectorNode.h"
-#include "globalFunc/gl_func.h"
+
 
 #include "wireNode.h"
 #include "systemNode.h"
 #include "pinNode.h"
-#include "settingXML.h"
+
 
 #include <QFile>
 #include <QTextStream>
@@ -39,7 +39,7 @@ void DomParser::loadDataPIC(QString nameDir)
     QStringList filtres;
     QJsonParseError jsonError;
     filtres<<"*.json";
-    QDir dir(SettingXML::getObj()->dataDir + "/csv"+nameDir);
+    QDir dir("./csv"+nameDir);
 
     QFileInfoList fileList = dir.entryInfoList(filtres, QDir::Files);
 
@@ -154,22 +154,22 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
 //    else if(type == E_CORDS)
 
     //! открываем файлы со спецификацией
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/spec",listRootItemNode,f_parseSpec );
+    okDesData = openFileDesData("./csv/spec",listRootItemNode,f_parseSpec );
     if(okDesData == false)
         return;
 
     //! открываем файлы с данными соединений и блоков
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv" + dir,listRootItemNode,f_parseData );
+    okDesData = openFileDesData("./csv" + dir,listRootItemNode,f_parseData );
     if(okDesData == false)
         return;
 
     //! открываем файлы с трансформациями
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/transform",listRootItemNode,f_parseTrans );
+    okDesData = openFileDesData("./csv/transform",listRootItemNode,f_parseTrans );
     if(okDesData == false)
         return;
 
     //! открываем файлы с псевдонимами
-    okDesData = openFileDesData(SettingXML::getObj()->dataDir + "/csv/alias",listRootItemNode,f_parseAlias );
+    okDesData = openFileDesData("./csv/alias",listRootItemNode,f_parseAlias );
     if(okDesData == false)
         return;
 
@@ -561,7 +561,9 @@ bool DomParser::hasFullConnected(PinNode *pin)
     }
     return false;
 }
-void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces)
+void DomParser::pasteUnitThrough(Node *unitFrom_,
+                                 QList<Node* > unitTransit,
+                                 QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
     QList<Node* > pins;
     QList<Node* > pinSelected;
@@ -726,40 +728,190 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
      correctCoords(unitFrom);
 
 }
-void DomParser::pasteUnitBetween(Node *unitFrom_, QList<Node* > unitsTransit_, Node *unitTo_,  QVector<PinNode::TYPE_INTERFACE> listInterfaces)
+Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
 {
+
+    Node* n = findNodeByType(pin,Node::E_UNIT,EDirection::E_UP);
+    if(n == nullptr)
+        return nullptr;
+    UnitNode *unitNode = static_cast<UnitNode *>(n);
+    PinNode  *pinTrace = static_cast<PinNode* > (pin);
+    if(pin->child.isEmpty() == false)
+    {
+    for(auto w : pin->child)
+    {
+       WireNode *wire   = static_cast<WireNode * > (w);
+       if((wire->toPin != nullptr || wire->fullConnected == true) && wire->toPin!=prevPin)
+       {
+           Node*n = tracePinToFindFreePin(wire->toPin,pin,wire->toPin);
+           if(n!= nullptr)
+               return n;
+       }
+    }
+    }
+    for(auto i : unitNode->pins_internal)
+    {
+        PinNode *pin1 = i.first;
+        PinNode *pin2 = i.second;
+
+        if(pinTrace == pin1)
+        {
+            pinTrace = pin2;
+            Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+            if(n!=nullptr)
+                return n;
+        }
+    }   
+    return fPin;
+}
+void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wireNode)
+{
+    for(auto w : pin->child)
+    {
+
+        WireNode *wire   = static_cast<WireNode * > (w);
+        if(wire->toPin == nullptr)
+            continue;
+        //! здесь должна быть функция поиска и перехода между системами
+        Node* fNode = findNodeByType(wire->toPin,Node::E_UNIT,EDirection::E_UP);
+        if(fNode == sampleUnit)
+            wireNode.append(wire);
+        else
+        {
+            //иначе двигаемя дальше
+            UnitNode *unit = static_cast<UnitNode *> (fNode);
+            PinNode *pin   = static_cast<PinNode *>  (wire->toPin);
+            QList<PinNode *> pins = unit->findAllInternalConnection(pin);
+            for(auto p: pins)
+            {
+                traceWiresFromPin(p,sampleUnit,wireNode);
+            }
+        }
+    }
+}
+bool DomParser::checkInOutPins(PinNode *pin1,PinNode *pin2)
+{
+    if((pin1->io == PinNode::TYPE_IO::E_IN || pin1->io == PinNode::TYPE_IO::E_OUT) &&
+       (pin2->io == PinNode::TYPE_IO::E_IN  || pin2->io == PinNode::TYPE_IO::E_OUT))
+    {
+        if(pin1->io != pin2->io)
+            return true;
+    }
+    return false;
+}
+void DomParser::pasteUnitBetween(Node *unitFrom_,
+                                 QList<Node* > unitsTransit_,
+                                 Node *unitTo_,
+                                 QVector<PinNode::TYPE_INTERFACE> listInterfaces)
+{
+    // проверяем, что не пропускаем провода через сам же блок
     if(unitFrom_ == unitTo_)
         return;
 
-    QList<Node* > pinsUnitFrom;
-    QList<Node* > pinSelected;
+    QList<Node* > pinsUnitSys1;
+    QList<Node* > pinsUnitTransitSel;
     QList<Node* > pinsUnitTransit;
-    QList<Node* > wireUnitFrom;
+    // список(траса) всех проводов соединяющий Sys1 и Sys2
+    QList<Node* > wireUnitSys1;
+    // провода полученные из wireUnitSys1 выходящие только из Sys1
+    QList<Node* > wireUnitSys1Sel;
+    //
+    UnitNode *unitSys1 = static_cast<UnitNode * > (unitFrom_);
+    UnitNode *unitSys2   = static_cast<UnitNode * > (unitTo_);
 
-    UnitNode *unitFrom = static_cast<UnitNode * > (unitFrom_);
-    UnitNode *unitTo   = static_cast<UnitNode * > (unitTo_);
-
-    // собираем все пины в один список
-    grabberNodeByType(unitFrom,Node::E_PIN,pinsUnitFrom);
-    // убираем все пины которые не связанны с unitTo
-    for(auto i: pinsUnitFrom)
+    // собираем все пины в один список от Системы 1
+    grabberNodeByType(unitSys1,Node::E_PIN,pinsUnitSys1);
+    // убираем все пины которые не связанны с Системой 2
+    for(auto i: pinsUnitSys1)
     {
         if(i->child.isEmpty() == true)
             continue;
 
-        for(auto w : i->child)
+        traceWiresFromPin(i, unitSys2,wireUnitSys1);
+    }
+    // оставляем pin от 1ой системы
+    //pinsUnitSys1.clear();
+    for(auto i: wireUnitSys1)
+    {
+        // здесь должна быть функция поиска и перехода между системами
+        Node* fNode = findNodeByType(i->parent,Node::E_UNIT,EDirection::E_UP);
+        if(fNode == unitSys1)
+            wireUnitSys1Sel.append(i);
+    }
+    // выбираем все контакты из транзитных систем
+    for(auto i: unitsTransit_)
+    {
+        grabberNodeByType(i,Node::E_PIN,pinsUnitTransit);
+    }
+    // оставялем только свободные
+    for(auto i:pinsUnitTransit)
+    {
+        if(i->child.isEmpty())
         {
-            WireNode *wire   = static_cast<WireNode * > (w);
-            if(wire->toPin == nullptr)
-                continue;
-            Node* fNode = findNodeByType(wire->toPin,Node::E_UNIT,EDirection::E_UP);
-            if(fNode == unitTo_)
-                wireUnitFrom.append(wire);
+            pinsUnitTransitSel.append(i);
+            continue;
+        }
+        for(auto j : i->child)
+        {
+            WireNode *wire = static_cast<WireNode *> (j);
+            if(wire->fullConnected == false)
+                pinsUnitTransitSel.append(i);
+        }
+
+    }
+    // находим соответствующие контакты
+    for(auto i : wireUnitSys1Sel)
+    {
+        for(auto j: pinsUnitTransitSel)
+        {
+            PinNode *parentPin = static_cast<PinNode *> (i->parent);
+            PinNode *transitPin = static_cast<PinNode *> (j);
+            if(checkInOutPins(parentPin,transitPin) &&
+               (parentPin->type_interface == transitPin->type_interface) &&
+                    transitPin->child.isEmpty() == true)
+            {
+                Node *p = tracePinToFindFreePin(transitPin);
 
 
+                if(p != nullptr)
+                {
+                    PinNode* fp = static_cast<PinNode *> (p);
+                    if(parentPin->io == fp->io)
+                    {
+                        WireNode *wireSys1Sel = static_cast<WireNode *> (i);
+                        Node* saveP = wireSys1Sel->toPin;
+                        wireSys1Sel->toPin = transitPin;
+                        wireSys1Sel->fullConnected = true;
+
+                        WireNode *w = new WireNode(transitPin);
+                        w->toPin = i;
+                        w->fullConnected = true;
+
+                        if(fp->child.isEmpty())
+                        {
+                            WireNode *w0 = new WireNode(fp);
+                            w0->toPin = saveP;
+                            // найдем провод который связан с исходным контактом
+                            for(auto k:saveP->child)
+                            {
+                                WireNode *wk = static_cast<WireNode *> (k);
+                                if(wk->toPin == i)
+                                {
+                                    wk->toPin = fp;
+                                    wk->fullConnected = true;
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+
+            }
         }
     }
 
+    // п
 //    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
 //    grabberNodeByType(unitTransit,Node::E_WIRE,nodeWireTransit);
 

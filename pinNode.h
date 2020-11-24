@@ -13,7 +13,9 @@ public:
         E_IN        ,   //! входная связь
         E_OUT       ,   //! выходная связь
         E_GROUND    ,   //! заземление
-        E_SHIELD        //! экран
+        E_SHIELD    ,   //! экран
+        E_CTRL          //! контроль
+
     };
     enum TYPE_INTERFACE
     {

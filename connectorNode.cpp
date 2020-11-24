@@ -1,5 +1,5 @@
 #include "connectorNode.h"
-#include "./globalFunc/gl_func.h"
+
 
 ConnectorNode::ConnectorNode(QString id,
                              QString typeConBlock,
@@ -15,7 +15,7 @@ ConnectorNode::ConnectorNode(QString id,
     if(typeConWire != "-")
         typeConnectorWire = typeConWire;
     pathName    = idName;
-    listForCompleter<<displayName;
+
 
     parent->addChild(this);
     addParent(parent);
