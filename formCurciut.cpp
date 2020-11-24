@@ -182,7 +182,8 @@ void FormCurciut::slotCut()
     {
         domParser->pasteUnitBetween(recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text()),
                                     nodes,
-                                    recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text()));
+                                    recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text()),
+                                    curInterfaces);
     }
 }
 void FormCurciut::recAddFindSystem(Node *root)

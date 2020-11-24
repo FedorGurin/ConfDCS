@@ -529,11 +529,11 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
-bool DomParser::hasConnectThrough(PinNode* pin,QList<Node*> unitTransit)
+bool DomParser::hasConnectThrough(WireNode* wireNode,QList<Node*> unitTransit)
 {
-    if(pin->child.isEmpty())
-        return false;
-    WireNode *wireNode = static_cast<WireNode * > ( pin->child.first());
+  //  if(pin->child.isEmpty())
+  //      return false;
+    //WireNode *wireNode = static_cast<WireNode * > ( pin->child.first());
     if(wireNode->toPin != nullptr)
     {
         Node * fNode = findNodeByType(wireNode->toPin,Node::E_UNIT,EDirection::E_UP);
@@ -594,13 +594,18 @@ void DomParser::pasteUnitThrough(Node *unitFrom_, QList<Node* > unitTransit,QVec
         // текущий pin
         PinNode *pinSel = static_cast<PinNode *> (i);
         // проверка, что текущий pin уже пропущен через транзитную систему
-        if(hasConnectThrough(pinSel,unitTransit) == true || hasFullConnected(pinSel) == false)
-            continue;
+       // if(hasConnectThrough(pinSel,unitTransit) == true || hasFullConnected(pinSel) == false)
+       //     continue;
         if(pinSel->child.isEmpty() == true)
             continue;
 
         for(auto k:pinSel->child)
         {
+            WireNode *w0 = static_cast<WireNode * > (k);
+            // проверка, что текущий pin уже пропущен через транзитную систему
+            if(hasConnectThrough(w0,unitTransit) == true || w0->fullConnected == false)
+                continue;
+
         // контакты транзитной системы
         for(auto j:pinsUnitTransit)
         {

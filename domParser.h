@@ -168,7 +168,7 @@ private:
     void mergeNodes(Node *root,Node* from);
     void grabberNodeByType(Node *root,Node::Type t,QList<Node* > &list);
     bool checkAvalibleLinkLeft(Node *wire, Node *toPin);
-    bool hasConnectThrough(PinNode* pin,QList<Node*> unitTransit);
+    bool hasConnectThrough(WireNode* wire,QList<Node*> unitTransit);
     bool hasFullConnected(PinNode *pin);
     //! заполнение информацией о расположении блоков
 
