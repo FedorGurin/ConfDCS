@@ -723,11 +723,12 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
      correctCoords(unitFrom);
 
 }
-void DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node *fPin)
+Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
 {
+
     Node* n = findNodeByType(pin,Node::E_UNIT,EDirection::E_UP);
     if(n == nullptr)
-        return ;
+        return nullptr;
     UnitNode *unitNode = static_cast<UnitNode *>(n);
     PinNode  *pinTrace = static_cast<PinNode* > (pin);
     if(pin->child.isEmpty() == false)
@@ -737,7 +738,9 @@ void DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node *fPin)
        WireNode *wire   = static_cast<WireNode * > (w);
        if((wire->toPin != nullptr || wire->fullConnected == true) && wire->toPin!=prevPin)
        {
-           tracePinToFindFreePin(wire->toPin,pin,wire->toPin);
+           Node*n = tracePinToFindFreePin(wire->toPin,pin,wire->toPin);
+           if(n!= nullptr)
+               return n;
        }
     }
     }
@@ -749,9 +752,12 @@ void DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node *fPin)
         if(pinTrace == pin1)
         {
             pinTrace = pin2;
-            tracePinToFindFreePin(pinTrace,pin1,fPin);
+            Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+            if(n!=nullptr)
+                return n;
         }
-    }
+    }   
+    return fPin;
 }
 void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wireNode)
 {
@@ -856,10 +862,12 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
             PinNode *parentPin = static_cast<PinNode *> (i->parent);
             PinNode *transitPin = static_cast<PinNode *> (j);
             if(checkInOutPins(parentPin,transitPin) &&
-               (parentPin->type_interface == transitPin->type_interface))
+               (parentPin->type_interface == transitPin->type_interface) &&
+                    transitPin->child.isEmpty() == true)
             {
-                Node *p = nullptr;
-                tracePinToFindFreePin(transitPin,nullptr,p);
+                Node *p = tracePinToFindFreePin(transitPin);
+
+
                 if(p != nullptr)
                 {
                     PinNode* fp = static_cast<PinNode *> (p);
