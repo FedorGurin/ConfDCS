@@ -72,7 +72,7 @@ PinNode::PinNode(QString id,
         type_interface = E_TEST;
     if(strInterface.contains("корпус", Qt::CaseInsensitive) ||
        strInterface.contains("экран", Qt::CaseInsensitive) )
-        type_interface = E_SHEILD;
+        type_interface = E_SHEILD_I;
 
 
     nameSignal      = strSignal_;

@@ -1,6 +1,6 @@
 #ifndef WIRENODE_H
 #define WIRENODE_H
-#include "Node.h"
+#include "node.h"
 #include <stdint.h>
 #include "pinNode.h"
 //! класс объединения одинаковых полей

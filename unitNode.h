@@ -43,7 +43,7 @@ public:
     bool checkConnectedPins(PinNode *pin);
     bool recCheckConnectedPin(QPair<PinNode *, PinNode *> p, PinNode *pin);
     //! поиск свободного контакта имеющего внутренее соединение с контактом \param node
-    PinNode* findSameConnection(PinNode *node);
+    PinNode* findSameConnection(PinNode *pin, PinNode::TYPE_IO type = PinNode::TYPE_IO::E_BI);
     //! список контактов имеющих внутренее соединение с указаным \param node
     QList<PinNode* > findAllInternalConnection(PinNode *node);
     //! список интерфейсов

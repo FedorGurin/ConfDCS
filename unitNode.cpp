@@ -101,28 +101,41 @@ bool UnitNode::recCheckConnectedPin(QPair<PinNode *, PinNode *> p, PinNode *pin)
     return true;
 
 }
-PinNode* UnitNode::findSameConnection(PinNode *pin)
+
+PinNode* UnitNode::findSameConnection(PinNode *pin, PinNode::TYPE_IO type)
 {
     PinNode *curPin = pin;
-    for(auto i : pins_internal)
+    bool dirUp = true;//направление поиска
+    int count = 0;
+    for(int i = 0; i<pins_internal.size();i++)
     {
-        PinNode *pin1 = i.first;
-        PinNode *pin2 = i.second;
+        PinNode *pin1 = pins_internal[i].first;
+        PinNode *pin2 = pins_internal[i].second;
 
         if(curPin == pin1)
+        {
             curPin = pin2;
-        else if(curPin == pin2)
-            curPin = pin1;
+            dirUp = true;
 
+        }
+        else if(curPin == pin2)
+        {
+            dirUp = false;
+            curPin = pin1;
+            i = -1;
+
+        }
         WireNode *wire = nullptr;
         if(curPin->child.isEmpty() == true)
             wire = new WireNode(curPin->strLabel,curPin->strTypeI,curPin);
         else
             wire = static_cast<WireNode* > (curPin->child.first());
 
-        if(wire->fullConnected == false && curPin->type_interface != PinNode::E_TEST)
+        if(wire->fullConnected == false && curPin->type_interface != PinNode::E_TEST && curPin->io == type)
             return curPin;
+
     }
+
     return nullptr;
 }
 QList<PinNode* > UnitNode::findAllInternalConnection(PinNode *pin)

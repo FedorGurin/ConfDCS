@@ -749,19 +749,49 @@ Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
        }
     }
     }
-    for(auto i : unitNode->pins_internal)
+    for(int i = 0; i<unitNode->pins_internal.size();i++)
     {
-        PinNode *pin1 = i.first;
-        PinNode *pin2 = i.second;
+        PinNode *pin1 = unitNode->pins_internal[i].first;
+        PinNode *pin2 = unitNode->pins_internal[i].second;
 
         if(pinTrace == pin1)
         {
             pinTrace = pin2;
             Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
-            if(n!=nullptr)
-                return n;
+                       if(n!=nullptr)
+                           return n;
+
+
         }
-    }   
+        else if(pinTrace == pin2)
+        {
+
+            pinTrace = pin1;
+            i = -1;
+            Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin);
+                       if(n!=nullptr)
+                           return n;
+
+
+        }
+    }
+        //Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+        //           if(n!=nullptr)
+        //               return n;
+
+//    for(auto i : unitNode->pins_internal)
+//    {
+//        PinNode *pin1 = i.first;
+//        PinNode *pin2 = i.second;
+
+//        if(pinTrace == pin1)
+//        {
+//            pinTrace = pin2;
+//            Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+//            if(n!=nullptr)
+//                return n;
+//        }
+//    }
     return fPin;
 }
 void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wireNode)
@@ -868,14 +898,18 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
             PinNode *transitPin = static_cast<PinNode *> (j);
             if(checkInOutPins(parentPin,transitPin) &&
                (parentPin->type_interface == transitPin->type_interface) &&
-                    transitPin->child.isEmpty() == true)
+                    transitPin->child.isEmpty() == true && parentPin->type_interface!=PinNode::E_SHEILD_I)
             {
-                Node *p = tracePinToFindFreePin(transitPin);
+                Node *endP = tracePinToFindFreePin(transitPin);
+                if(endP == nullptr)
+                    break;
 
-
-                if(p != nullptr)
+                UnitNode *pUnit   = static_cast<UnitNode * > (findNodeByType(endP,Node::E_UNIT,EDirection::E_UP));
+                PinNode *pNode = static_cast<PinNode* > (endP);
+                PinNode* fp = pUnit->findSameConnection(pNode,parentPin->io);
+                if(fp != nullptr)
                 {
-                    PinNode* fp = static_cast<PinNode *> (p);
+                    //PinNode* fp = static_cast<PinNode *> (p1);
                     if(parentPin->io == fp->io)
                     {
                         WireNode *wireSys1Sel = static_cast<WireNode *> (i);
@@ -883,25 +917,53 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
                         wireSys1Sel->toPin = transitPin;
                         wireSys1Sel->fullConnected = true;
 
-                        WireNode *w = new WireNode(transitPin);
-                        w->toPin = i;
-                        w->fullConnected = true;
+                        if(transitPin->child.isEmpty())
+                        {
+                            WireNode *w = new WireNode(transitPin);
+                            w->toPin = parentPin;
+                            w->fullConnected = true;
+                    }else {
+                                WireNode *w = static_cast<WireNode* > (transitPin->child[0]);
+                                w->toPin = parentPin;
+                                w->fullConnected = true;
+
+                    }
 
                         if(fp->child.isEmpty())
                         {
                             WireNode *w0 = new WireNode(fp);
                             w0->toPin = saveP;
+                            w0->fullConnected=true;
                             // найдем провод который связан с исходным контактом
                             for(auto k:saveP->child)
                             {
                                 WireNode *wk = static_cast<WireNode *> (k);
-                                if(wk->toPin == i)
+                                if(wk->toPin == parentPin)
                                 {
                                     wk->toPin = fp;
                                     wk->fullConnected = true;
                                 }
                             }
+
+                        }else
+                        {
+                           WireNode* wfp= static_cast<WireNode* >(fp->child[0]);
+                           wfp->toPin = saveP;
+                           wfp->fullConnected = true;
+                           for(int k =0 ;k<saveP->child.size();k++)
+                           {
+                               WireNode * w1 = static_cast<WireNode*> (saveP->child[k]);
+                               if(w1->toPin == parentPin)
+                               {
+                                   w1->toPin = fp;
+                                   w1->fullConnected = true;
+                                   break;
+                               }
+                           }
+
                         }
+                        break;
+
 
 
                     }
