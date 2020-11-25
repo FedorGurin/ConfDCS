@@ -751,27 +751,60 @@ Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
             }
         }
     }
-    for(int i = 0; i<unitNode->pins_internal.size();i++)
+    //! промежуточный массив
+    //! таблица соединений контактов внутри блока
+    QVector<QPair<PinNode *, PinNode * > > temp_pins = unitNode->pins_internal;
+    int i = 0;
+    if(temp_pins.isEmpty() == false)
     {
-        PinNode *pin1 = unitNode->pins_internal[i].first;
-        PinNode *pin2 = unitNode->pins_internal[i].second;
+        do
+        {
+            PinNode *pin1 = temp_pins[i].first;
+            PinNode *pin2 = temp_pins[i].second;
 
-        if(pinTrace == pin1)
-        {
-            pinTrace = pin2;
-            Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
-            if(n!=nullptr)
-                return n;
-        }
-        else if(pinTrace == pin2)
-        {
-            pinTrace = pin1;
-            //i = -1;
-            Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin);
-            if(n!=nullptr)
-                return n;
-        }
+            if(pinTrace == pin1)
+            {
+                pinTrace = pin2;
+                temp_pins.remove(i);
+                i = 0;
+                Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+                if(n!=nullptr)
+                    return n;
+            }
+            else if(pinTrace == pin2)
+            {
+                pinTrace = pin1;
+                temp_pins.remove(i);
+                i = 0;
+                Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin);
+                if(n!=nullptr)
+                    return n;
+            }
+            i++;
+        }while(temp_pins.isEmpty());
     }
+
+//    for(int i = 0; i<unitNode->pins_internal.size();i++)
+//    {
+//        PinNode *pin1 = unitNode->pins_internal[i].first;
+//        PinNode *pin2 = unitNode->pins_internal[i].second;
+
+//        if(pinTrace == pin1)
+//        {
+//            pinTrace = pin2;
+//            Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+//            if(n!=nullptr)
+//                return n;
+//        }
+//        else if(pinTrace == pin2)
+//        {
+//            pinTrace = pin1;
+//            //i = -1;
+//            Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin);
+//            if(n!=nullptr)
+//                return n;
+//        }
+//    }
         //Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
         //           if(n!=nullptr)
         //               return n;
