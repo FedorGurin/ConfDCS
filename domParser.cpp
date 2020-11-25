@@ -730,24 +730,26 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
 }
 Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
 {
-
     Node* n = findNodeByType(pin,Node::E_UNIT,EDirection::E_UP);
+
     if(n == nullptr)
         return nullptr;
+    //! блок к которому принадлежит контакт
     UnitNode *unitNode = static_cast<UnitNode *>(n);
+    //! текущий контакт
     PinNode  *pinTrace = static_cast<PinNode* > (pin);
     if(pin->child.isEmpty() == false)
     {
-    for(auto w : pin->child)
-    {
-       WireNode *wire   = static_cast<WireNode * > (w);
-       if((wire->toPin != nullptr || wire->fullConnected == true) && wire->toPin!=prevPin)
-       {
-           Node*n = tracePinToFindFreePin(wire->toPin,pin,wire->toPin);
-           if(n!= nullptr)
-               return n;
-       }
-    }
+        for(auto w : pin->child)
+        {
+            WireNode *wire   = static_cast<WireNode * > (w);
+            if((wire->toPin != nullptr || wire->fullConnected == true) && wire->toPin!=prevPin)
+            {
+                Node*n = tracePinToFindFreePin(wire->toPin,pin,wire->toPin);
+                if(n!= nullptr)
+                    return n;
+            }
+        }
     }
     for(int i = 0; i<unitNode->pins_internal.size();i++)
     {
@@ -758,21 +760,16 @@ Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
         {
             pinTrace = pin2;
             Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
-                       if(n!=nullptr)
-                           return n;
-
-
+            if(n!=nullptr)
+                return n;
         }
         else if(pinTrace == pin2)
         {
-
             pinTrace = pin1;
-            i = -1;
+            //i = -1;
             Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin);
-                       if(n!=nullptr)
-                           return n;
-
-
+            if(n!=nullptr)
+                return n;
         }
     }
         //Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
