@@ -107,7 +107,10 @@ public:
     //! \return true - если контакты комплементарны, false - если нет
     bool checkInOutPins(PinNode *pin1,PinNode *pin2);
 
-    Node* tracePinToFindFreePin(Node* pin,Node *prevNode = nullptr,Node *fPin = nullptr);
+    Node* tracePinToFindFreePin(Node* pin,
+                                Node *prevNode = nullptr,
+                                Node *fPin = nullptr,
+                                QVector<QPair<PinNode *, PinNode * > > *table = nullptr);
 
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);

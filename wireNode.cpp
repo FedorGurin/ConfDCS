@@ -40,6 +40,33 @@ WireNode::WireNode():Node()
     length = 0;
 
 }
+WireNode::WireNode(PinNode *pinNode)
+{
+    //    displayName = element.attribute("displayName","None");
+        idName      = pinNode->strLabel;
+        length = 0;
+
+       //
+    //    if(idNameCoord_.isEmpty() == false)
+    //    {
+    //        idNameCoord = idNameCoord_;
+    //        qDebug()<<idNameCoord<<"\n";
+    //    }
+        typeWire.clear();
+        typeWire =  pinNode->strTypeWire;
+        toPin       = nullptr;
+        fullConnected = false;
+    //    pathName    = idName;
+
+    //    comment     = element.attribute("comment");
+    //    isDisplay   = ((element.attribute("isDisplay")).toInt());
+
+        pathName = idName;
+
+
+        pinNode->addChild(this);
+        addParent(pinNode);
+}
 
 Node *WireNode::clone()
 {
