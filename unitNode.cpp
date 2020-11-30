@@ -104,54 +104,75 @@ bool UnitNode::recCheckConnectedPin(QPair<PinNode *, PinNode *> p, PinNode *pin)
 
 PinNode* UnitNode::findSameConnection(PinNode *pin, PinNode::TYPE_IO type)
 {
-    PinNode *curPin = pin;
-    bool dirUp = true;//направление поиска
-    int count = 0;
-    for(int i = 0; i<pins_internal.size();i++)
+    QVector<QPair<PinNode *, PinNode * > > temp_pins = pins_internal;
+
+    int i = 0;
+
+    PinNode *pinTrace = pin;
+    while(!temp_pins.isEmpty() && i<temp_pins.size())
     {
-        PinNode *pin1 = pins_internal[i].first;
-        PinNode *pin2 = pins_internal[i].second;
+        PinNode *pin1 = temp_pins[i].first;
+        PinNode *pin2 = temp_pins[i].second;
 
-        if(curPin == pin1)
+        if(pinTrace == pin1)
         {
-            curPin = pin2;
-            dirUp = true;
-
-        }
-        else if(curPin == pin2)
-        {
-            dirUp = false;
-            curPin = pin1;
+            pinTrace = pin2;
+            temp_pins.remove(i);
             i = -1;
 
         }
+        else if(pinTrace == pin2)
+        {
+            pinTrace = pin1;
+            temp_pins.remove(i);
+            i = -1;
+
+        }
+        if(pinTrace!=nullptr)
+        {
         WireNode *wire = nullptr;
-        if(curPin->child.isEmpty() == true)
-            wire = new WireNode(curPin->strLabel,curPin->strTypeI,curPin);
+        if(pinTrace->child.isEmpty() == true)
+            wire = new WireNode(pinTrace->strLabel,pinTrace->strTypeI,pinTrace);
         else
-            wire = static_cast<WireNode* > (curPin->child.first());
+            wire = static_cast<WireNode* > (pinTrace->child.first());
 
-        if(wire->fullConnected == false && curPin->type_interface != PinNode::E_TEST && curPin->io == type)
-            return curPin;
-
+        if(wire->fullConnected == false && pinTrace->type_interface != PinNode::E_TEST && pinTrace->io == type)
+            return pinTrace;
+        }
+        i++;
     }
-
-    return nullptr;
+      return nullptr;
 }
 QList<PinNode* > UnitNode::findAllInternalConnection(PinNode *pin)
 {
     PinNode *curPin = pin;
     QList<PinNode *> pins;
-    for(auto i : pins_internal)
-    {
-        PinNode *pin1 = i.first;
-        PinNode *pin2 = i.second;
 
-        if(curPin == pin1)
-            curPin = pin2;
-        else if(curPin == pin2)
-            curPin = pin1;
-        pins.append(curPin);
+    QVector<QPair<PinNode *, PinNode * > > temp_pins = pins_internal;
+
+    int i = 0;
+    PinNode *pinTrace = pin;
+    while(!temp_pins.isEmpty() && i<temp_pins.size())
+    {
+        PinNode *pin1 = temp_pins[i].first;
+        PinNode *pin2 = temp_pins[i].second;
+
+        if(pinTrace == pin1)
+        {
+            pinTrace = pin2;
+            temp_pins.remove(i);
+            i = 0;
+            pins.append(pinTrace);
+
+        }
+        else if(pinTrace == pin2)
+        {
+            pinTrace = pin1;
+            temp_pins.remove(i);
+            i = 0;
+            pins.append(pinTrace);
+
+        }
      }
     return pins;
 }

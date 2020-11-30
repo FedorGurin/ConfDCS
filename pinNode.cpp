@@ -36,7 +36,7 @@ PinNode::PinNode(QString id,
     if(strIo_.toLower() == "экран")
         io = E_SHIELD;
     strIO = strIo_.toLower();
-    //! интерфейс не опредлен
+    // интерфейс не опредлен
     type_interface = E_UNDEF_INTER;
 
     strInterface    = strInterface_;

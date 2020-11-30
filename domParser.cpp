@@ -26,9 +26,9 @@ const char* pathToParsedGV =  "/csv/parsed/curcuit/gv/";
 
 DomParser::DomParser(QObject *parent):QObject(parent)
 {
-    //! дерево с описательной частью данных
+    // дерево с описательной частью данных
     dataNodes           = nullptr;
-    //! корень для дерева с описанием данных
+    // корень для дерева с описанием данных
     rootItemData        = nullptr;
     listRootItemNode.clear();
 }
@@ -57,7 +57,7 @@ void DomParser::loadDataPIC(QString nameDir)
             //qDebug()<<res<<"\n";
             QString name = objJson["idSys"].toString();
             //qDebug()<<name<<"\n";
-            //! нужно найти блок с соотвествующим идентификатором
+            // нужно найти блок с соотвествующим идентификатором
             UnitNode* unit = static_cast<UnitNode* > (findNodeByIdName(name,rootItemData,Node::E_UNIT));
             if(unit == nullptr)
                 continue;
@@ -135,17 +135,17 @@ void DomParser::joingInterface(Node *startNode)
 void DomParser::loadData(QString dir, EPropertySaveToGV type)
 {
     bool okDesData = false;
-    //! создаем корень структуры
+    // создаем корень структуры
     rootItemData         = new Node;
     rootItemData->idName = "Ка-226";
 
-    //! указатели на функции
+    // указатели на функции
     std::function<void(DomParser&, QString,Node*)> f_parseData     = &DomParser::parseData;
     std::function<void(DomParser&, QString,Node*)> f_parseSpec     = &DomParser::parseLocation;
     std::function<void(DomParser&, QString,Node*)> f_parseTrans    = &DomParser::parseTransData;
     std::function<void(DomParser&, QString,Node*)> f_parseAlias    = &DomParser::parseAlias;
 
-    //! функция сохранения всех соединений (проводов)
+    // функция сохранения всех соединений (проводов)
     std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV = nullptr;
     if(type == E_WIRES)
         f_saveNodeGV = &DomParser::saveNodeWiresGW;
@@ -153,68 +153,68 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
         f_saveNodeGV = &DomParser::saveNodeInterfaceGW;
 //    else if(type == E_CORDS)
 
-    //! открываем файлы со спецификацией
+    // открываем файлы со спецификацией
     okDesData = openFileDesData("./csv/spec",listRootItemNode,f_parseSpec );
     if(okDesData == false)
         return;
 
-    //! открываем файлы с данными соединений и блоков
+    // открываем файлы с данными соединений и блоков
     okDesData = openFileDesData("./csv" + dir,listRootItemNode,f_parseData );
     if(okDesData == false)
         return;
 
-    //! открываем файлы с трансформациями
+    // открываем файлы с трансформациями
     okDesData = openFileDesData("./csv/transform",listRootItemNode,f_parseTrans );
     if(okDesData == false)
         return;
 
-    //! открываем файлы с псевдонимами
+    // открываем файлы с псевдонимами
     okDesData = openFileDesData("./csv/alias",listRootItemNode,f_parseAlias );
     if(okDesData == false)
         return;
 
-    //! реализация соединений
+    // реализация соединений
     for(auto i:listRootItemNode)
     {
-        //! осуществляем подключение проводов и клемм между собой
+        // осуществляем подключение проводов и клемм между собой
         connectWires    (i);
-        //! выдялем провода и клеммы одного интерфейса
+        // выдялем провода и клеммы одного интерфейса
         correctInterface(i);
-        //! корректируем название соединений
+        // корректируем название соединений
         correctWire     (i);        
         correctCoords(i);
-        //! сохранение связей и объектов в формате GraphViz согласно выбранным настройкам (провода, жгуты, интерфейсы)
+        // сохранение связей и объектов в формате GraphViz согласно выбранным настройкам (провода, жгуты, интерфейсы)
         saveForGraphviz (pathToParsedGV,i->idName,i,f_saveNodeGV);
     }
     for(auto i:listRootItemNode)
     {
-        //! объединение всех узлов в один граф
+        // объединение всех узлов в один граф
         for(auto j:i->child)
             mergeNodes(rootItemData, j);
     }
 
 
-    //! соединение всех проводов для уже объединенной модели
+    // соединение всех проводов для уже объединенной модели
     connectWires    (rootItemData);
 
-    //! выделение интерфейсов в  уже объединенной модели
+    // выделение интерфейсов в  уже объединенной модели
     correctInterface(rootItemData);
     correctWire     (rootItemData);
     correctCoords(rootItemData);
-    //! загрузить внутрение соединения
+    // загрузить внутрение соединения
     loadInternalConnection();
-    //! объединение интерфейсов в зависимости от подключения
+    // объединение интерфейсов в зависимости от подключения
     joingInterface(rootItemData);
     fillGeometryUnit(rootItemData);
 
-    //! заполнение интtрфейсов
+    // заполнение интtрфейсов
     checkConnectionInterfaces(rootItemData);
-    //! поиск соединений между локациями
+    // поиск соединений между локациями
     saveConnectionLocations(rootItemData,"CAB");
-    //! сохранение данных в формате GraphViz
+    // сохранение данных в формате GraphViz
     saveForGraphviz(pathToParsedGV,rootItemData->idName,rootItemData,f_saveNodeGV);
 
-    //! сохранение соединений в файл
+    // сохранение соединений в файл
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveWires = &DomParser::saveCSVConnection;
     saveDataToCVS("parsed/export/wires",rootItemData, f_saveWires);
 
@@ -728,9 +728,14 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
      correctCoords(unitFrom);
 
 }
-Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
+Node* DomParser::tracePinToFindFreePin(Node* pin,
+                                       Node* prevPin,
+                                       Node * fPin,
+                                       QVector<QPair<PinNode *, PinNode * > > *table)
 {
     Node* n = findNodeByType(pin,Node::E_UNIT,EDirection::E_UP);
+
+    QVector<QPair<PinNode *, PinNode * > > temp_pins;
 
     if(n == nullptr)
         return nullptr;
@@ -753,36 +758,39 @@ Node* DomParser::tracePinToFindFreePin(Node* pin,Node* prevPin,Node * fPin)
     }
     //! промежуточный массив
     //! таблица соединений контактов внутри блока
-    QVector<QPair<PinNode *, PinNode * > > temp_pins = unitNode->pins_internal;
-    int i = 0;
-    if(temp_pins.isEmpty() == false)
+    if(table == nullptr)
     {
-        do
+        temp_pins = unitNode->pins_internal;
+        table = &temp_pins;
+    }
+    int i = 0;
+
+        while(!table->isEmpty() && i<table->size())
         {
-            PinNode *pin1 = temp_pins[i].first;
-            PinNode *pin2 = temp_pins[i].second;
+            PinNode *pin1 = (*table)[i].first;
+            PinNode *pin2 = (*table)[i].second;
 
             if(pinTrace == pin1)
             {
                 pinTrace = pin2;
-                temp_pins.remove(i);
-                i = 0;
-                Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin);
+                table->remove(i);
+                i = -1;
+                Node* n= tracePinToFindFreePin(pinTrace,pin1,fPin, table);
                 if(n!=nullptr)
                     return n;
             }
             else if(pinTrace == pin2)
             {
                 pinTrace = pin1;
-                temp_pins.remove(i);
-                i = 0;
-                Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin);
+                table->remove(i);
+                i = -1;
+                Node* n= tracePinToFindFreePin(pinTrace,pin2,fPin,table);
                 if(n!=nullptr)
                     return n;
             }
             i++;
-        }while(temp_pins.isEmpty());
-    }
+        }
+
 
 //    for(int i = 0; i<unitNode->pins_internal.size();i++)
 //    {
@@ -928,7 +936,7 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
             PinNode *transitPin = static_cast<PinNode *> (j);
             if(checkInOutPins(parentPin,transitPin) &&
                (parentPin->type_interface == transitPin->type_interface) &&
-                    transitPin->child.isEmpty() == true && parentPin->type_interface!=PinNode::E_SHEILD_I)
+                    /*transitPin->child.isEmpty() == true &&*/ parentPin->type_interface!=PinNode::E_SHEILD_I)
             {
                 Node *endP = tracePinToFindFreePin(transitPin);
                 if(endP == nullptr)
@@ -940,8 +948,8 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
                 if(fp != nullptr)
                 {
                     //PinNode* fp = static_cast<PinNode *> (p1);
-                    if(parentPin->io == fp->io)
-                    {
+//                    if(parentPin->io == fp->io)
+//                    {
                         WireNode *wireSys1Sel = static_cast<WireNode *> (i);
                         Node* saveP = wireSys1Sel->toPin;
                         wireSys1Sel->toPin = transitPin;
@@ -996,12 +1004,15 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
 
 
 
-                    }
+
                 }
+
 
             }
         }
     }
+     correctWire     (rootItemData);
+     correctCoords(rootItemData);
 
     // п
 //    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);

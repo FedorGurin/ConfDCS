@@ -13,10 +13,8 @@ public:
             // QString idName_,
              Node*);
 
-    WireNode(PinNode *pinNode)
-    {
-        WireNode(pinNode->strLabel,pinNode->strTypeWire,pinNode);
-    }
+    WireNode(PinNode *pinNode);
+
     WireNode();
     //! уникальное имя жгута
     //QString idNameCoord;
