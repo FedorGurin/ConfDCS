@@ -263,7 +263,6 @@ void FormCurciut::slotLoadData()
         type = DomParser::E_INTERFACES;
     }
 
-
     if(ui->checkBoxLoadParsed->isChecked() == true)
     {
         domParser->loadData("/parsed/base",type);

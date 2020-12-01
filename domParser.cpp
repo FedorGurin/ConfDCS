@@ -53,23 +53,31 @@ void DomParser::loadDataPIC(QString nameDir)
             QByteArray array = file.readAll();
             QJsonDocument loadDoc = QJsonDocument::fromJson(array,&jsonError);
             QJsonObject objJson = loadDoc.object();
-            bool res = objJson.contains(("idSys"));
-            //qDebug()<<res<<"\n";
-            QString name = objJson["idSys"].toString();
-            //qDebug()<<name<<"\n";
-            // нужно найти блок с соотвествующим идентификатором
-            UnitNode* unit = static_cast<UnitNode* > (findNodeByIdName(name,rootItemData,Node::E_UNIT));
-            if(unit == nullptr)
-                continue;
-            if(objJson.contains("channels") && objJson["channels"].isArray())
+            bool res = objJson.contains("systems");
+            bool js = objJson["systems"].isArray();
+            if(objJson.contains("systems") && objJson["systems"].isArray())
             {
-                QJsonArray objArray = objJson["channels"].toArray();
-                for(int i = 0;i < objArray.size();i++)
+                QJsonArray sysArray = objJson["systems"].toArray();
+                for(int k = 0; k< sysArray.size(); k++)
                 {
-                    QJsonObject iArray = objArray[i].toObject();
-                    unit->unknownInf.append(new InterfaceNode(iArray));
+                    QJsonObject kArray = sysArray[k].toObject();
+                    QString name = kArray["idSys"].toString();
+                    //qDebug()<<name<<"\n";
+                    // нужно найти блок с соотвествующим идентификатором
+                    UnitNode* unit = static_cast<UnitNode* > (findNodeByIdName(name,rootItemData,Node::E_UNIT));
+                    if(unit == nullptr)
+                        continue;
+                    if(objJson.contains("channels") && objJson["channels"].isArray())
+                    {
+                        QJsonArray objArray = objJson["channels"].toArray();
+                        for(int i = 0;i < objArray.size();i++)
+                        {
+                            QJsonObject iArray = objArray[i].toObject();
+                            unit->unknownInf.append(new InterfaceNode(iArray));
+                        }
+                        //qDebug()<<"size ="<<objJson.size()<<"\n";
+                    }
                 }
-                //qDebug()<<"size ="<<objJson.size()<<"\n";
             }
 
                     //parseData(obj,rootNode);
