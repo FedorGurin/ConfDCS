@@ -92,6 +92,66 @@ void DomParser::loadDataPIC(QString nameDir)
         }
     }
 }
+void DomParser::loadTransitFile(QString nameDir)
+{
+    bool curOpenFile = false;
+
+    QStringList filtres;
+    QJsonParseError jsonError;
+    filtres<<"*.json";
+    QDir dir("./csv"+nameDir);
+
+    QFileInfoList fileList = dir.entryInfoList(filtres, QDir::Files);
+
+    for(auto &f:fileList)
+    {
+        QFile file(f.absoluteFilePath());
+
+        curOpenFile = file.open(QIODevice::ReadOnly | QIODevice::Text);
+        if(curOpenFile == true)
+        {
+            QByteArray array = file.readAll();
+            QJsonDocument loadDoc = QJsonDocument::fromJson(array,&jsonError);
+            QJsonObject objJson = loadDoc.object();
+            if(objJson.contains("systems") && objJson["systems"].isArray())
+            {
+                QJsonArray sysArray = objJson["systems"].toArray();
+                for(int k = 0; k< sysArray.size(); k++)
+                {
+                    QJsonObject kArray = sysArray[k].toObject();
+                    TTransitRecord tempRecord;
+                    tempRecord.nameSys1 = kArray["idSys"].toString();
+                    if(kArray.contains("transitSys") && kArray["transitSys"].isArray())
+                    {
+                        QJsonArray trArray = objJson["transitSys"].toArray();
+                        for(int i = 0;i < trArray.size();i++)
+                        {
+                            QJsonObject iArray = trArray[i].toObject();
+                            tempRecord.nameTr.append(iArray["name"].toString());
+                        }
+                        QJsonArray sys2Array = objJson["idSys2"].toArray();
+                        for(int i = 0;i < sys2Array.size();i++)
+                        {
+                            QJsonObject iArray = sys2Array[i].toObject();
+                            tempRecord.namesSys2.append(iArray["name"].toString());
+                        }
+                    }
+                    listTransitFromFile.append(tempRecord);
+                }
+            }
+
+                    //parseData(obj,rootNode);
+                    /*for(auto &item:obj)
+                    {
+                        QJsonObject  t = item.toObject();
+                        //QJsonValue::Type type = t.type();
+
+                        qDebug("Hello\n");
+
+                    }*/
+        }
+    }
+}
 //void DomParser::parseData(const QJsonObject &element, GenericNode *parent)
 //{
 //    GenericNode *item = nullptr;

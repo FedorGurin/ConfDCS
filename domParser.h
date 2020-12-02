@@ -50,6 +50,12 @@ public:
         //! координаты блока
         QString coord;
     }TGeometry;
+    typedef  struct TTransitRecord_
+    {
+        QString nameSys1;
+        QStringList nameTr;
+        QStringList namesSys2;
+    }TTransitRecord;
     enum {
         E_NAME                  = 0,   /*!< Enum имя сигнала                                      */
         E_UNIT_NAME                ,   /*!< Enum имя блока                                        */
@@ -90,6 +96,7 @@ public:
 
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
+    void loadTransitFile(QString nameDir);
 
     /*! Вставить транзитные системы между блоками unitFrom_ и unitTo_
      * \param unitFrom - 1ая система
@@ -226,6 +233,7 @@ private:
     QProcess procDot;
     QFile fileLog;
     QTextStream outLog;
+    QList<TTransitRecord> listTransitFromFile;
 
 
     //QFile fileTransform;

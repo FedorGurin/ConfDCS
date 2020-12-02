@@ -54,12 +54,12 @@
            <rect>
             <x>20</x>
             <y>80</y>
-            <width>188</width>
+            <width>231</width>
             <height>17</height>
            </rect>
           </property>
           <property name="text">
-           <string>Использовать файл трансформации</string>
+           <string>Использовать файл трансформации по интерфейсам</string>
           </property>
          </widget>
          <widget class="QCheckBox" name="checkBoxAlias">
@@ -73,6 +73,19 @@
           </property>
           <property name="text">
            <string>Замена на псевдонимы</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkBoxTransit">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>130</y>
+            <width>221</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Использовать файл для транзитных систем</string>
           </property>
          </widget>
         </widget>

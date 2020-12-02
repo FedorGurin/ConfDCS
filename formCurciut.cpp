@@ -133,6 +133,11 @@ void FormCurciut::slotCut()
     QList<QListWidgetItem*> listSys2      = ui->listWidgetSys2->selectedItems();
     QList<QListWidgetItem*> listSysMiddle = ui->listWidgetSysMiddle->selectedItems();
 
+    if(ui->checkBoxTransit->isChecked() == true)
+    {
+        domParser->loadTransitFile("/transform");
+        return;
+    }
     if(ui->checkBoxUseFileTransform->isChecked() == true)
     {
         for(auto i:domParser->vecTransform)
@@ -251,6 +256,10 @@ void FormCurciut::slotPushGen()
     }
 
 }
+//void FormCurciut::slotLoadTransitFile()
+//{
+//    domParser->loadTransitFile("/transform");
+//}
 void FormCurciut::slotDataBase()
 {
     domParser->saveDataBase();
