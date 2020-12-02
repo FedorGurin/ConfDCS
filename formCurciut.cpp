@@ -180,9 +180,14 @@ void FormCurciut::slotCut()
     }
     else
     {
+        QList<Node *> listUnitSys2;
+        for(auto i:listSys2)
+        {
+            listUnitSys2.append(recFindNodeByName(domParser->rootItemData,i->text()));
+        }
         domParser->pasteUnitBetween(recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text()),
                                     nodes,
-                                    recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text()),
+                                    listUnitSys2,
                                     curInterfaces);
     }
 }

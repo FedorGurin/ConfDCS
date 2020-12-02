@@ -161,7 +161,7 @@ QList<PinNode* > UnitNode::findAllInternalConnection(PinNode *pin)
         {
             pinTrace = pin2;
             temp_pins.remove(i);
-            i = 0;
+            i = -1;
             pins.append(pinTrace);
 
         }
@@ -169,10 +169,11 @@ QList<PinNode* > UnitNode::findAllInternalConnection(PinNode *pin)
         {
             pinTrace = pin1;
             temp_pins.remove(i);
-            i = 0;
+            i = -1;
             pins.append(pinTrace);
 
         }
+        i++;
      }
     return pins;
 }

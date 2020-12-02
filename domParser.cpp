@@ -732,10 +732,10 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
 //        curNode->
 //    }
 
-     unitFrom->coords.clear();
-     correctCoords(unitFrom);
-
-}
+    correctWire     (rootItemData);
+    clearCoords(rootItemData);
+    correctCoords(rootItemData);
+ }
 Node* DomParser::tracePinToFindFreePin(Node* pin,
                                        Node* prevPin,
                                        Node * fPin,
@@ -840,7 +840,25 @@ Node* DomParser::tracePinToFindFreePin(Node* pin,
 //    }
     return fPin;
 }
-void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wireNode)
+bool DomParser::hasPinInListWires(Node *pin,QList<Node *> &wireNode)
+{
+    for(auto i:wireNode)
+    {
+        WireNode *w_i   = static_cast<WireNode * > (i);
+        Node* fNode = findNodeByType(w_i->toPin,Node::E_UNIT,EDirection::E_UP);
+        if(fNode == pin)
+        {
+            for(auto w:pin->child)
+            {
+                 WireNode *wire   = static_cast<WireNode * > (w);
+                if(wire->toPin == fNode)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wireNode, QList<Node *> *prohibSys)
 {
     for(auto w : pin->child)
     {
@@ -850,7 +868,7 @@ void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wi
             continue;
         //! здесь должна быть функция поиска и перехода между системами
         Node* fNode = findNodeByType(wire->toPin,Node::E_UNIT,EDirection::E_UP);
-        if(fNode == sampleUnit)
+        if(fNode == sampleUnit )
             wireNode.append(wire);
         else
         {
@@ -860,7 +878,8 @@ void DomParser::traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &wi
             QList<PinNode *> pins = unit->findAllInternalConnection(pin);
             for(auto p: pins)
             {
-                traceWiresFromPin(p,sampleUnit,wireNode);
+                if(hasPinInListWires(p,wireNode) == false && prohibSys->indexOf(fNode) == -1)
+                    traceWiresFromPin(p,sampleUnit,wireNode,prohibSys);
             }
         }
     }
@@ -877,12 +896,15 @@ bool DomParser::checkInOutPins(PinNode *pin1,PinNode *pin2)
 }
 void DomParser::pasteUnitBetween(Node *unitFrom_,
                                  QList<Node* > unitsTransit_,
-                                 Node *unitTo_,
+                                 QList<Node* > listUnitTo_,
                                  QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
     // проверяем, что не пропускаем провода через сам же блок
+    for(auto l:listUnitTo_)
+    {
+        Node *unitTo_ = l;
     if(unitFrom_ == unitTo_)
-        return;
+        continue;
 
     QList<Node* > pinsUnitSys1;
     QList<Node* > pinsUnitTransitSel;
@@ -900,11 +922,24 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
     // убираем все пины которые не связанны с Системой 2
     for(auto i: pinsUnitSys1)
     {
-        if(i->child.isEmpty() == true)
+        PinNode *pin_out = static_cast<PinNode *> (i);
+
+        if(i->child.isEmpty() == true || pin_out->io != PinNode::E_OUT)
             continue;
 
-        traceWiresFromPin(i, unitSys2,wireUnitSys1);
+        traceWiresFromPin(i, unitSys2,wireUnitSys1,&unitsTransit_);
     }
+//    for(auto k: )
+//    for(auto i: pinsUnitSys1)
+//    {
+//        PinNode *pin_out = static_cast<PinNode *> (i);
+
+//        if(i->child.isEmpty() == true || pin_out->io != PinNode::E_OUT)
+//            continue;
+
+//        traceWiresFromPin(i, unitSys2,wireUnitSys1);
+//    }
+    // проверяем, что не проводили провода через транзитную систему
     // оставляем pin от 1ой системы
     //pinsUnitSys1.clear();
     for(auto i: wireUnitSys1)
@@ -934,6 +969,12 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
                 pinsUnitTransitSel.append(i);
         }
 
+    }
+    if(pinsUnitTransitSel.isEmpty())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("недостаточно свободных клемм");
+        msgBox.exec();
     }
     // находим соответствующие контакты
     for(auto i : wireUnitSys1Sel)
@@ -1018,9 +1059,11 @@ void DomParser::pasteUnitBetween(Node *unitFrom_,
 
             }
         }
+        correctWire     (rootItemData);
+        clearCoords(rootItemData);
+        correctCoords(rootItemData);
     }
-     correctWire     (rootItemData);
-     correctCoords(rootItemData);
+}
 
     // п
 //    grabberNodeByType(unitFrom,Node::E_WIRE,nodeWireConnect);
@@ -2550,6 +2593,23 @@ void DomParser::checkConnectionInterfaces(Node *startNode)
 void DomParser::calcNumInterface(Node *startNode)
 {
 
+}
+void DomParser::clearCoords(Node *startNode)
+{
+    if(startNode->type() == Node::E_UNIT)
+    {
+
+        UnitNode *unit = static_cast<UnitNode* > (startNode);
+        if(unit->idParentSys == "ИМК")
+            return;
+        unit->coords.clear();
+       // unit->calcInterface();
+        return;
+    }
+    for(auto i:startNode->child)
+    {
+        clearCoords(i);
+    }
 }
 void DomParser::correctCoords(Node* startNode)
 {

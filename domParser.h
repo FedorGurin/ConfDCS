@@ -99,7 +99,7 @@ public:
     */
     void pasteUnitBetween(Node *unitFrom,
                           QList<Node* > unitTransit,
-                          Node *unitTo,
+                          QList<Node *> unitTo,
                           QVector<PinNode::TYPE_INTERFACE> listInterfaces );
     //! Проверка того, что контакты комплементарны
     //! \param pin1 - 1 сравнивемый контакт
@@ -130,6 +130,7 @@ public:
     void saveCoordToFile(Node *unitNode);
     void saveTransform(QString sys1,QString sys2,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
+    bool hasPinInListWires(Node *pin,QList<Node *> &wireNode);
     //! список деревьев для каждого файла
     QList<Node* > listRootItemNode;
     QList<Node* > listRootUnit;
@@ -191,7 +192,7 @@ private:
     bool checkAvalibleLinkLeft(Node *wire, Node *toPin);
     bool hasConnectThrough(WireNode* wire,QList<Node*> unitTransit);
     bool hasFullConnected(PinNode *pin);
-    void traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &curUnit);
+    void traceWiresFromPin(Node *pin, Node* sampleUnit, QList<Node *> &curUnit,QList<Node *> *prohibSys=nullptr);
     //! заполнение информацией о расположении блоков
 
     void recFillGeometry(Node* node, TGeometry geo);
@@ -212,6 +213,7 @@ private:
     void joingInterface(Node *startNode);
     //! коррекция имен жгутов
     void correctCoords(Node* startNode);
+    void clearCoords(Node* startNode);
     void calcNumInterface(Node *startNode);
     //! засгрузить описание внтуренних подлкючений
     void loadInternalConnection(void);
