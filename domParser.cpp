@@ -31,6 +31,12 @@ DomParser::DomParser(QObject *parent):QObject(parent)
     // корень для дерева с описанием данных
     rootItemData        = nullptr;
     listRootItemNode.clear();
+    fileLog.setFileName("./csv/log/log.txt");
+    bool fileOpen = fileLog.open(QIODevice::WriteOnly|QIODevice::Text);
+    if(fileOpen)
+    {
+        outLog.setDevice(&fileLog);
+    }
 }
 void DomParser::loadDataPIC(QString nameDir)
 {
@@ -53,8 +59,6 @@ void DomParser::loadDataPIC(QString nameDir)
             QByteArray array = file.readAll();
             QJsonDocument loadDoc = QJsonDocument::fromJson(array,&jsonError);
             QJsonObject objJson = loadDoc.object();
-            bool res = objJson.contains("systems");
-            bool js = objJson["systems"].isArray();
             if(objJson.contains("systems") && objJson["systems"].isArray())
             {
                 QJsonArray sysArray = objJson["systems"].toArray();
@@ -62,7 +66,6 @@ void DomParser::loadDataPIC(QString nameDir)
                 {
                     QJsonObject kArray = sysArray[k].toObject();
                     QString name = kArray["idSys"].toString();
-                    //qDebug()<<name<<"\n";
                     // нужно найти блок с соотвествующим идентификатором
                     UnitNode* unit = static_cast<UnitNode* > (findNodeByIdName(name,rootItemData,Node::E_UNIT));
                     if(unit == nullptr)
@@ -1651,7 +1654,10 @@ void DomParser::saveWires(Node *startNode, QTextStream& out)
                             QString::number(pin->parent->child.indexOf(pin))+
                             "[label=" + "\"" + wire->idName + "\"";
                        if(wire->fullConnected == false)
+                       {
+                           outLog<<"Провод неполностью подключен"<<wire->pathName;
                            out<<" fillcolor=\"red\" ";
+                       }
                        else if(pin->switched == true)
                            out<<" fillcolor=\"blue\" ";
 
@@ -1678,7 +1684,10 @@ void DomParser::saveWires(Node *startNode, QTextStream& out)
                    //if(wire->toPin == nullptr)
                         out<<"->\""<<wire->idName + "\"" +"[label=" + "\"" +wire->idName + "\"";
                         if(wire->fullConnected == false)
+                        {
+
                             out<<" fillcolor=\"red\" ";
+                        }
                         else if(pin->switched == true)
                              out<<" fillcolor=\"blue\" ";
 
@@ -2245,7 +2254,10 @@ void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
                          QString::number(pin->parent->child.indexOf(pin))+
                          "[label=" + "\"" + wire->idName + "\"";
                     if(wire->fullConnected == false)
+                    {
+                        outLog<<"Провод неполностью подключен"<<wire->pathName;
                         out<<" fillcolor=\"red\" ";
+                    }
                     else if(pin->switched == true)
                         out<<" fillcolor=\"blue\" ";
 
@@ -2271,7 +2283,10 @@ void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
                 //if(wire->toPin == nullptr)
                      out<<"->\""<<wire->idName + "\"" +"[label=" + "\"" +wire->idName + "\"";
                      if(wire->fullConnected == false)
+                     {
+                         outLog<<"Провод неполностью подключен"<<wire->pathName;
                          out<<" fillcolor=\"red\" ";
+                     }
                      else if(pin->switched == true)
                           out<<" fillcolor=\"blue\" ";
 
@@ -2501,7 +2516,10 @@ void DomParser::saveNodeVarWithNe(Node *startNode, QTextStream& out)
                 //if(wire->toPin == nullptr)
                      out<<"->\""<<wire->idName + "\"" +"[label=" + "\"" +wire->idName + "\"";
                      if(wire->fullConnected == false)
+                     {
+
                          out<<" fillcolor=\"red\" ";
+                     }
                      else if(pin->switched == true)
                           out<<" fillcolor=\"blue\" ";
 
