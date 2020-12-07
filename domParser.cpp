@@ -517,6 +517,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                 //if(pin->io == PinNode::E_OUT)
                 //{
                     ConnectorNode *c = static_cast<ConnectorNode* > (pin->parent);
+                    out<<c->parent->idName<<";";
                     out<<c->typeConnectorWire<<";";
                     out<<c->idName <<";";
                     out<<pin->idName << ";";
@@ -597,7 +598,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
  void DomParser::saveCSVCoords(Node* rootNode, QTextStream& out)
  {
         out.setCodec("UTF-8");
-        out<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
+        out<<tr("Идентификатор блока")<<";"<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
            <<tr("Жгут") <<";"
            <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Тип провод")<<";"
            <<tr("Идент. провода")<<";" <<tr("Тип жилы")<<"\n";
