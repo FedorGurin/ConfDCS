@@ -128,7 +128,7 @@ PinNode* UnitNode::findSameConnection(PinNode *pin, PinNode::TYPE_IO type)
             i = -1;
 
         }
-        if(pinTrace!=nullptr)
+        if(pinTrace!=nullptr && pinTrace->type_interface != PinNode::E_TEST)
         {
         WireNode *wire = nullptr;
         if(pinTrace->child.isEmpty() == true)
@@ -136,7 +136,7 @@ PinNode* UnitNode::findSameConnection(PinNode *pin, PinNode::TYPE_IO type)
         else
             wire = static_cast<WireNode* > (pinTrace->child.first());
 
-        if(wire->fullConnected == false && pinTrace->type_interface != PinNode::E_TEST && pinTrace->io == type)
+        if(wire->fullConnected == false  && pinTrace->io == type)
             return pinTrace;
         }
         i++;
@@ -180,22 +180,37 @@ QList<PinNode* > UnitNode::findAllInternalConnection(PinNode *pin)
 bool UnitNode::checkConnectedPins(PinNode * pin)
 {
     PinNode *curPin = pin;
-    for(auto i : pins_internal)
+    QVector<QPair<PinNode *, PinNode * > > temp_pins = pins_internal;
+    int i=0;
+    while(!temp_pins.isEmpty() && i<temp_pins.size())
     {
-        PinNode *pin1 = i.first;
-        PinNode *pin2 = i.second;
+        PinNode *pin1 = temp_pins[i].first;
+        PinNode *pin2 = temp_pins[i].second;
 
         if(curPin == pin1)
+        {
             curPin = pin2;
+            temp_pins.remove(i);
+            i = -1;
+        }
         else if(curPin == pin2)
+        {
             curPin = pin1;
-
+            temp_pins.remove(i);
+            i = -1;
+        }
+         i++;
         if(curPin->child.isEmpty())
             continue;
-        WireNode* wire = static_cast<WireNode* > (curPin->child.first());
-        if(wire->fullConnected == true)
-            return true;
+        for(auto l:curPin->child)
+        {
+            WireNode* wire = static_cast<WireNode* > (l);
+            if(wire->fullConnected == true)
+                return true;
+        }
+
     }
+
     return false;
 }
 Node *UnitNode::clone()

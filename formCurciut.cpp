@@ -35,6 +35,9 @@ void FormCurciut::slotGenRoute()
     {
         for(auto i: listSys1)
             domParser->saveCoordToFile(recFindNodeByName(domParser->rootItemData,i->text()));
+    }else
+    {
+        domParser->saveCoordToFile();
     }
 }
 void FormCurciut::slotItemSelectionInterfaces()
@@ -135,7 +138,34 @@ void FormCurciut::slotCut()
 
     if(ui->checkBoxTransit->isChecked() == true)
     {
+
         domParser->loadTransitFile("/transform");
+
+        Node *sys1;
+        QList<Node *> listUnitSys2,listUnitTransit;
+        for(auto i: domParser->listTransitFromFile)
+        {
+            listUnitSys2.clear();
+            listUnitTransit.clear();
+            sys1 = recFindNodeByIdName(domParser->rootItemData,i.nameSys1,Node::E_UNIT);
+            if(sys1 == nullptr)
+                domParser->outLog<<"Not Found sys"<<i.nameSys1<<"\n";
+            for(auto j:i.nameTr)
+            {
+                listUnitTransit.append(recFindNodeByIdName(domParser->rootItemData,j,Node::E_UNIT));
+            }
+            for(auto j:i.namesSys2)
+            {
+                listUnitSys2.append(recFindNodeByIdName(domParser->rootItemData,j,Node::E_UNIT));
+            }
+            domParser->pasteUnitBetween(sys1,
+                                        listUnitTransit,
+                                        listUnitSys2,
+                                        curInterfaces);
+           domParser->updateCoords();
+
+        }
+
         return;
     }
     if(ui->checkBoxUseFileTransform->isChecked() == true)
@@ -143,6 +173,7 @@ void FormCurciut::slotCut()
         for(auto i:domParser->vecTransform)
         {
             curInterfaces.clear();
+            nodes.clear();
             for(int j = 2;j < i.size();j++)
             {
 
@@ -222,6 +253,19 @@ Node* FormCurciut::recFindNodeByName(Node *root, QString str)
     }
     return nullptr;
 }
+Node* FormCurciut::recFindNodeByIdName(Node *root, QString str,Node::Type t)
+{
+    if(root->idName == str && root->type() == t)
+        return root;
+    for(auto i:root->child)
+    {
+        Node* n = recFindNodeByIdName(i,str,t);
+        if(n!=nullptr)
+             return n;
+
+    }
+    return nullptr;
+}
 void FormCurciut::slotFormCurc(QString str)
 {
     Node* node = recFindNodeByName(domParser->rootItemData,str);
@@ -254,6 +298,7 @@ void FormCurciut::slotPushGen()
         if(i1 != nullptr && i2 != nullptr)
             domParser->saveForGraphvizForNode("select_"+i1->displayName +"_"+ i2->displayName,i1,i2);
     }
+
 
 }
 //void FormCurciut::slotLoadTransitFile()

@@ -36,6 +36,7 @@ DomParser::DomParser(QObject *parent):QObject(parent)
     if(fileOpen)
     {
         outLog.setDevice(&fileLog);
+         outLog.setCodec("CP1251");
     }
 }
 void DomParser::loadDataPIC(QString nameDir)
@@ -113,6 +114,7 @@ void DomParser::loadTransitFile(QString nameDir)
         curOpenFile = file.open(QIODevice::ReadOnly | QIODevice::Text);
         if(curOpenFile == true)
         {
+            listTransitFromFile.clear();
             QByteArray array = file.readAll();
             QJsonDocument loadDoc = QJsonDocument::fromJson(array,&jsonError);
             QJsonObject objJson = loadDoc.object();
@@ -126,13 +128,13 @@ void DomParser::loadTransitFile(QString nameDir)
                     tempRecord.nameSys1 = kArray["idSys"].toString();
                     if(kArray.contains("transitSys") && kArray["transitSys"].isArray())
                     {
-                        QJsonArray trArray = objJson["transitSys"].toArray();
+                        QJsonArray trArray = kArray["transitSys"].toArray();
                         for(int i = 0;i < trArray.size();i++)
                         {
                             QJsonObject iArray = trArray[i].toObject();
                             tempRecord.nameTr.append(iArray["name"].toString());
                         }
-                        QJsonArray sys2Array = objJson["idSys2"].toArray();
+                        QJsonArray sys2Array = kArray["idSys2"].toArray();
                         for(int i = 0;i < sys2Array.size();i++)
                         {
                             QJsonObject iArray = sys2Array[i].toObject();
@@ -294,6 +296,8 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
 }
 void DomParser::saveCoordToFile(Node *unitNode)
 {
+    if(unitNode == nullptr)
+        unitNode = rootItemData;
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveCoords = &DomParser::saveCSVCoords;
     saveDataToCVS("parsed/export/coords" + unitNode->idName,unitNode, f_saveCoords);
 }
@@ -666,9 +670,6 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
     {
         // текущий pin
         PinNode *pinSel = static_cast<PinNode *> (i);
-        // проверка, что текущий pin уже пропущен через транзитную систему
-       // if(hasConnectThrough(pinSel,unitTransit) == true || hasFullConnected(pinSel) == false)
-       //     continue;
         if(pinSel->child.isEmpty() == true)
             continue;
 
@@ -690,12 +691,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
                  // если pin транзитной системы нас устраивает
                  QList<Node* > wires;
                  grabberNodeByType(pinTransit,Node::E_WIRE,wires);
-                 WireNode *wireTransit = nullptr;
-                 if(wires.isEmpty())
-                     wireTransit = new WireNode (pinTransit->strLabel,
-                                          pinTransit->strTypeWire,pinTransit);
-                 else
-                     wireTransit = static_cast<WireNode *> (wires.first());
+
                  UnitNode *tempUnit = static_cast<UnitNode *> (findNodeByType(pinTransit,Node::E_UNIT,EDirection::E_UP));
 
                  if(tempUnit->checkConnectedPins(pinTransit) == false)
@@ -704,23 +700,33 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
 
                      if(pinSel->child.isEmpty() == true)
                          continue;
+                     pinTransit->strInterface = pinSel->strInterface;
+                     pinTransit->type_interface = pinSel->type_interface;
+                     pinTransit->strLabel = pinSel->strLabel;
+                     WireNode *wireTransit = nullptr;
+                     if(wires.isEmpty())
+                         wireTransit = new WireNode (pinTransit->strLabel,
+                                              pinTransit->strTypeWire,pinTransit);
+                     else
+                         wireTransit = static_cast<WireNode *> (wires.first());
+
                      wireTransit->toPin = pinSel;
+                     wireTransit->fullConnected = true;
+
 
                      WireNode *wirePinSel = static_cast<WireNode *> (k);
                      // сохраняем Pin на который указывала 1ая система
                      PinNode *toPin = static_cast<PinNode *> (wirePinSel->toPin);
                      // теперь первая система указывает на транзитную систему
                      wirePinSel->toPin = pinTransit;
+                     wirePinSel->fullConnected = true;
+
                      if(pinSel->io == PinNode::E_IN)
                          pinTransit->io = PinNode::E_OUT;
                      else
                          pinTransit->io = PinNode::E_IN;
 
-                     pinTransit->strInterface = pinSel->strInterface;
-                     pinTransit->type_interface = pinSel->type_interface;
 
-                     wireTransit->fullConnected = true;
-                     wirePinSel->fullConnected = true;
                      // ищем свободный пин для связи транзитной системы с 2ой системой
                      PinNode* pinFree = tempUnit->findSameConnection(pinTransit);
                      WireNode *sys2 = nullptr;
@@ -758,42 +764,10 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
 
                      break;
                  }
-
-//                 WireNode *wire = static_cast<WireNode *> (wires.first());
-//                 if(wire->fullConnected == false)
-//                 {
-//                     UnitNode *tempUnit = static_cast<UnitNode *> (findNodeByType(pinTransit,Node::E_UNIT,EDirection::E_UP));
-//                     if(tempUnit->checkConnectedPins(pinTransit) == false)
-//                     {
-//                         PinNode* pinFree = tempUnit->findFree(pinTransit);
-
-//                         PinNode *toPin = wire->toPin;
-//                         wire->toPin = pinSel;
-//                         WireNode *wirePinSel = static_cast<WireNode *> (pinSel->child.first());
-//                         wirePinSel->toPin = pinFree;
-
-//                         WireNode *sys2 = static_cast<WireNode *> (toPin->child->first());
-//                         sys2->toPin = pinFree;
-//                         //! нужно вставить промежуточный элемент
-//                     }
-
-
-//                     //! LJK;TY
-//                 }
             }
-
         }
         }
-    }
-//    grabberNodeByType(unitNode,Node::E_PIN,pinsTransit);
-
-
-//    for(auto i:pins)
-//    {
-//        PinNode * curNode = static_cast<PinNode* > (i);
-
-//        curNode->
-//    }
+}
 
     correctWire     (rootItemData);
     clearCoords(rootItemData);
@@ -957,11 +931,22 @@ bool DomParser::checkInOutPins(PinNode *pin1,PinNode *pin2)
     }
     return false;
 }
+void DomParser::updateCoords()
+{
+    //correctInterface(rootItemData);
+    correctWire     (rootItemData);
+    clearCoords(rootItemData);
+    correctCoords(rootItemData);
+
+
+}
 void DomParser::pasteUnitBetween(Node *unitFrom_,
                                  QList<Node* > unitsTransit_,
                                  QList<Node* > listUnitTo_,
                                  QVector<PinNode::TYPE_INTERFACE> listInterfaces)
 {
+    if(unitFrom_ == nullptr || unitsTransit_.isEmpty())
+        return;
     // проверяем, что не пропускаем провода через сам же блок
     for(auto l:listUnitTo_)
     {
@@ -1182,6 +1167,10 @@ void DomParser::mergeNodes(Node* root,Node* from)
                 {
                     PinNode * pin       = static_cast<PinNode* > (i);
                     PinNode * pinFrom   = static_cast<PinNode* > (from);
+                    if(pin->strNumClone.toInt()<pinFrom->strNumClone.toInt())
+                    {
+                        pin->strNumClone = pinFrom->strNumClone;
+                    }
                     if(pinFrom->strCircuit.isEmpty() == false )
                     {
                         for(auto j: pinFrom->strCircuit)
@@ -1207,17 +1196,22 @@ void DomParser::mergeNodes(Node* root,Node* from)
 
                     //! добавление размноженных проводов
                     Node *findW = nullptr;
+                    QList<Node* > tempNode = pin->child;
                     for(auto w0:pinFrom->child)
                     {
                         findW = nullptr;
 
-                        for(auto w1:pin->child)
+                        int k = 0;
+                        while(!tempNode.isEmpty() && k<tempNode.size())
                         {
+                            Node *w1 = tempNode[k];
                             if(w0->idName == w1->idName)
                             {
                                 findW = w1;
+                                tempNode.removeAt(k);
                                 break;
                             }
+                            k++;
                         }
                         if(findW == nullptr)
                         {
@@ -1229,7 +1223,7 @@ void DomParser::mergeNodes(Node* root,Node* from)
                     }
                     if(pin->child.size() != pinFrom->child.size())
                     {
-                        printf("");
+                        outLog<<"wires not compare p1"<<pin->pathName<<" p2 = " << pinFrom->pathName<<"\n";
                     }
                 }
                 if(i->type() == Node::E_UNIT && from->type() == Node::E_UNIT)
@@ -1563,8 +1557,8 @@ void DomParser::saveForGraphviz(QString namePath, QString nameFile, Node* rootNo
     }
     QString program = "dot";
     //program = "./tools/7z.exe";
-    QStringList arguments; arguments.clear(); arguments<< "-Tsvg" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/gv/" + nameFile + ".gv"
-                                            << "-o" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/svg/" + nameFile + ".svg";
+    QStringList arguments; arguments.clear(); arguments<< "-Tpdf" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/gv/" + nameFile + ".gv"
+                                            << "-o" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/svg/" + nameFile + ".pdf";
     //Й = new QProcess(this);
     procDot.start(program,arguments);
     procDot.waitForFinished();
@@ -1655,7 +1649,7 @@ void DomParser::saveWires(Node *startNode, QTextStream& out)
                             "[label=" + "\"" + wire->idName + "\"";
                        if(wire->fullConnected == false)
                        {
-                           outLog<<"Провод неполностью подключен"<<wire->pathName;
+                           //outLog<<"Провод неполностью подключен"<<wire->pathName<<"\n";
                            out<<" fillcolor=\"red\" ";
                        }
                        else if(pin->switched == true)
@@ -1724,7 +1718,7 @@ void DomParser::saveSubGraph(Node *unit,Node* con,QList<Node* > listPin, QTextSt
          unit->displayName + "["+unit->idName+"]"+ "\"\n";
 
     ConnectorNode *coneLabel = static_cast<ConnectorNode* > (con);
-    out<<"subgraph cluster" +  QString::number(con->id) + " \n{ fontcolor=\"green\" label=\""+con->idName+ "[" + coneLabel->typeConnectorWire + "]"+"\"\n";
+    out<<"subgraph cluster" +  QString::number(con->id) + " \n{ fontcolor=\"black\" label=\""+con->idName+ "[" + coneLabel->typeConnectorWire + "]"+"\"\n";
 
     int k =0;
     out<<"\"node"+ QString::number(con->id) + "\"[ label = \"";
@@ -1830,8 +1824,8 @@ void DomParser::saveForGraphvizForNode(QString nameFile, Node* rootNode)
     }
     QString program = "dot";
     //program = "./tools/7z.exe";
-    QStringList arguments; arguments.clear(); arguments<< "-Tsvg" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".gv"
-                                            << "-o" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".svg";
+    QStringList arguments; arguments.clear(); arguments<< "-Tpdf" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".gv"
+                                            << "-o" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".pdf";
     //Й = new QProcess(this);
     procDot.start(program,arguments);
     procDot.waitForFinished();
@@ -1854,8 +1848,8 @@ void DomParser::saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* ro
     }
     QString program = "dot";
     //program = "./tools/7z.exe";
-    QStringList arguments; arguments.clear(); arguments<< "-Tsvg" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".gv"
-                                            << "-o" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".svg";
+    QStringList arguments; arguments.clear(); arguments<< "-Tpdf" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".gv"
+                                            << "-o" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".pdf";
     //Й = new QProcess(this);
     procDot.start(program,arguments);
     procDot.waitForFinished();
@@ -2051,7 +2045,7 @@ void DomParser::saveNodeInterfaceGW(Node *startNode, QTextStream& out)
         out<<"subgraph cluster" +  QString::number(startNode->parent->id) + " \n{ fontcolor=\"blue\" fillcolor=\"grey\" style=\"filled\" label=\""+
              startNode->parent->displayName + "["+startNode->parent->idName+"]"+ "\"\n";
 
-        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"green\" label=\"" + startNode->idName+ "\"\n";
+        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"black\" label=\"" + startNode->idName+ "\"\n";
 
         int k = 0;
         out<<"\"node"+ QString::number(startNode->id) + "\"[ label = \"";
@@ -2218,7 +2212,7 @@ void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
         out<<"subgraph cluster" +  QString::number(startNode->parent->id) + " \n{ fontcolor=\"blue\" fillcolor=\"grey\" style=\"filled\" label=\""+
              startNode->parent->displayName + "["+startNode->parent->idName+"]"+ "\"\n";
 
-        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"green\" label=\""+startNode->idName+ "\"\n";
+        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"black\" label=\""+startNode->idName+ "\"\n";
 
         int k =0;
         out<<"\"node"+ QString::number(startNode->id) + "\"[ label = \"";
@@ -2255,7 +2249,7 @@ void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
                          "[label=" + "\"" + wire->idName + "\"";
                     if(wire->fullConnected == false)
                     {
-                        outLog<<"Провод неполностью подключен"<<wire->pathName;
+                        //outLog<<"Провод неполностью подключен"<<wire->pathName<<"\n";
                         out<<" fillcolor=\"red\" ";
                     }
                     else if(pin->switched == true)
@@ -2284,7 +2278,7 @@ void DomParser::saveNodeWiresGW(Node *startNode, QTextStream& out)
                      out<<"->\""<<wire->idName + "\"" +"[label=" + "\"" +wire->idName + "\"";
                      if(wire->fullConnected == false)
                      {
-                         outLog<<"Провод неполностью подключен"<<wire->pathName;
+                         //outLog<<"Провод неполностью подключен"<<wire->pathName<<"\n";
                          out<<" fillcolor=\"red\" ";
                      }
                      else if(pin->switched == true)
@@ -2319,7 +2313,7 @@ void DomParser::saveGraphConnector(Node *startNode, QTextStream& out)
         out<<"subgraph cluster" +  QString::number(startNode->parent->id) + " \n{ fontcolor=\"blue\" fillcolor=\"grey\" style=\"filled\" label=\""+
              startNode->parent->displayName + "["+startNode->parent->idName+"]"+ "\"\n";
 
-        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"green\" label=\""+startNode->idName+ "\"\n";
+        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"black\" label=\""+startNode->idName+ "\"\n";
 
         int k =0;
         out<<"\"node"+ QString::number(startNode->id) + "\"[ label = \"";
@@ -2455,7 +2449,7 @@ void DomParser::saveNodeVarWithNe(Node *startNode, QTextStream& out)
         out<<"subgraph cluster" +  QString::number(startNode->parent->id) + " \n{ fontcolor=\"blue\" fillcolor=\"grey\" style=\"filled\" label=\""+
              startNode->parent->displayName + "["+startNode->parent->idName+"]"+ "\"\n";
 
-        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"green\" label=\""+startNode->idName+ "\"\n";
+        out<<"subgraph cluster" +  QString::number(startNode->id) + " \n{ fontcolor=\"black\" label=\""+startNode->idName+ "\"\n";
 
         int k =0;
         out<<"\"node"+ QString::number(startNode->id) + "\"[ label = \"";
@@ -2678,8 +2672,8 @@ void DomParser::clearCoords(Node *startNode)
     {
 
         UnitNode *unit = static_cast<UnitNode* > (startNode);
-        if(unit->idParentSys == "ИМК")
-            return;
+//        if(unit->idParentSys == "ИМК")
+//            return;
         unit->coords.clear();
        // unit->calcInterface();
         return;

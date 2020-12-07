@@ -40,7 +40,7 @@ WireNode::WireNode():Node()
     length = 0;
 
 }
-WireNode::WireNode(PinNode *pinNode)
+WireNode::WireNode(PinNode *pinNode) :Node()
 {
     //    displayName = element.attribute("displayName","None");
         idName      = pinNode->strLabel;
@@ -79,6 +79,8 @@ Node *WireNode::clone()
     rootNode->pathName      = this->pathName;
 
     rootNode->fullConnected = false;//this->fullConnected;
+    rootNode->toPin         = nullptr;//this->toPin;
+    rootNode->length        = this->length;
 
     rootNode->typeWire    = this->typeWire;
     for(auto i:child)

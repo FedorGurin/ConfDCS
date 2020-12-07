@@ -134,9 +134,10 @@ public:
     //! сохранение в файл соединений
     void saveCSVCon(Node *startNode, QTextStream& out);
     void recSaveCSVCoords(Node *startNode, QTextStream& out);
-    void saveCoordToFile(Node *unitNode);
+    void saveCoordToFile(Node *unitNode = nullptr);
     void saveTransform(QString sys1,QString sys2,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
+    void updateCoords();
     bool hasPinInListWires(Node *pin,QList<Node *> &wireNode);
     //! список деревьев для каждого файла
     QList<Node* > listRootItemNode;
@@ -179,6 +180,11 @@ public:
     virtual ~DomParser();
     QVector<QStringList> vecTransform;
     QVector<QPair<QString,QString> > vecAlias;
+    QList<TTransitRecord> listTransitFromFile;
+    //! поиск проблем в данных
+    void searchProblems();
+ QTextStream outLog;
+
 private:
     //! разбор XML файла, и формирование дерева с описанием данных
     void parseData(QString line, Node *parent);//рекурсивная
@@ -232,8 +238,6 @@ private:
     void saveConnectionLocations(Node *root,QString loacation1);
     QProcess procDot;
     QFile fileLog;
-    QTextStream outLog;
-    QList<TTransitRecord> listTransitFromFile;
 
 
     //QFile fileTransform;

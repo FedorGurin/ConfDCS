@@ -18,6 +18,7 @@ public:
     ~FormCurciut();
      void recAddFindSystem(Node *root);
      Node* recFindNodeByName(Node *root, QString str);
+     Node* recFindNodeByIdName(Node *root, QString str,Node::Type t);
      bool checkHasInterfaces(QVector<PinNode::TYPE_INTERFACE> &vec, PinNode::TYPE_INTERFACE type);
      DomParser *domParser;
 private:
