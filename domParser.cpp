@@ -537,6 +537,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                         ConnectorNode *c = static_cast<ConnectorNode* > (toPin->parent);
                         out<<c->idName <<";";
                         out<<c->typeConnectorWire<<";";
+                        out<<c->parent->idName<<";";
                     }
                     out<<j->typeWire<<";";
                     out<<pin->strIDWire << ";";
@@ -598,9 +599,9 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
  void DomParser::saveCSVCoords(Node* rootNode, QTextStream& out)
  {
         out.setCodec("UTF-8");
-        out<<tr("Идентификатор блока")<<";"<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
+        out<<tr("Идентификатор блока1")<<";"<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
            <<tr("Жгут") <<";"
-           <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Тип провод")<<";"
+           <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Идентификатор блока2")<<";"<<tr("Тип провод")<<";"
            <<tr("Идент. провода")<<";" <<tr("Тип жилы")<<"\n";
         out.flush();
         recSaveCSVCoords(rootNode,out);
@@ -1559,7 +1560,7 @@ void DomParser::saveForGraphviz(QString namePath, QString nameFile, Node* rootNo
     QString program = "dot";
     //program = "./tools/7z.exe";
     QStringList arguments; arguments.clear(); arguments<< "-Tpdf" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/gv/" + nameFile + ".gv"
-                                            << "-o" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/svg/" + nameFile + ".pdf";
+                                            << "-o" << qApp->applicationDirPath() +  "/csv/parsed/curcuit/pdf/" + nameFile + ".pdf";
     //Й = new QProcess(this);
     procDot.start(program,arguments);
     procDot.waitForFinished();
