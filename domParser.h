@@ -147,7 +147,7 @@ public:
 
     //! вернуть указатель на корень для дерева с описанием данных
     //Node* rootNodeData(){return rootItemData;}
-    void mergeString(QString &value1,QString &value2);
+    QString mergeString(QString &value1,QString &value2);
     void recFindWire(Node *startNode, Node *rootNode);
     void recFindWireWithout(Node *without, Node *startNode);
     void saveForGraphviz(QString namePath, QString nameFile, Node* rootNode, std::function<void(DomParser&,Node *, QTextStream&)> funcSave);

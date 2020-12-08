@@ -1190,11 +1190,19 @@ void DomParser::mergeNodes(Node* root,Node* from)
                                 pin->strCircuit.append(j);
                         }
                     }
-                    if(pinFrom->strCord.isEmpty() == false)
+                    mergeString(pin->strCord,pinFrom->strCord);
+                    if(pin->strCord.isEmpty() && pinFrom->strCord.isEmpty())
                     {
-                        pin->strCord = pinFrom->strCord;
-                    }else
-                        pinFrom->strCord = pin->strCord;
+                        UnitNode *funit = static_cast<UnitNode* > (findNodeByType(pin,Node::E_UNIT,EDirection::E_UP));
+                        UnitNode *funitFrom = static_cast<UnitNode* > (findNodeByType(pin,Node::E_UNIT,EDirection::E_UP));
+
+                        if(funit!= nullptr && funitFrom!=nullptr)
+                        {
+
+                            pin->strCord = pinFrom->strCord = (mergeString(funit->nameCoord,funitFrom->nameCoord) + " " + funit->idName + pin->parent->idName );
+                        }
+
+                    }
 
                     //! добавление размноженных проводов
                     Node *findW = nullptr;
@@ -1420,18 +1428,21 @@ void DomParser::parseLocation(QString line, Node *parent)
 }
 
 
-void DomParser::mergeString(QString &value1,QString &value2)
+QString DomParser::mergeString(QString &value1,QString &value2)
 {
     if(value1 != value2)
     {
         if(value1.isEmpty() && value2.isEmpty()==false)
         {
             value1 = value2;
+            return value1;
         }else if(value1.isEmpty() == true && value2.isEmpty() == false)
         {
             value2 = value1;
+            return value2;
         }
     }
+    return QString("");
 }
 void DomParser::recFindWireWithout(Node *wire, Node *startNode)
 {
