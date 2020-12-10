@@ -217,6 +217,7 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     std::function<void(DomParser&, QString,Node*)> f_parseSpec     = &DomParser::parseLocation;
     std::function<void(DomParser&, QString,Node*)> f_parseTrans    = &DomParser::parseTransData;
     std::function<void(DomParser&, QString,Node*)> f_parseAlias    = &DomParser::parseAlias;
+    std::function<void(DomParser&, QString,Node*)> f_parseLength    = &DomParser::parseLength;
 
     // функция сохранения всех соединений (проводов)
     std::function<void(DomParser&,Node *, QTextStream&)> f_saveNodeGV = nullptr;
@@ -240,11 +241,20 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     okDesData = openFileDesData("./csv/transform",listRootItemNode,f_parseTrans );
     if(okDesData == false)
         return;
+    // открываем файлы с длинами
+    okDesData = openFileDesData("./csv/route",listRootItemNode,f_parseLength );
+    if(okDesData == false)
+        return;
 
     // открываем файлы с псевдонимами
     okDesData = openFileDesData("./csv/alias",listRootItemNode,f_parseAlias );
     if(okDesData == false)
         return;
+
+//    // открываем файлы с псевдонимами
+//    okDesData = openFileDesData("./csv/route",listRootItemNode,f_parseAlias );
+//    if(okDesData == false)
+//        return;
 
     // реализация соединений
     for(auto i:listRootItemNode)
@@ -494,6 +504,23 @@ void DomParser::saveCSVCon(Node *startNode, QTextStream& out)
         saveCSVCon(i,out);
     }
 }
+QString DomParser::findLength(Node* idSys1,Node *idSys2)
+{
+    if(idSys1 == nullptr || idSys2 == nullptr)
+        return QString("");
+    for(auto i:vecLength)
+    {
+        Node *unit1 = findNodeByType(idSys1,Node::E_UNIT,EDirection::E_UP);
+        Node *unit2 = findNodeByType(idSys2,Node::E_UNIT,EDirection::E_UP);
+
+        if((i[0] == unit1->idName && i[1] == unit2->idName) ||
+            (i[0] == unit2->idName && i[1] == unit1->idName))
+        {
+            return i[2];
+        }
+    }
+    return QString("");
+}
 void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
 {
     if(startNode->type() == Node::E_UNIT)
@@ -542,44 +569,13 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                     out<<j->typeWire<<";";
                     out<<pin->strIDWire << ";";
                     out<<pin->strTypeWirePin <<";";
+                    out<<findLength(j,j->toPin)<<";";
                     out<<"\n";
 
                 //}
             }
         }
     }
-//        WireNode *wire = static_cast<WireNode* > (startNode);
-//        if(wire->parent->type() == Node::E_PIN)
-//        {
-//            PinNode *pin = static_cast<PinNode* > (wire->parent);
-//            if(pin->io == PinNode::E_OUT)
-//            {
-//                 if(wire->fullConnected == true)
-//                 {
-//                     out<<pin->parent->parent->idName<<";"
-//                       <<pin->parent->idName<<";"
-//                       <<pin->idName<<";";
-//                     out<<wire->idName<<";";
-
-//                     if(wire->toPin != nullptr)
-//                     {
-//                        out<<wire->toPin->parent->parent->idName<<";"
-//                            <<wire->toPin->parent->idName<<";"
-//                            <<wire->toPin->idName<<";";
-
-//                      }else
-//                     {
-//                         out<<"-"<<";"
-//                             <<"-"<<";"
-//                             <<"-"<<";";
-//                     }
-//                     out<<wire->typeWire<<";";
-//                     out<<pin->strTypeI + pin->prefTypeI<<";";
-//                     out<<"\n";
-//                 }
-//            }
-//        }
-//    }
     for(auto i:startNode->child)
     {
         recSaveCSVCoords(i,out);
@@ -602,7 +598,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
         out<<tr("Идентификатор блока1")<<";"<<tr("Тип разъем")<<";"<<tr("Назван. разъема")<<";"<<tr("Клемма")<<";"<<tr("Бирка")<<";"
            <<tr("Жгут") <<";"
            <<tr("Клемма")<<";"<<tr("Назван. разъема")<<";"<<tr("Тип Разъем")<<";"<<tr("Идентификатор блока2")<<";"<<tr("Тип провод")<<";"
-           <<tr("Идент. провода")<<";" <<tr("Тип жилы")<<"\n";
+           <<tr("Идент. провода")<<";" <<tr("Тип жилы")<<";"<<tr("Длина")<<"\n";
         out.flush();
         recSaveCSVCoords(rootNode,out);
  }
@@ -937,6 +933,7 @@ void DomParser::updateCoords()
 {
     //correctInterface(rootItemData);
     correctWire     (rootItemData);
+    renameCoords(rootItemData);
     clearCoords(rootItemData);
     correctCoords(rootItemData);
 
@@ -1324,6 +1321,17 @@ void DomParser::parseAlias(QString line, Node *parent)
     if(listLine.size() != 2)
         return;
     vecAlias.append(QPair(listLine[0],listLine[1]));
+}
+void DomParser::parseLength(QString line, Node *parent)
+{
+    QStringList listLine = line.split(";", QString::SkipEmptyParts);
+
+//    if(listLine.empty() == true)
+//        return;
+
+//    if(listLine.size() != 2)
+//        return;
+    vecLength.append(listLine);
 }
 void DomParser::parseData(QString line, Node *parent)
 {
@@ -2678,6 +2686,19 @@ void DomParser::checkConnectionInterfaces(Node *startNode)
 void DomParser::calcNumInterface(Node *startNode)
 {
 
+}
+void DomParser::renameCoords(Node *startNode)
+{
+    if(startNode->type() == Node::E_UNIT)
+    {
+        UnitNode *unit = static_cast<UnitNode* > (startNode);
+        unit->renameCoords(unit);
+        return;
+    }
+    for(auto i:startNode->child)
+    {
+        renameCoords(i);
+    }
 }
 void DomParser::clearCoords(Node *startNode)
 {

@@ -294,6 +294,28 @@ void UnitNode::scanCoords(Node* startNode)
         scanCoords(i);
     }
 }
+void UnitNode::renameCoords(Node* startNode)
+{
+
+    if(startNode->type() == E_WIRE)
+    {
+        WireNode *wire = static_cast<WireNode* > (startNode);
+        PinNode *pin   = static_cast<PinNode *> (wire->parent);
+        PinNode *pinTo = static_cast<PinNode *> (wire->toPin);
+
+        if(this->isTransit == false)
+        {
+            pin->strCord = nameCoord + " - Жгут " + this->idName + " - " + pin->parent->idName;
+            if(pinTo!=nullptr)
+                pinTo->strCord = pin->strCord;
+        }
+
+    }
+    for(auto i:startNode->child)
+    {
+        renameCoords(i);
+    }
+}
 UnitNode::~UnitNode()
 {
     // TODO Auto-generated destructor stub

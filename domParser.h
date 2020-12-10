@@ -122,6 +122,7 @@ public:
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
 
+    QString findLength(Node* idSys1,Node *idSys2);
     //! поиск узла по типу
     Node* findNodeByType(Node* node, Node::Type t, EDirection dir);
     Node* findNodeByIdName(QString nameItem, Node *node, Node::Type t=Node::E_EMPTY);
@@ -180,6 +181,8 @@ public:
     virtual ~DomParser();
     QVector<QStringList> vecTransform;
     QVector<QPair<QString,QString> > vecAlias;
+    QVector<QStringList> vecLength;
+
     QList<TTransitRecord> listTransitFromFile;
     //! поиск проблем в данных
     void searchProblems();
@@ -192,6 +195,8 @@ private:
     //! зачитать файл с трансформациями
     void parseTransData(QString line, Node *parent = nullptr);
     void parseAlias(QString line, Node *parent = nullptr);
+    void findLength(QString idSys1,QString idSys2);
+    void parseLength(QString line, Node *parent = nullptr);
 
     void recSaveLocationBetween(Node* rootNode, QTextStream&, QString filter);
     //! открыть XML файл с описанием данных
@@ -227,6 +232,7 @@ private:
     //! коррекция имен жгутов
     void correctCoords(Node* startNode);
     void clearCoords(Node* startNode);
+    void renameCoords(Node* startNode);
     void calcNumInterface(Node *startNode);
     //! засгрузить описание внтуренних подлкючений
     void loadInternalConnection(void);

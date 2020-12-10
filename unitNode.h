@@ -35,6 +35,7 @@ public:
     void scanInterface(Node *startNode);
     //! поиск жгутов
     void scanCoords(Node *startNode);
+    void renameCoords(Node *startNode);
     //! поиск предыдущих интерфейсов
     int findPrevInterface(PinNode *,InterfaceNode *ifNode);
     //!
