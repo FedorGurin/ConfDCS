@@ -329,7 +329,7 @@ void FormCurciut::slotLoadData()
     {
         domParser->loadData("/curcuit",type);
     }
-    if(domParser->rootItemData != 0)
+    if(domParser->rootItemData != nullptr)
         recAddFindSystem(domParser->rootItemData);
 
     domParser->loadDataPIC("/protocols");

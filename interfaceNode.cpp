@@ -1,5 +1,5 @@
 #include "InterfaceNode.h"
-
+#include <QJsonArray>
 
 //InterfaceNode::InterfaceNode(QString id,       // идентификатор интерфейса
 //                             QString strSetI,  // настроки интерфейса
@@ -42,6 +42,17 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
     ch.typeNode         = json["typeCh"].toString();
     ch.idNode           = json["idNode"].toInt();
     ch.idConnectedUnit  = json["connectToSys"].toString();
+
+    if(json.contains("addrs") && json["addrs"].isArray())
+    {
+    QJsonArray addrArray = json["addrs"].toArray();
+    for(int k = 0; k< addrArray.size(); k++)
+    {
+            QJsonObject kArray = addrArray[k].toObject();
+            QString addr = kArray["addr"].toString();
+            ch.addrs.append(addr);
+    }
+    }
 }
 void InterfaceNode::addPinToInterface(PinNode* pin)
 {
