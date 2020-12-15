@@ -59,7 +59,16 @@ void DomParser::loadDataPIC(QString nameDir)
         {
             QByteArray array = file.readAll();
             QJsonDocument loadDoc = QJsonDocument::fromJson(array,&jsonError);
+            if(loadDoc.isNull() == true)
+            {
+                QMessageBox msgBox;
+                msgBox.setText(file.fileName() + "-" +jsonError.errorString());
+                msgBox.exec();
+
+
+            }
             QJsonObject objJson = loadDoc.object();
+
             if(objJson.contains("systems") && objJson["systems"].isArray())
             {
                 QJsonArray sysArray = objJson["systems"].toArray();
@@ -95,6 +104,31 @@ void DomParser::loadDataPIC(QString nameDir)
                     }*/
         }
     }
+}
+void DomParser::saveRP(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+            out<<j->ch.idName<< ";" << j->ch.id <<"\n";
+
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        saveRP(i,out);
+    }
+}
+void DomParser::saveForRP()
+{
+    //! сохранение данных в cvs
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP = &DomParser::saveRP;
+    saveDataToCVS("parsed/export/rp"   ,rootItemData,f_saveRP);
+
 }
 void DomParser::loadTransitFile(QString nameDir)
 {

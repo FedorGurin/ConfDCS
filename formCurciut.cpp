@@ -26,7 +26,7 @@ FormCurciut::FormCurciut(QWidget *parent) :
     connect(ui->listWidgetSys2,     SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetSysMiddle,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetInter,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelectionInterfaces()));
-
+    connect(ui->pushButtonExportRP,      SIGNAL(clicked()),this,SLOT(slotExportRP()));
 }
 void FormCurciut::slotGenRoute()
 {
@@ -333,6 +333,11 @@ void FormCurciut::slotLoadData()
         recAddFindSystem(domParser->rootItemData);
 
     domParser->loadDataPIC("/protocols");
+}
+void FormCurciut::slotExportRP()
+{
+    domParser->saveForRP();
+
 }
 FormCurciut::~FormCurciut()
 {

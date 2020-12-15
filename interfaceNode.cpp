@@ -35,12 +35,12 @@ InterfaceNode::InterfaceNode(QString strSetI_,PinNode::TYPE_INTERFACE type,QStri
 }
 InterfaceNode::InterfaceNode(QJsonObject &json)
 {
-    ch.id               = json["idCh"].toInt();
+    ch.id               = json["idCh"].toString().toUInt();
     ch.io               = json["io"].toString() == "выдача";
     ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString();
     ch.typeNode         = json["typeCh"].toString();
-    ch.idNode           = json["idNode"].toInt();
+    ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString();
 
     if(json.contains("addrs") && json["addrs"].isArray())

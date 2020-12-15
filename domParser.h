@@ -154,6 +154,7 @@ public:
     void saveForGraphviz(QString namePath, QString nameFile, Node* rootNode, std::function<void(DomParser&,Node *, QTextStream&)> funcSave);
     void saveCSVConnection(Node* rootNode, QTextStream&);
     void saveCSVCoords(Node* rootNode, QTextStream&);
+    void saveRP(Node* rootNode, QTextStream&);
 
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
@@ -174,6 +175,7 @@ public:
     void saveNeighborsToGV(Node* rootNode, QList<Node* > listUnit, QTextStream& out);
     void saveNeighborsToGV(Node* rootNode, Node* rootNode2, QTextStream& out);
     void saveDataBase();
+    void saveForRP();
     //! Показать список соединений между двумя группой блоков
     //! ..соединения внутри в рамках одной группы игнорируются
     void showConnectionBetween(QString group1, QString group2);

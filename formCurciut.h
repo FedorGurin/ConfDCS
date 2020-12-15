@@ -31,6 +31,7 @@ public slots:
     void slotPushGen();
     void slotDataBase();
     void slotLoadData();
+    void slotExportRP();
     //! генерация жгутов
     void slotGenRoute();
     //! функция врезки данных
