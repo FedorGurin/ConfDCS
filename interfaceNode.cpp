@@ -1,5 +1,6 @@
-#include "InterfaceNode.h"
+#include "interfaceNode.h"
 #include <QJsonArray>
+#include <QFile>
 
 //InterfaceNode::InterfaceNode(QString id,       // идентификатор интерфейса
 //                             QString strSetI,  // настроки интерфейса
@@ -43,16 +44,71 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
     ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString();
 
+
     if(json.contains("addrs") && json["addrs"].isArray())
     {
-    QJsonArray addrArray = json["addrs"].toArray();
-    for(int k = 0; k< addrArray.size(); k++)
-    {
+        QJsonArray addrArray = json["addrs"].toArray();
+        for(int k = 0; k< addrArray.size(); k++)
+        {
             QJsonObject kArray = addrArray[k].toObject();
             QString addr = kArray["addr"].toString();
             ch.addrs.append(addr);
+        }
     }
+    if(json.contains("files") && json["files"].isArray())
+    {
+        QJsonArray filesArray = json["files"].toArray();
+        for(int k = 0; k< filesArray.size(); k++)
+        {
+            QJsonObject kArray = filesArray[k].toObject();
+            QString fileName = kArray["fileName"].toString();
+            ch.fileNames.append(fileName);
+            openFileParams(fileName);
+        }
     }
+
+
+}
+bool InterfaceNode::openFileParams(const QString &nameFile)
+{
+    bool ok = true;
+
+
+    QFile file("./csv/protocols/" + nameFile);
+    bool openFile =  file.open(QIODevice::ReadOnly | QIODevice::Text);
+    // создаем корень структуры
+    if(openFile == true)
+    {
+        QString errMsg  = "";
+        QTextStream in(&file);
+        in.setCodec("UTF-8");
+        QString line = in.readLine();
+        while(line.isEmpty() == false)
+        {
+            line = in.readLine();
+            if(line.isEmpty())
+                continue;
+            QStringList listLine = line.split(";", QString::SkipEmptyParts);
+            if(listLine[0] == "Название идентификатора")
+                continue;
+
+            TParam param;
+            param.idName   = listLine[0];
+            param.fullName = listLine[1];
+            param.units    = listLine[2];
+            param.addr     = listLine[3];
+            param.hiBit    = listLine[4];
+            param.lowBit   = listLine[5];
+            param.csr      = listLine[6];
+            param.cmr      = listLine[7];
+            param.sign     = listLine[8];
+            param.label    = listLine[9];
+            params.append(param);
+        };
+        file.close();
+    }
+
+    return ok;
 }
 void InterfaceNode::addPinToInterface(PinNode* pin)
 {

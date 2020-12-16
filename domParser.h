@@ -155,6 +155,8 @@ public:
     void saveCSVConnection(Node* rootNode, QTextStream&);
     void saveCSVCoords(Node* rootNode, QTextStream&);
     void saveRP(Node* rootNode, QTextStream&);
+    void saveRP_BD(Node* rootNode, QTextStream&);
+    void saveRP_BD_Title(Node* rootNode, QTextStream&);
 
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);

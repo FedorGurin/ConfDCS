@@ -24,6 +24,8 @@ typedef struct TCh_
     QString idConnectedUnit;
     //! циклограмма выдачи
     QVector<QString> addrs;
+    //! Описание данных в файлах
+    QStringList fileNames;
 }TCh;
 //! описание одного параметра
 typedef struct TParam_
@@ -57,6 +59,8 @@ public:
     QString strSetI;
     //! название типа интферфейса
     QString strTypeInerface;
+    //! \todo Нужно сделать одну функцию (это дублирующая функция)
+    bool openFileParams(const QString &nameFile);
 
     //! описание канала
     TCh ch;

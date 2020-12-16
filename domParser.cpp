@@ -123,11 +123,51 @@ void DomParser::saveRP(Node* rootNode, QTextStream& out)
         saveRP(i,out);
     }
 }
+void DomParser::saveRP_BD_Title(Node* rootNode, QTextStream& out)
+{
+    out<<tr("Название|Единицы измерения|Описание|Протокол|Адрес|Начальный бит|Конечный бит|Знаковое значение|Масштаб")<<"\n";
+
+    saveRP_BD(rootNode,out);
+}
+void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+
+            for(auto k: j->params)
+            {
+                QString sign = "0";
+                QString csr  = "1";
+                if(k.sign == "да")
+                    sign = "1";
+
+                if(csr != "-")
+                    csr = k.csr;
+                out<<k.idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
+                   <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<csr << "\n";
+            }
+
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        saveRP_BD(i,out);
+    }
+}
 void DomParser::saveForRP()
 {
     //! сохранение данных в cvs
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP = &DomParser::saveRP;
     saveDataToCVS("parsed/export/rp"   ,rootItemData,f_saveRP);
+
+    //! сохранение данных в cvs
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP_BD = &DomParser::saveRP_BD_Title;
+    saveDataToCVS("parsed/export/parameters"   ,rootItemData,f_saveRP_BD);
 
 }
 void DomParser::loadTransitFile(QString nameDir)
