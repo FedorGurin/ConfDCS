@@ -25,6 +25,10 @@ QT += network \
 # Input
 HEADERS += \
     mainwindow.h \
+    mppm/CommonEngineData.h \
+    mppm/libmppm.h \
+    mppm/libmppmSpec.h \
+    mppm/libmppm_global.h \
     node.h \
     domParser.h \
     systemNode.h \

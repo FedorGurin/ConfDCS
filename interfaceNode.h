@@ -18,8 +18,12 @@ typedef struct TCh_
     uint32_t idNode;
     //! тип канала
     QString type;
+    //! имя перечисления
+    QString enumStr;
     //! прием/выдача
     uint8_t io;
+    //! прием/выдача
+    QString ioStr;
     //! идентификатор подключенного модуля
     QString idConnectedUnit;
     //! циклограмма выдачи
@@ -39,7 +43,11 @@ typedef struct TParam_
     QString csr;
     QString cmr;
     QString sign;
+    uint8_t s;
     QString label;
+    QString enumCh;
+    QString enumParam;
+    QString enumPack;
 }TParam;
 //! класс описания информационного интерфейса
 class InterfaceNode//:public Node

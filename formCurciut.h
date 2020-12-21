@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QListWidgetItem>
 #include "DomParser.h"
+#include "./mppm/CommonEngineData.h"
 #include "pinNode.h"
 namespace Ui {
 class FormCurciut;
@@ -23,6 +24,9 @@ public:
      DomParser *domParser;
 private:
     Ui::FormCurciut *ui;
+    //! указатель на движок с данными
+    IEngineData *engine;
+
     //! список выбраннхы интерфейсов
     QVector<QListWidgetItem *> actListInterfaces;
     QVector<PinNode::TYPE_INTERFACE> curInterfaces;
@@ -34,6 +38,7 @@ public slots:
     void slotExportRP();
     //! генерация жгутов
     void slotGenRoute();
+    void slotGenCpp();
     //! функция врезки данных
     void slotCut();
     void slotItemSelection();

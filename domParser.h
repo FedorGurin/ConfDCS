@@ -158,6 +158,27 @@ public:
     void saveRP_BD(Node* rootNode, QTextStream&);
     void saveRP_BD_Title(Node* rootNode, QTextStream&);
 
+    //! создание перечислений
+    void genEnum_title(Node* rootNode, QTextStream& out);
+    void genChEnum(Node* rootNode, QTextStream& out);
+    void saveChEnum();
+    //! создание описаний каналов
+    void saveCh();
+    void genCh(Node* rootNode, QTextStream& out);
+
+    //! создание описаний каналов
+    void savePackEnum();
+    void saveParamEnum();
+    void savePack();
+    void saveParam();
+
+    void genParam(Node* rootNode, QTextStream& out);
+    void genPackEnum(Node* rootNode, QTextStream& out);
+    void genPackEnum_title(Node* rootNode, QTextStream& out);
+    void genParamEnum_title(Node* rootNode, QTextStream& out);
+    void genParamEnum(Node* rootNode, QTextStream& out);
+    void genPack(Node* rootNode, QTextStream& out);
+
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
     //! сохранение данных в один файл для в внешнюю БД
@@ -191,6 +212,11 @@ public:
     //! поиск проблем в данных
     void searchProblems();
  QTextStream outLog;
+ struct TPackCode
+ {
+     QStringList enumStr;
+     QStringList codeStr;
+ }packCode;
 
 private:
     //! разбор XML файла, и формирование дерева с описанием данных

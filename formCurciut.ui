@@ -382,6 +382,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButtonGenCpp">
+          <property name="text">
+           <string>Генерация кода с++</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButtonExportRP">
           <property name="text">
            <string>Экспорт для РП</string>

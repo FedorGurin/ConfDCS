@@ -38,6 +38,12 @@ DomParser::DomParser(QObject *parent):QObject(parent)
         outLog.setDevice(&fileLog);
          outLog.setCodec("CP1251");
     }
+
+//    templateChStr = " arTable.setCh(&(t->chTable.ch[AR_OUT_CO2010])); \
+//            arTable.setAddr(E_NODE_CV, 1); \
+//            arTable.setChId(E_CH_AR,13,E_CH_IO_OUTPUT); \
+//            arTable << 0350  ; \
+//            arTable.setProp(LayerArinc::KBs_50,LayerArinc::REV_RTM3,LayerArinc::ALWAYS); ";
 }
 void DomParser::loadDataPIC(QString nameDir)
 {
@@ -104,6 +110,236 @@ void DomParser::loadDataPIC(QString nameDir)
                     }*/
         }
     }
+}
+void DomParser::genChEnum(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+            if(j->ch.type == "E_CH_AR")
+            {
+                j->ch.enumStr = "AR_";
+
+                if(j->ch.io == 1)
+                    j->ch.enumStr += "OUT_";
+                else
+                    j->ch.enumStr += "IN_";
+
+                j->ch.enumStr += j->ch.idName;
+                if(j->ch.idConnectedUnit != "-")
+                    j->ch.enumStr += "_" + j->ch.idConnectedUnit;
+
+
+                out<<"\t"<<j->ch.enumStr<<" = " << j->ch.id <<", \n";
+
+            }
+
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        genChEnum(i,out);
+    }
+
+}
+void DomParser::genCh(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+            out << "arTable.setCh(&(t->chTable.ch[" + j->ch.enumStr+"])); \n";
+            out << "arTable.setAddr(E_NODE_CV, 1); \n";
+            out << "arTable.setChId(E_CH_AR," + QString::number(j->ch.id) + "," + j->ch.ioStr+"); \n";
+
+            out << "arTable" ;
+            for(auto k:j->ch.addrs)
+            {
+               out<<" << " + k;
+            }
+            out<<";\n";
+            out <<"arTable.setProp(LayerArinc::KBs_50,LayerArinc::REV_RTM3,LayerArinc::ALWAYS); \n\n";
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        genCh(i,out);
+    }
+
+}
+void DomParser::genEnum_title(Node* rootNode, QTextStream& out)
+{
+    out<<tr("enum E_ARINC {")<<"\n";
+
+    genChEnum(rootNode,out);
+    out<<tr("}");
+}
+
+void DomParser::saveCh()
+{
+    //! сохранение данных в cvs
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCh = &DomParser::genCh;
+    saveDataToCVS("parsed/export/genCh"   ,rootItemData,f_saveGenCh);
+}
+
+void DomParser::saveChEnum()
+{
+    //! сохранение данных в cvs
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genEnum_title;
+    saveDataToCVS("parsed/export/genEnumCh"   ,rootItemData,f_saveGenCpp);
+}
+void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+
+            for(auto &k:j->params)
+            {
+               QString m;
+
+               if(k.csr =="-" && k.cmr !="-")
+               {
+                   float cmr = k.cmr.toFloat();
+                   int bit = k.hiBit.toInt() - k.lowBit.toInt();
+                   k.csr = QString::number(1<<bit);
+               }else if(k.csr =="-")
+               {
+                   k.csr = "0";
+               }
+
+               m = k.csr;
+               m.replace(",","_");
+               QString strEnum = "E_P_AR_H" + k.hiBit + "_L" +
+                       k.lowBit + "_S" + QString::number(k.s) + "_M" + m;
+               if(packCode.enumStr.contains(strEnum) == false)
+
+               {
+                   QString m1 = k.csr;
+                   if(k.s == 1)
+                       m1+="* 2.0";
+
+                   QString codeStr = "addPackToTable(" + strEnum + ",TO_AR("+ k.hiBit+"),TO_AR(" + k.lowBit + "),"+  QString::number(k.s) + "," + m1.replace(",",".")+ ");";
+                   packCode.codeStr.append(codeStr);
+                   packCode.enumStr.append(strEnum);
+
+                   out<<strEnum<<",\n";
+               }
+               k.enumCh     = j->ch.enumStr;
+               k.enumPack   = strEnum;
+               QStringList p = k.idName.split(".");
+               QString name = "E_"+ p.back().toUpper();
+               if(p.size() >2)
+                   name = "E_" + p[p.size() - 2].toUpper() + "_" +p.back().toUpper();
+
+               k.enumParam  = name;
+
+            }
+
+
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        genPackEnum(i,out);
+    }
+
+}
+void DomParser::genParamEnum(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+
+            for(auto &k:j->params)
+            {
+                out<<k.enumParam<<","<<"\n";
+            }
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        genParamEnum(i,out);
+    }
+
+}
+void DomParser::genPackEnum_title(Node* rootNode, QTextStream& out)
+{
+    out<<tr("enum E_PACK {")<<"\n";
+
+    genPackEnum(rootNode,out);
+    out<<tr("}");
+}
+void DomParser::genParamEnum_title(Node* rootNode, QTextStream& out)
+{
+    out<<tr("enum E_PARAM {")<<"\n";
+
+    genParamEnum(rootNode,out);
+    out<<tr("}");
+}
+void DomParser::genPack(Node* rootNode, QTextStream& out)
+{
+    for(auto i:packCode.codeStr)
+    {
+        out<<i<<"\n";
+    }
+}
+void DomParser::genParam(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
+
+        for(auto j : unit->unknownInf)
+        {
+            for(auto k:j->params)
+            {
+                out<<"addParamToTable(" << k.enumParam << "," <<k.enumCh <<"," << k.enumPack<<"," << k.addr <<");\n";
+            }
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        genParam(i,out);
+    }
+
+
+}
+void DomParser::savePack()
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genPack;
+    saveDataToCVS("parsed/export/genPack"   ,rootItemData,f_saveGenCpp);
+}
+void DomParser::saveParam()
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genParam;
+    saveDataToCVS("parsed/export/genParam"   ,rootItemData,f_saveGenCpp);
+}
+void DomParser::savePackEnum()
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genPackEnum_title;
+    saveDataToCVS("parsed/export/genEnumPack"   ,rootItemData,f_saveGenCpp);
+}
+void DomParser::saveParamEnum()
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genParamEnum_title;
+    saveDataToCVS("parsed/export/genEnumParam"   ,rootItemData,f_saveGenCpp);
 }
 void DomParser::saveRP(Node* rootNode, QTextStream& out)
 {

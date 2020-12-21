@@ -4,6 +4,11 @@
 
 #include <QVector>
 #include <QMessageBox>
+#include "./mppm/CommonEngineData.h"
+#include "./mppm/libmppm.h"
+#include <QLibrary>
+typedef IEngineData* (*CreateEngine)();
+
 FormCurciut::FormCurciut(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormCurciut)
@@ -11,6 +16,27 @@ FormCurciut::FormCurciut(QWidget *parent) :
     ui->setupUi(this);
     domParser = new DomParser;
 
+
+#ifdef QT_DEBUG
+    QLibrary libMPPM("libmppmd");
+#else
+    QLibrary libMPPM("libmppm");
+#endif
+
+    CreateEngine func = reinterpret_cast<CreateEngine > (libMPPM.resolve("createEngine"));
+    if(func == nullptr)
+    {
+        QMessageBox::warning(this, tr("Внимание!"),
+                             tr("libMPPM: (CreateEngine)libMPPM.resolve(\"createEngine\") = 0. \n"
+                                "Библиотека libMPPM не подключена/не загружена"),
+                             QMessageBox::Ok);
+
+    }
+    //engine = func();
+
+  //! получение обратного сигнала
+//    connect(engine, SIGNAL(reciveEventsRequest(TRequestEvent)), this, SLOT(slotIds(TRequestEvent)));
+//    connect(engine, SIGNAL(reciveEventsRequest(TRequestEvent)), this, SLOT(slotEventsRequest(TRequestEvent)));
 
     /*for(auto i:domParser->rootItemData->child[0]->child)
     {
@@ -27,6 +53,17 @@ FormCurciut::FormCurciut(QWidget *parent) :
     connect(ui->listWidgetSysMiddle,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetInter,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelectionInterfaces()));
     connect(ui->pushButtonExportRP,      SIGNAL(clicked()),this,SLOT(slotExportRP()));
+    connect(ui->pushButtonGenCpp,      SIGNAL(clicked()),this,SLOT(slotGenCpp()));
+
+}
+void FormCurciut::slotGenCpp()
+{
+    domParser->saveChEnum();
+    domParser->saveCh();
+    domParser->savePackEnum();
+    domParser->savePack();
+    domParser->saveParamEnum();
+    domParser->saveParam();
 }
 void FormCurciut::slotGenRoute()
 {

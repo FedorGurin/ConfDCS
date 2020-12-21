@@ -38,9 +38,15 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
 {
     ch.id               = json["idCh"].toString().toUInt();
     ch.io               = json["io"].toString() == "выдача";
-    ch.type             = json["typeCh"].toString();
+    if(ch.io == 1)
+        ch.ioStr = "E_CH_IO_OUTPUT";
+    else
+        ch.ioStr = "E_CH_IO_INPUT";
+    if(json["typeCh"].toString() == "AR429")
+        ch.type = "E_CH_AR";
+    //ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString();
-    ch.typeNode         = json["typeCh"].toString();
+    ch.typeNode         = json["typeNode"].toString();
     ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString();
 
@@ -102,6 +108,10 @@ bool InterfaceNode::openFileParams(const QString &nameFile)
             param.csr      = listLine[6];
             param.cmr      = listLine[7];
             param.sign     = listLine[8];
+            if(param.sign.toLower() == "да")
+                param.s = 1;
+            else
+                param.s = 0;
             param.label    = listLine[9];
             params.append(param);
         };
