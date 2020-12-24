@@ -49,6 +49,11 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
     ch.typeNode         = json["typeNode"].toString();
     ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString();
+    if(ch.type == "E_CH_AR")
+    {
+        ch.bitrate          = json["bitrate"].toString();
+        ch.period           = json["period"].toString();
+    }
 
 
     if(json.contains("addrs") && json["addrs"].isArray())

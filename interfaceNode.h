@@ -24,6 +24,10 @@ typedef struct TCh_
     uint8_t io;
     //! прием/выдача
     QString ioStr;
+    //! Скорость передчи
+    QString bitrate;
+    //! паузу между словами
+    QString period;
     //! идентификатор подключенного модуля
     QString idConnectedUnit;
     //! циклограмма выдачи

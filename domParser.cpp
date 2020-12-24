@@ -133,7 +133,7 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
                     j->ch.enumStr += "_" + j->ch.idConnectedUnit;
 
 
-                out<<"\t"<<j->ch.enumStr<<" = " << j->ch.id <<", \n";
+                out<<"\t"<<j->ch.enumStr<<", \n";
 
             }
 
@@ -164,7 +164,16 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                out<<" << " + k;
             }
             out<<";\n";
-            out <<"arTable.setProp(LayerArinc::KBs_50,LayerArinc::REV_RTM3,LayerArinc::ALWAYS); \n\n";
+            out <<"arTable.setProp(LayerArinc::";
+            if(j->ch.bitrate == "100")
+                out<<"KBs_100";
+            else if (j->ch.bitrate == "200")
+                out<<"KBs_200";
+            else if (j->ch.bitrate == "12.5")
+                out<<"KBs_12_5";
+            else
+                out<<"KBs_50";
+            out<<",LayerArinc::REV_RTM3,LayerArinc::ALWAYS); \n\n";
         }
     }
     out.flush();
