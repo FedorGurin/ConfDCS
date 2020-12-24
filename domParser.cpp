@@ -390,7 +390,7 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                 if(k.sign == "да")
                     sign = "1";
 
-                if(csr != "-")
+                if(k.csr != "-")
                     csr = k.csr;
                 out<<k.idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
                    <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<csr << "\n";
