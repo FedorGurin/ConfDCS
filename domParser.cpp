@@ -164,6 +164,8 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                out<<" << " + k;
             }
             out<<";\n";
+            if(j->ch.idConnectedUnit != "-")
+                out<< "arTable.setChConnected(" << j->ch.idConnectedUnit<<");\n";
             out <<"arTable.setProp(LayerArinc::";
             if(j->ch.bitrate == "100")
                 out<<"KBs_100";
@@ -2157,6 +2159,7 @@ void DomParser::saveForGraphvizForNode(QString nameFile, Node* rootNode)
        out<<"digraph pvn {ratio = \"expand\" ; rankdir = \"LR\" ;  \n graph [  ranksep = 20 ]    node [     fontsize = \"16\"           shape = \"ellipse\"      ];  edge [   ];  \n";
 
        QList<Node* > listUnit;
+       // собрать всех соседей
        findNeighborUnit(rootNode,listUnit);
 
        saveNeighborsToGV(rootNode, listUnit, out);
@@ -2765,13 +2768,18 @@ void DomParser::recFindConnectedUnit(Node* node, QList<Node* > &listUnit)
         if(w->toPin != nullptr)
         {
             Node* unit = findNodeByType(w->toPin,Node::E_UNIT,EDirection::E_UP);
+            UnitNode* unitNode = static_cast<UnitNode* >(unit);
             for(auto i:listUnit)
             {
                if(i->idName == unit->idName)
                   isFind = true;
             }
+            // если в списке не было такого элемента, тогда добавить unit в список
             if(isFind == false)
                listUnit.push_back(unit);
+           QList<PinNode* > listPin =  unitNode->findAllInternalConnection((PinNode*)w->toPin);
+           for(auto n:listPin)
+               recFindConnectedUnit(n,listUnit);
         }
     }
     for(auto i:node->child)
