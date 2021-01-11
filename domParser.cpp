@@ -734,7 +734,7 @@ void DomParser::recSaveLocationBetween(Node* startNode, QTextStream& out, QStrin
                             <<wire->toPin->parent->idName<<";"
                             <<wire->toPin->idName<<";";
 
-                        out<<wire->typeWire<<";";
+                        out<<wire->typeWire()<<";";
                         out<<pin->strTypeI + pin->prefTypeI<<";";
                         out<<"\n";
                     }
@@ -813,7 +813,7 @@ void DomParser::saveCSVCon(Node *startNode, QTextStream& out)
                              <<"-"<<";"
                              <<"-"<<";";
                      }
-                     out<<wire->typeWire<<";";
+                     out<<wire->typeWire()<<";";
                      out<<pin->strTypeI + pin->prefTypeI<<";";
                      out<<"\n";
                  }
@@ -888,7 +888,7 @@ void DomParser::recSaveCSVCoords(Node *startNode, QTextStream& out)
                         out<<c->typeConnectorWire<<";";
                         out<<c->parent->idName<<";";
                     }
-                    out<<j->typeWire<<";";
+                    out<<j->typeWire()<<";";
                     out<<pin->strIDWire << ";";
                     out<<pin->strTypeWirePin <<";";
                     out<<findLength(j,j->toPin)<<";";
@@ -1799,7 +1799,9 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                         w->fullConnected  = true;
 
                         mergeString(pin->strCord,pin0->strCord);
-                        mergeString(w->typeWire,w0->typeWire);
+                        mergeString(pin->strTypeWire,pin0->strTypeWire);
+                        //mergeString(w->typeWire,w0->typeWire);
+
                         mergeString(pin->strIDWire,pin0->strIDWire);
                         mergeString(pin->strTypeWirePin,pin0->strTypeWirePin);
 

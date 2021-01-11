@@ -17,9 +17,9 @@ WireNode::WireNode(QString id,
 //        idNameCoord = idNameCoord_;
 //        qDebug()<<idNameCoord<<"\n";
 //    }
-    typeWire.clear();
-    if(type != "-")
-        typeWire =  type;
+//    typeWire.clear();
+//    if(type != "-")
+//        typeWire =  type;
     toPin       = nullptr;
     fullConnected = false;
 //    pathName    = idName;
@@ -52,8 +52,8 @@ WireNode::WireNode(PinNode *pinNode) :Node()
     //        idNameCoord = idNameCoord_;
     //        qDebug()<<idNameCoord<<"\n";
     //    }
-        typeWire.clear();
-        typeWire =  pinNode->strTypeWire;
+        //typeWire.clear();
+        //typeWire =  pinNode->strTypeWire;
         toPin       = nullptr;
         fullConnected = false;
     //    pathName    = idName;
@@ -82,7 +82,7 @@ Node *WireNode::clone()
     rootNode->toPin         = nullptr;//this->toPin;
     rootNode->length        = this->length;
 
-    rootNode->typeWire    = this->typeWire;
+    //rootNode->typeWire    = this->typeWire;
     for(auto i:child)
     {
         Node* new_node = i->clone();

@@ -19,7 +19,14 @@ public:
     //! уникальное имя жгута
     //QString idNameCoord;
     //! имя типа провода
-    QString typeWire;
+    QString typeWire()
+    {
+        PinNode* pinNode =  static_cast<PinNode* > (parent);
+        if(parent!=nullptr)
+            return pinNode->strTypeWire;
+        else
+            return QString("");
+    }
     //! длинна провода, м
     float length;
     //! указывает на контакт
