@@ -121,6 +121,8 @@ public:
 
     //! вставить блок через список блоков
     void pasteUnitThrough(Node *unitFrom, QList<Node* > unitTransit,QVector<PinNode::TYPE_INTERFACE> listInterfaces);
+    //! подключение к блокам
+    void connectToUnits(Node *unitFrom_,   QList<Node* > unitTransit);
 
     QString findLength(Node* idSys1,Node *idSys2);
     //! поиск узла по типу

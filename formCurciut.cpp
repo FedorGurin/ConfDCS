@@ -168,7 +168,6 @@ void FormCurciut::slotCut()
 {
     QList<Node *> nodes;
 
-
     QList<QListWidgetItem*> listSys1      = ui->listWidgetSys1->selectedItems();
     QList<QListWidgetItem*> listSys2      = ui->listWidgetSys2->selectedItems();
     QList<QListWidgetItem*> listSysMiddle = ui->listWidgetSysMiddle->selectedItems();
@@ -186,22 +185,28 @@ void FormCurciut::slotCut()
             listUnitTransit.clear();
             sys1 = recFindNodeByIdName(domParser->rootItemData,i.nameSys1,Node::E_UNIT);
             if(sys1 == nullptr)
+            {
                 domParser->outLog<<"Not Found sys"<<i.nameSys1<<"\n";
+                continue;
+            }
             for(auto j:i.nameTr)
             {
                 listUnitTransit.append(recFindNodeByIdName(domParser->rootItemData,j,Node::E_UNIT));
             }
-            for(auto j:i.namesSys2)
-            {
-                listUnitSys2.append(recFindNodeByIdName(domParser->rootItemData,j,Node::E_UNIT));
-            }
-            domParser->pasteUnitBetween(sys1,
-                                        listUnitTransit,
-                                        listUnitSys2,
-                                        curInterfaces);
-           domParser->updateCoords();
+//            for(auto j:i.namesSys2)
+//            {
+//                listUnitSys2.append(recFindNodeByIdName(domParser->rootItemData,j,Node::E_UNIT));
+//            }
+//            domParser->pasteUnitBetween(sys1,
+//                                        listUnitTransit,
+//                                        listUnitSys2,
+//                                        curInterfaces);
+           domParser->connectToUnits(sys1,listUnitTransit);
+
 
         }
+
+          domParser->updateCoords();
 
         return;
     }

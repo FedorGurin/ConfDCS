@@ -956,6 +956,107 @@ bool DomParser::hasFullConnected(PinNode *pin)
     }
     return false;
 }
+
+void DomParser::connectToUnits(Node *unitFrom_,
+                                 QList<Node* > unitTransit)
+{
+    QList<Node* > pins;
+    QList<Node* > pinSelected;
+
+    QList<Node* > pinsUnitTransit;
+    UnitNode *unitFrom = static_cast<UnitNode * > (unitFrom_);
+
+    grabberNodeByType(unitFrom,Node::E_PIN,pins);
+
+    //UnitNode *unitNode = static_cast<UnitNode* > (unitTransit.first());
+    for(auto i : pins)
+    {
+        PinNode *pin = static_cast<PinNode *> (i);
+        if(pin->switched ==true)
+       {
+          pinSelected.append(pin);
+       }
+
+    }
+
+    // список систем через которые нужно провести сигналы
+    for(auto i:unitTransit)
+    {
+         grabberNodeByType(i,Node::E_PIN,pinsUnitTransit);
+    }
+    // контакты выбранной системы
+    for(auto i:pinSelected)
+    {
+        // текущий pin
+        PinNode *pinSel = static_cast<PinNode *> (i);
+        if(pinSel->child.isEmpty() == true )
+            continue;
+
+        QList<Node* > wires = pinSel->child;
+
+        while(pinSel->child.size()!=1)
+        {
+            pinSel->child.removeLast();
+        };
+        WireNode *w0 = static_cast<WireNode * > (pinSel->child.first());
+        //pinSel->child.erase(pinSel->child.begin(),pinSel->child.end());
+
+//        for(auto k:wires)
+//        {
+//            //запустить рекурсию
+//        }
+
+//            // проверка, что текущий pin уже пропущен через транзитную систему
+//            if(w0->fullConnected == false)
+//                continue;
+
+        // контакты транзитной системы
+        for(auto j:pinsUnitTransit)
+        {
+            PinNode *pinTransit = static_cast <PinNode *> (j);
+
+            if((pinSel->type_interface == pinTransit->type_interface)  &&
+                 ((pinSel->io == PinNode::E_IN  && pinTransit->io == PinNode::E_OUT) ||
+                  (pinSel->io == PinNode::E_OUT && pinTransit->io == PinNode::E_IN)) && pinSel->strTypeWirePin == pinTransit->strTypeWirePin)
+            {
+                WireNode* wTransit = nullptr;
+                 if(pinTransit->child.isEmpty() == false)
+                     wTransit = static_cast<WireNode* > (pinTransit->child.first());
+                 if(pinTransit->child.isEmpty() || wTransit->fullConnected == false)
+                 {
+                     if(wTransit == nullptr)
+                     {
+                         wTransit = new WireNode (pinTransit->strLabel,
+                                           pinTransit->strTypeWire,pinTransit);
+                     }
+
+                     wTransit->toPin = pinSel;
+                     wTransit->fullConnected = true;
+
+                     // сохраняем Pin на который указывала 1ая система
+                     PinNode *toPin = static_cast<PinNode *> (w0->toPin);
+                     // теперь первая система указывает на транзитную систему
+                     w0->toPin = pinTransit;
+                     w0->fullConnected = true;
+                     break;
+
+
+
+//                     //correctWire(pinFree);
+//                     correctWire(pinTransit);
+//                     //correctWire(toPin);
+//                     correctWire(pinSel);
+
+
+                 }
+            }
+       // }
+        }
+}
+
+
+ }
+
 void DomParser::pasteUnitThrough(Node *unitFrom_,
                                  QList<Node* > unitTransit,
                                  QVector<PinNode::TYPE_INTERFACE> listInterfaces)
@@ -1510,6 +1611,7 @@ void DomParser::mergeNodes(Node* root,Node* from)
                         }
                     }
                     mergeString(pin->strCord,pinFrom->strCord);
+                    mergeString(pin->strTypeWirePin,pinFrom->strTypeWirePin);
                     if(pin->strCord.isEmpty() && pinFrom->strCord.isEmpty())
                     {
                         UnitNode *funit = static_cast<UnitNode* > (findNodeByType(pin,Node::E_UNIT,EDirection::E_UP));

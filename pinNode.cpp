@@ -89,7 +89,7 @@ PinNode::PinNode(QString id,
 
     strTypeWirePin.clear();
     if(strTypeWirePin_ != "-")
-        strTypeWirePin = strTypeWirePin_;
+        strTypeWirePin = strTypeWirePin_.toLower();
 
     strCord.clear();
     if(strCord_ != "-")
