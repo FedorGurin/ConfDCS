@@ -184,7 +184,7 @@ public:
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
     //! сохранение данных в один файл для в внешнюю БД
-    void saveDataToCVS(QString nameFile, Node* rootNode,std::function<void(DomParser&, Node*, QTextStream&)>);
+    void saveDataToCVS(QString nameFile, Node* rootNode,std::function<void(DomParser&, Node*, QTextStream&)>, QString strCodec = "UTF-8");
     void saveAllInfo( Node* rootNode, QTextStream& out);
     void saveAllUnit( Node* rootNode, QTextStream& out);
     void recSaveAllUnit(Node* rootNode, QTextStream& out);

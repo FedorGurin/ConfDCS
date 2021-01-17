@@ -414,7 +414,7 @@ void DomParser::saveForRP()
 
     //! сохранение данных в cvs
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP_BD = &DomParser::saveRP_BD_Title;
-    saveDataToCVS("parsed/export/parameters"   ,rootItemData,f_saveRP_BD);
+    saveDataToCVS("parsed/export/parameters"   ,rootItemData,f_saveRP_BD, QString("CP1251"));
 
 }
 void DomParser::loadTransitFile(QString nameDir)
@@ -2341,7 +2341,7 @@ void DomParser::recSaveAllUnit(Node* rootNode, QTextStream& out)
         recSaveAllUnit(i,out);
     }
 }
-void DomParser::saveDataToCVS(QString nameFile, Node* rootNode,std::function<void(DomParser&, Node* , QTextStream&)> func)
+void DomParser::saveDataToCVS(QString nameFile, Node* rootNode,std::function<void(DomParser&, Node* , QTextStream&)> func, QString strCodec)
 {
     QFile file(qApp->applicationDirPath() +  "/csv/" + nameFile + ".csv");
     bool fileOpen = file.open(QIODevice::WriteOnly|QIODevice::Text);
@@ -2349,7 +2349,7 @@ void DomParser::saveDataToCVS(QString nameFile, Node* rootNode,std::function<voi
     {
        QTextStream out(&file);
        //out.setCodec("CP1251");
-       out.setCodec("UTF-8");
+       out.setCodec(strCodec.toLocal8Bit().constData());
        func(*this,rootNode,out);
        out.flush();
     }
