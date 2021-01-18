@@ -388,14 +388,20 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
             for(auto k: j->params)
             {
                 QString sign = "0";
-                QString csr  = "1";
+                QString cmr  = "1";
                 if(k.sign == "да")
                     sign = "1";
 
-                if(k.csr != "-")
-                    csr = k.csr;
+                if(k.cmr == "-" && k.csr !="-")
+                {
+                    cmr = QString::number(k.csr.toFloat()/ pow(2,k.hiBit.toInt() - k.lowBit.toInt() -1));
+                }else if(k.cmr != "-")
+                {
+                    cmr = k.cmr;
+                }
+
                 out<<k.idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
-                   <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<csr << "\n";
+                   <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
             }
 
         }
