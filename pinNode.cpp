@@ -120,7 +120,7 @@ PinNode::PinNode(QString id,
     for(int i = 0;i < numClone;i++)
     {
         if(strLabel != "-")
-            new WireNode(strLabel,strTypeWire,this);
+            new WireNode(strLabel,this);
     }
 }
 PinNode::PinNode():Node()
@@ -143,18 +143,18 @@ Node *PinNode::clone()
     rootNode->switched      = this->switched;
     rootNode->type_interface= this->type_interface;
 
-   rootNode->strIO        = this-> strIO       ;
-   rootNode->strInterface = this-> strInterface;
-   rootNode->strNumClone  = this-> strNumClone ;
-   rootNode->strSw        = this-> strSw       ;
-   rootNode->strLabel     = this-> strLabel    ;
-   rootNode->strTypeI     = this-> strTypeI    ;
-   rootNode->strTypeWire  = this-> strTypeWire ;
-   rootNode->strCircuit   = this-> strCircuit ;
-   rootNode->prefTypeI    = this-> prefTypeI;
-   rootNode->strCord      = this->strCord;
-   rootNode->strIDWire    = this->strIDWire;
-   rootNode->strTypeWirePin = this->strTypeWirePin;
+   rootNode->strIO          = this-> strIO       ;
+   rootNode->strInterface   = this-> strInterface;
+   rootNode->strNumClone    = this-> strNumClone ;
+   rootNode->strSw          = this-> strSw       ;
+   rootNode->strLabel       = this-> strLabel    ;
+   rootNode->strTypeI       = this-> strTypeI    ;
+   rootNode->strTypeWire    = this-> strTypeWire ;
+   rootNode->strCircuit     = this-> strCircuit ;
+   rootNode->prefTypeI      = this-> prefTypeI;
+   rootNode->strCord        = this-> strCord;
+   rootNode->strIDWire      = this-> strIDWire;
+   rootNode->strTypeWirePin = this-> strTypeWirePin;
     for(auto i:child)
     {
         Node* new_node = i->clone();

@@ -1032,8 +1032,7 @@ void DomParser::connectToUnits(Node *unitFrom_,
                  {
                      if(wTransit == nullptr)
                      {
-                         wTransit = new WireNode (pinTransit->strLabel,
-                                           pinTransit->strTypeWire,pinTransit);
+                         wTransit = new WireNode (pinTransit->strLabel, pinTransit);
                      }
 
                      wTransit->toPin = pinSel;
@@ -1132,8 +1131,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
                      pinTransit->strLabel = pinSel->strLabel;
                      WireNode *wireTransit = nullptr;
                      if(wires.isEmpty())
-                         wireTransit = new WireNode (pinTransit->strLabel,
-                                              pinTransit->strTypeWire,pinTransit);
+                         wireTransit = new WireNode (pinTransit->strLabel,pinTransit);
                      else
                          wireTransit = static_cast<WireNode *> (wires.first());
 
@@ -1159,7 +1157,7 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
                      WireNode *sys2 = nullptr;
 
                      if(toPin->child.isEmpty())
-                         sys2 = new WireNode(toPin->strLabel,toPin->strTypeI,toPin);
+                         sys2 = new WireNode(toPin->strLabel,toPin);
                      else
                      {
                          for(auto l:toPin->child)
@@ -1874,7 +1872,7 @@ QString DomParser::mergeString(QString &value1,QString &value2)
         {
             value1 = value2;
             return value1;
-        }else if(value1.isEmpty() == true && value2.isEmpty() == false)
+        }else if(value1.isEmpty() == false && value2.isEmpty())
         {
             value2 = value1;
             return value2;
@@ -1908,32 +1906,11 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
 
                         mergeString(pin->strCord,pin0->strCord);
                         mergeString(pin->strTypeWire,pin0->strTypeWire);
-                        //mergeString(w->typeWire,w0->typeWire);
+                        mergeString(pin->strTypeI,pin0->strTypeI);
 
                         mergeString(pin->strIDWire,pin0->strIDWire);
                         mergeString(pin->strTypeWirePin,pin0->strTypeWirePin);
 
-
-//                        if(pin->strCord != pin0->strCord)
-//                        {
-//                            if(pin->strCord.isEmpty() && pin0->strCord.isEmpty()==false)
-//                            {
-//                                pin->strCord = pin0->strCord;
-//                            }else if(pin0->strCord.isEmpty() == true && pin->strCord.isEmpty() == false)
-//                            {
-//                                pin0->strCord = pin->strCord;
-//                            }
-//                        }
-//                        if(w->typeWire != w0->typeWire)
-//                        {
-//                            if(w->typeWire.isEmpty() && w0->typeWire.isEmpty()==false)
-//                            {
-//                                w->typeWire = w0->typeWire;
-//                            }else if(w0->typeWire.isEmpty() == true && w->typeWire.isEmpty() == false)
-//                            {
-//                                w0->typeWire = w->typeWire;
-//                            }
-//                        }
                     }
                 }
             }
@@ -3060,6 +3037,7 @@ void DomParser::correctWire(Node *startNode)
                         wire->idName = parent0->alias +
                              pin->parent->idName + pin->idName;
                     }
+
                     for(auto i : vecAlias)
                     {
                         if(wire->idName.contains(i.first,Qt::CaseInsensitive))

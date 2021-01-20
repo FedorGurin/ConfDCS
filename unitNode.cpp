@@ -132,7 +132,7 @@ PinNode* UnitNode::findSameConnection(PinNode *pin, PinNode::TYPE_IO type)
         {
         WireNode *wire = nullptr;
         if(pinTrace->child.isEmpty() == true)
-            wire = new WireNode(pinTrace->strLabel,pinTrace->strTypeI,pinTrace);
+            wire = new WireNode(pinTrace->strLabel,pinTrace);
         else
             wire = static_cast<WireNode* > (pinTrace->child.first());
 

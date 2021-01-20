@@ -8,10 +8,7 @@ class WireNode:public Node
 {
 public:
 
-    WireNode(QString id,
-             QString type,
-            // QString idName_,
-             Node*);
+    WireNode(QString id,   Node*);
 
     WireNode(PinNode *pinNode);
 

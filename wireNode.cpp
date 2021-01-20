@@ -3,8 +3,6 @@
 
 #include <QDebug>
 WireNode::WireNode(QString id,
-                   QString type,
-                  // QString idNameCoord_,
                    Node *parent):Node()
 {
 //    displayName = element.attribute("displayName","None");

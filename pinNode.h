@@ -68,7 +68,7 @@ public:
     QString strTypeI   ;
     //! преобразованное название интерфейса (уникальный префикс)
     QString prefTypeI;
-    //! название типа бирки
+    //! название типа провода
     QString strTypeWire;
     //! тип жилы провода
     QString strTypeWirePin;
