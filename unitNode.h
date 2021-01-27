@@ -33,7 +33,7 @@ public:
     virtual int type()const{return Node::E_UNIT;}
     //! поиск инетерфейсов
     void scanInterface(Node *startNode);
-    //! поиск жгутов
+    //! поиск жгутов(сборка проводов в жгуты по указанным идентификаторам жгутов)
     void scanCoords(Node *startNode);
     void renameCoords(Node *startNode);
     //! поиск предыдущих интерфейсов

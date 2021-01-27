@@ -92,7 +92,7 @@ public:
     DomParser(QObject *parent = nullptr);
 
     //! загрузка из
-    void loadData(QString dir, EPropertySaveToGV type);
+    void loadData(QString dir, EPropertySaveToGV type,bool isAutoGraph = false);
 
     //! загрузка протоколов информационного взаимодействия (PIC)
     void loadDataPIC(QString dir);
@@ -182,6 +182,7 @@ public:
     void genPack(Node* rootNode, QTextStream& out);
 
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
+    void saveForGraphvizForCoords(QString nameFile, Node* rootNode);
     void saveForGraphvizForNode(QString nameFile, Node* rootNode,Node* rootNode2);
     //! сохранение данных в один файл для в внешнюю БД
     void saveDataToCVS(QString nameFile, Node* rootNode,std::function<void(DomParser&, Node*, QTextStream&)>, QString strCodec = "UTF-8");
@@ -199,6 +200,8 @@ public:
     QList<Node* > selectConnector( QList<Node* > listPin);
     void saveNeighborsToGV(Node* rootNode, QList<Node* > listUnit, QTextStream& out);
     void saveNeighborsToGV(Node* rootNode, Node* rootNode2, QTextStream& out);
+    //! подрекурсия для сохранения жгутов в формате Graphviz
+    void saveCoordsToGV(Node* rootNode, Node* rootNode2, QTextStream& out);
     void saveDataBase();
     void saveForRP();
     //! Показать список соединений между двумя группой блоков
@@ -272,8 +275,11 @@ private:
     void parseInCon(UnitNode *);
     //! найти блоки которые ссылаются на указанный, или данный блок на них
     void findNeighborUnit(Node* unitNode,QList<Node*> &listNode);
+    //! найти все уникальные жгуты в блоках unitNode
+    void findAllCoordsUnit(Node* unitNode, QList<CoordNode* > &listCoords);
     //! найти список проводов выходящих в другие контейнеры(например все првода выходящие из кабины)
     void saveConnectionLocations(Node *root,QString loacation1);
+    bool checkInListCoords(CoordNode *i,QList<CoordNode*> &listCoords);
     QProcess procDot;
     QFile fileLog;
 

@@ -532,7 +532,7 @@ void DomParser::joingInterface(Node *startNode)
 }
 
 //! загрузка из
-void DomParser::loadData(QString dir, EPropertySaveToGV type)
+void DomParser::loadData(QString dir, EPropertySaveToGV type,bool isAutoGraph)
 {
     bool okDesData = false;
     // создаем корень структуры
@@ -621,8 +621,11 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type)
     checkConnectionInterfaces(rootItemData);
     // поиск соединений между локациями
     saveConnectionLocations(rootItemData,"CAB");
-    // сохранение данных в формате GraphViz
-    saveForGraphviz(pathToParsedGV,rootItemData->idName,rootItemData,f_saveNodeGV);
+    if(isAutoGraph)
+    {
+        // сохранение данных в формате GraphViz
+        saveForGraphviz(pathToParsedGV,rootItemData->idName,rootItemData,f_saveNodeGV);
+    }
 
     // сохранение соединений в файл
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveWires = &DomParser::saveCSVConnection;
@@ -2222,6 +2225,28 @@ void DomParser::saveNeighborsToGV(Node* rootNode, Node* rootNode2, QTextStream& 
     for(auto x:listPin2)
         saveWires(x,out);
 }
+void DomParser::saveCoordsToGV(Node* rootNode, Node* rootNode2, QTextStream& out)
+{
+    //! поиск всех пинов связывающих с данным блоком
+    QList<Node* > listPin = findConnectionPins(rootNode, rootNode2);
+    QList<Node* > listCon  = selectConnector(listPin);
+
+    for(auto x:listCon)
+        saveSubGraph(rootNode2,x,listPin,out);
+    for(auto x:listPin)
+        saveWires(x,out);
+
+    //! поиск всех пинов связывающих с данным блоком
+    QList<Node* > listPin2 ;
+    grabberNodeByType(rootNode,Node::E_PIN, listPin2);
+    QList<Node* > listCon2  = selectConnector(listPin2);
+
+    for(auto x:listCon2)
+        saveSubGraph(rootNode,x,listPin2,out);
+
+    for(auto x:listPin2)
+        saveWires(x,out);
+}
 //! Показать список соединений между двумя группой блоков
 void DomParser::showConnectionBetween(QString group1, QString group2)
 {
@@ -2250,6 +2275,32 @@ void DomParser::saveForGraphvizForNode(QString nameFile, Node* rootNode)
        findNeighborUnit(rootNode,listUnit);
 
        saveNeighborsToGV(rootNode, listUnit, out);
+       out<<"\n}";
+       out.flush();
+    }
+    QString program = "dot";
+    //program = "./tools/7z.exe";
+    QStringList arguments; arguments.clear(); arguments<< "-Tpdf" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".gv"
+                                            << "-o" << qApp->applicationDirPath() +  "/csv/" + nameFile + ".pdf";
+    //Й = new QProcess(this);
+    procDot.start(program,arguments);
+    procDot.waitForFinished();
+}
+void DomParser::saveForGraphvizForCoords(QString nameFile, Node* rootNode)
+{
+    QFile file(qApp->applicationDirPath() +  "/csv/" + nameFile + ".gv");
+    bool fileOpen = file.open(QIODevice::WriteOnly|QIODevice::Text);
+    if(fileOpen == true)
+    {
+       QTextStream out(&file);
+       out.setCodec("UTF-8");
+       out<<"digraph pvn {ratio = \"expand\" ; rankdir = \"LR\" ;  \n graph [  ranksep = 20 ]    node [     fontsize = \"16\"           shape = \"ellipse\"      ];  edge [   ];  \n";
+
+       QList<CoordNode* > listUnit;
+       // собрать всех соседей
+       //findNeighborUnit(rootNode,listUnit);
+       findAllCoordsUnit(rootNode,listUnit);
+       //saveCoordsToGV(rootNode, listUnit, out);
        out<<"\n}";
        out.flush();
     }
@@ -2877,6 +2928,52 @@ void DomParser::recFindConnectedUnit(Node* node, QList<Node* > &listUnit)
 void DomParser::findNeighborUnit(Node* unitNode, QList<Node* > &listUnit)
 {
     recFindConnectedUnit(unitNode,listUnit);
+}
+bool DomParser::checkInListCoords(CoordNode *i,QList<CoordNode*> &listCoords)
+{
+    QList<WireNode* > wires = i->wires;
+    //while(!wires.isEmpty())
+    //{
+        for(auto w:wires)
+        {
+      //  WireNode* w = wires.first();
+        for(auto i:listCoords)
+        {
+            if(wires.isEmpty())
+                break;
+            for(auto w0:i->wires)
+            {
+                if((w0 == w) || (w->toPin == w0->parent && w->parent == w0->toPin))
+                {
+                    wires.removeOne(w);
+                    w = wires.first();
+                    break;
+                }
+            }
+        }
+        //if(wires.last() == w)
+        //    return false;
+    }
+    if(wires.isEmpty())
+        return true;
+
+    return false;
+}
+void DomParser::findAllCoordsUnit(Node* unitNode, QList<CoordNode* > &listCoords)
+{
+    if(unitNode->type() == Node::E_UNIT)
+    {
+        UnitNode *unit = static_cast<UnitNode*> (unitNode);
+        for(auto i:unit->coords)
+        {
+            if(!checkInListCoords(i,listCoords))
+                listCoords.append(i);
+        }
+    }
+    for(auto i:unitNode->child)
+    {
+        findAllCoordsUnit(i,listCoords);
+    }
 }
 void DomParser::saveNodeVarWithNe(Node *startNode, QTextStream& out)
 {

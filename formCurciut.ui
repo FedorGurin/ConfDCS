@@ -88,6 +88,19 @@
            <string>Использовать файл для транзитных систем</string>
           </property>
          </widget>
+         <widget class="QCheckBox" name="checkBoxGraphViz">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>50</y>
+            <width>231</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Автогенерация схем GrpahViz</string>
+          </property>
+         </widget>
         </widget>
        </item>
        <item>

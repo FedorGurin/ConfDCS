@@ -321,6 +321,12 @@ void FormCurciut::slotFormCurc(QString str)
 }
 void FormCurciut::slotPushGen()
 {
+    if(ui->checkBoxCoord->isChecked())
+    {
+        domParser->saveForGraphvizForCoords("montajka",domParser->rootItemData);
+
+    }else
+    {
     if(ui->listWidgetSys1->currentItem()->text() == ui->listWidgetSys2->currentItem()->text())
     {
         Node* node = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
@@ -340,8 +346,7 @@ void FormCurciut::slotPushGen()
         if(i1 != nullptr && i2 != nullptr)
             domParser->saveForGraphvizForNode("select_"+i1->displayName +"_"+ i2->displayName,i1,i2);
     }
-
-
+    }
 }
 //void FormCurciut::slotLoadTransitFile()
 //{
@@ -366,10 +371,10 @@ void FormCurciut::slotLoadData()
 
     if(ui->checkBoxLoadParsed->isChecked() == true)
     {
-        domParser->loadData("/parsed/base",type);
+        domParser->loadData("/parsed/base",type,ui->checkBoxGraphViz->isChecked());
     }else if(ui->checkBoxLoad->isChecked() == true)
     {
-        domParser->loadData("/curcuit",type);
+        domParser->loadData("/curcuit",type,ui->checkBoxGraphViz->isChecked());
     }
     if(domParser->rootItemData != nullptr)
         recAddFindSystem(domParser->rootItemData);
