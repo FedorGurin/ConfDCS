@@ -121,7 +121,7 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
         {
             if(j->ch.type == "E_CH_AR")
             {
-//                j->ch.enumStr = "AR_";
+                j->ch.enumStr = "E_AR_" + j->ch.idName;
 
 //                if(j->ch.io == 1)
 //                    j->ch.enumStr += "OUT_";
@@ -133,7 +133,7 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
 //                    j->ch.enumStr += "_" + j->ch.idConnectedUnit;
 
 
-                out<<"\t"<<j->ch.idName<<", \n";
+                out<<"\t"<<j->ch.enumStr<<", \n";
 
             }
 
@@ -154,7 +154,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
-            out << "arTable.setCh(&(t->chTable.ch[" + j->ch.idName+"])); \n";
+            out << "arTable.setCh(&(t->chTable.ch[" + j->ch.enumStr+"])); \n";
             out << "arTable.setAddr(E_NODE_CV, 1); \n";
             out << "arTable.setChId(E_CH_AR," + QString::number(j->ch.id) + "," + j->ch.ioStr+"); \n";
 
@@ -165,7 +165,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
             }
             out<<";\n";
             if(j->ch.idConnectedUnit != "-")
-                out<< "arTable.setChConnected(" << j->ch.idConnectedUnit<<");\n";
+                out<< "arTable.setChConnected(E_AR_" << j->ch.idConnectedUnit<<");\n";
             out <<"arTable.setProp(LayerArinc::";
             if(j->ch.bitrate == "100")
                 out<<"KBs_100";
@@ -231,6 +231,7 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
 
                m = k.csr;
                m.replace(",","_");
+               m.replace(".","_");
                QString strEnum = "E_P_AR_H" + k.hiBit + "_L" +
                        k.lowBit + "_S" + QString::number(k.s) + "_M" + m;
                if(packCode.enumStr.contains(strEnum) == false)
@@ -240,13 +241,14 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
                    if(k.s == 1)
                        m1+="* 2.0";
 
-                   QString codeStr = "addPackToTable(" + strEnum + ",TO_AR("+ k.hiBit+"),TO_AR(" + k.lowBit + "),"+  QString::number(k.s) + "," + m1.replace(",",".")+ ");";
+                   m1.replace(",","_");
+                   QString codeStr = "addPackToTable(" + strEnum + ",TO_AR("+ k.hiBit+"),TO_AR(" + k.lowBit + "),"+  QString::number(k.s) + "," + m1+ ");";
                    packCode.codeStr.append(codeStr);
                    packCode.enumStr.append(strEnum);
 
                    out<<strEnum<<",\n";
                }
-               k.enumCh     = j->ch.idName;
+               k.enumCh     = "E_AR_" + j->ch.idName;
                k.enumPack   = strEnum;
                QStringList p = k.idName.split(".");
                int l = 0;
@@ -261,10 +263,16 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
                if(p.size() >2)
                {
                    for(int k = l -1; k < p.size();k++)
+                   {
+                       p[k].replace("[","_");
+                       p[k].replace("]","");
+
                        name += "_" + p[k].toUpper();
+                   }
+                   k.enumParam  = name;
                }
 
-               k.enumParam  = name;
+
 
             }
 
@@ -286,10 +294,14 @@ void DomParser::genParamEnum(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
-
-            for(auto &k:j->params)
+            if(j->ch.copyFrom.isEmpty())
             {
-                out<<k.enumParam<<","<<"\n";
+                for(auto &k:j->params)
+                {
+
+                    if(k.enumParam.isEmpty() == false)
+                        out<<k.enumParam<<","<<"\n";
+                }
             }
         }
     }
@@ -329,9 +341,13 @@ void DomParser::genParamTable(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+            if(j->ch.copyFrom.isEmpty())
+            {
             for(auto k:j->params)
             {
-                out<<"addParamToTable(" << k.enumParam << "," <<k.enumCh <<"," << k.enumPack<<"," << k.addr <<");\n";
+                if(k.enumParam.isEmpty() == false)
+                    out<<"addParamToTable(" << k.enumParam << "," <<k.enumCh <<"," << k.enumPack<<"," << k.addr <<");\n";
+            }
             }
         }
     }
@@ -349,14 +365,25 @@ void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+            if(j->ch.copyFrom.isEmpty())
+            {
             for(auto k:j->params)
             {
                 int index = k.idName.indexOf("Input",Qt::CaseInsensitive);
+                k.idName.replace("Input","input");
                 if(index == -1)
+                {
                     index = k.idName.indexOf("Output",Qt::CaseInsensitive);
+                     k.idName.replace("Output","output");
+                }
                 QString addr = k.idName.mid(index);
-
-                out<<"doHAL(" << k.enumCh <<","<< k.enumParam <<"," << k.enumPack<<"," << addr <<");\n";
+                if(addr != "-" || addr.isEmpty() == false)
+                    out<<"doHAL(" << k.enumCh <<","<< k.enumParam <<"," << k.enumPack<<"," << addr <<");\n";
+            }
+            }
+            else
+            {
+                out<<"copyChHAL(E_AR_" << j->ch.copyFrom<<", E_AR_" << j->ch.idName<<");\n";
             }
         }
     }

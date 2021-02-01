@@ -30,6 +30,8 @@ typedef struct TCh_
     QString period;
     //! идентификатор подключенного модуля
     QString idConnectedUnit;
+    //! откуда скопировать данные
+    QString copyFrom;
     //! циклограмма выдачи
     QVector<QString> addrs;
     //! Описание данных в файлах

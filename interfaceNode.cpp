@@ -49,6 +49,7 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
     ch.typeNode         = json["typeNode"].toString();
     ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString();
+    ch.copyFrom         = json["copyFrom"].toString();
     if(ch.type == "E_CH_AR")
     {
         ch.bitrate          = json["bitrate"].toString();
