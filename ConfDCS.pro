@@ -3,7 +3,7 @@
 # #####################################################################
 TEMPLATE = app
 CONFIG += qt thread console c++17
-CONFIG += debug
+CONFIG += debug_and_release
 
 TARGET = confDCS
 DEPENDPATH += .

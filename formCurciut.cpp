@@ -64,6 +64,7 @@ void FormCurciut::slotGenCpp()
     domParser->savePack();
     domParser->saveParamEnum();
     domParser->saveParam();
+    domParser->savePackingCode();
 }
 void FormCurciut::slotGenRoute()
 {

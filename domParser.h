@@ -173,13 +173,16 @@ public:
     void saveParamEnum();
     void savePack();
     void saveParam();
+    void savePackingCode();
 
-    void genParam(Node* rootNode, QTextStream& out);
+    void genParamTable(Node* rootNode, QTextStream& out);
     void genPackEnum(Node* rootNode, QTextStream& out);
     void genPackEnum_title(Node* rootNode, QTextStream& out);
     void genParamEnum_title(Node* rootNode, QTextStream& out);
     void genParamEnum(Node* rootNode, QTextStream& out);
-    void genPack(Node* rootNode, QTextStream& out);
+    void genPackTable(Node* rootNode, QTextStream& out);
+    //! генерация кода для каждой модели
+    void genPackingCode(Node* rootNode, QTextStream& out);
 
     void saveForGraphvizForNode(QString nameFile, Node* rootNode);
     void saveForGraphvizForCoords(QString nameFile, Node* rootNode);

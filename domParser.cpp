@@ -121,19 +121,19 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
         {
             if(j->ch.type == "E_CH_AR")
             {
-                j->ch.enumStr = "AR_";
+//                j->ch.enumStr = "AR_";
 
-                if(j->ch.io == 1)
-                    j->ch.enumStr += "OUT_";
-                else
-                    j->ch.enumStr += "IN_";
+//                if(j->ch.io == 1)
+//                    j->ch.enumStr += "OUT_";
+//                else
+//                    j->ch.enumStr += "IN_";
 
-                j->ch.enumStr += j->ch.idName;
-                if(j->ch.idConnectedUnit != "-")
-                    j->ch.enumStr += "_" + j->ch.idConnectedUnit;
+//                j->ch.enumStr += j->ch.idName;
+//                if(j->ch.idConnectedUnit != "-")
+//                    j->ch.enumStr += "_" + j->ch.idConnectedUnit;
 
 
-                out<<"\t"<<j->ch.enumStr<<", \n";
+                out<<"\t"<<j->ch.idName<<", \n";
 
             }
 
@@ -154,7 +154,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
-            out << "arTable.setCh(&(t->chTable.ch[" + j->ch.enumStr+"])); \n";
+            out << "arTable.setCh(&(t->chTable.ch[" + j->ch.idName+"])); \n";
             out << "arTable.setAddr(E_NODE_CV, 1); \n";
             out << "arTable.setChId(E_CH_AR," + QString::number(j->ch.id) + "," + j->ch.ioStr+"); \n";
 
@@ -246,12 +246,23 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
 
                    out<<strEnum<<",\n";
                }
-               k.enumCh     = j->ch.enumStr;
+               k.enumCh     = j->ch.idName;
                k.enumPack   = strEnum;
                QStringList p = k.idName.split(".");
-               QString name = "E_"+ p.back().toUpper();
+               int l = 0;
+               for(l = 0 ;l < p.size();l++)
+               {
+                   if(p[l].contains("Input",Qt::CaseInsensitive) || p[l].contains("Output",Qt::CaseInsensitive))
+                   {
+                       break;
+                   }
+               }
+               QString name ="E";//p.back().toUpper();
                if(p.size() >2)
-                   name = "E_" + p[p.size() - 2].toUpper() + "_" +p.back().toUpper();
+               {
+                   for(int k = l -1; k < p.size();k++)
+                       name += "_" + p[k].toUpper();
+               }
 
                k.enumParam  = name;
 
@@ -303,14 +314,14 @@ void DomParser::genParamEnum_title(Node* rootNode, QTextStream& out)
     genParamEnum(rootNode,out);
     out<<tr("}");
 }
-void DomParser::genPack(Node* rootNode, QTextStream& out)
+void DomParser::genPackTable(Node* rootNode, QTextStream& out)
 {
     for(auto i:packCode.codeStr)
     {
         out<<i<<"\n";
     }
 }
-void DomParser::genParam(Node* rootNode, QTextStream& out)
+void DomParser::genParamTable(Node* rootNode, QTextStream& out)
 {
     if(rootNode->type() == Node::E_UNIT)
     {
@@ -327,19 +338,47 @@ void DomParser::genParam(Node* rootNode, QTextStream& out)
     out.flush();
     for(auto i : rootNode->child)
     {
-        genParam(i,out);
+        genParamTable(i,out);
     }
+}
+void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
+{
+    if(rootNode->type() == Node::E_UNIT)
+    {
+        UnitNode * unit = static_cast<UnitNode* > (rootNode);
 
+        for(auto j : unit->unknownInf)
+        {
+            for(auto k:j->params)
+            {
+                int index = k.idName.indexOf("Input",Qt::CaseInsensitive);
+                if(index == -1)
+                    index = k.idName.indexOf("Output",Qt::CaseInsensitive);
+                QString addr = k.idName.mid(index);
 
+                out<<"doHAL(" << k.enumCh <<","<< k.enumParam <<"," << k.enumPack<<"," << addr <<");\n";
+            }
+        }
+    }
+    out.flush();
+    for(auto i : rootNode->child)
+    {
+        genPackingCode(i,out);
+    }
 }
 void DomParser::savePack()
 {
-    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genPack;
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genPackTable;
     saveDataToCVS("parsed/export/genPack"   ,rootItemData,f_saveGenCpp);
+}
+void DomParser::savePackingCode()
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_savePackingCpp = &DomParser::genPackingCode;
+    saveDataToCVS("parsed/export/genCodeForModel"   ,rootItemData,f_savePackingCpp);
 }
 void DomParser::saveParam()
 {
-    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genParam;
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenCpp = &DomParser::genParamTable;
     saveDataToCVS("parsed/export/genParam"   ,rootItemData,f_saveGenCpp);
 }
 void DomParser::savePackEnum()
@@ -400,6 +439,12 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                     cmr = k.cmr;
                 }
 
+                QString idName;
+
+                int index = k.idName.indexOf("Input",Qt::CaseInsensitive);
+                if(index == -1)
+                    index = k.idName.indexOf("Output",Qt::CaseInsensitive);
+                idName = k.idName.mid(index);
                 out<<k.idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
                    <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
             }
