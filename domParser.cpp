@@ -377,8 +377,8 @@ void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
                      k.idName.replace("Output","output");
                 }
                 QString addr = k.idName.mid(index);
-                if(addr != "-" || addr.isEmpty() == false)
-                    out<<"doHAL(" << k.enumCh <<","<< k.enumParam <<"," << k.enumPack<<"," << addr <<");\n";
+                if(addr != "-" && addr.isEmpty() == false)
+                    out<<"doHAL(" << k.enumCh <<","<< k.enumParam <<"," << addr <<");\n";
             }
             }
             else
@@ -468,11 +468,23 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
 
                 QString idName;
 
-                int index = k.idName.indexOf("Input",Qt::CaseInsensitive);
-                if(index == -1)
-                    index = k.idName.indexOf("Output",Qt::CaseInsensitive);
-                idName = k.idName.mid(index);
-                out<<k.idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
+                QStringList idNames = k.idName.split(".", QString::SkipEmptyParts);
+                //int index = k.idName.indexOf("Input",Qt::CaseInsensitive);
+                //if(index == -1)
+                //    index = k.idName.indexOf("Output",Qt::CaseInsensitive);
+                //idName = k.idName.mid(index);
+                bool isHas = false;
+                for(int i = 0; i <idNames.size();i++)
+                {
+                    if(idNames[i].contains("input", Qt::CaseInsensitive) || idNames[i].contains("output", Qt::CaseInsensitive))
+                    {
+                        isHas = true;
+                        idName += idNames[i-1];
+                    }
+                    if(isHas == true)
+                        idName += "." + idNames[i];
+                }
+                out<<idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
                    <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
             }
 
@@ -666,7 +678,7 @@ void DomParser::loadData(QString dir, EPropertySaveToGV type,bool isAutoGraph)
         correctWire     (i);        
         correctCoords(i);
         // сохранение связей и объектов в формате GraphViz согласно выбранным настройкам (провода, жгуты, интерфейсы)
-        saveForGraphviz (pathToParsedGV,i->idName,i,f_saveNodeGV);
+        //saveForGraphviz (pathToParsedGV,i->idName,i,f_saveNodeGV);
     }
     for(auto i:listRootItemNode)
     {
