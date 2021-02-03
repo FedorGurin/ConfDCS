@@ -33,7 +33,7 @@ typedef struct TCh_
     //! откуда скопировать данные
     QString copyFrom;
     //! циклограмма выдачи
-    QVector<QString> addrs;
+    QVector<int> addrs;
     //! Описание данных в файлах
     QStringList fileNames;
 }TCh;
@@ -43,7 +43,7 @@ typedef struct TParam_
     QString idName;
     QString fullName;
     QString units;
-    QString addr;
+    int addr;
     QString hiBit;
     QString lowBit;
     QString csr;

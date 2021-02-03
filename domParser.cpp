@@ -346,7 +346,7 @@ void DomParser::genParamTable(Node* rootNode, QTextStream& out)
             for(auto k:j->params)
             {
                 if(k.enumParam.isEmpty() == false)
-                    out<<"addParamToTable(" << k.enumCh << "," <<k.enumParam <<"," << k.enumPack<<"," << k.addr <<");\n";
+                    out<<"addParamToTable(" << k.enumCh << "," <<k.enumParam <<"," << k.enumPack<<"," << "0"+QString::number(k.addr,8) <<");\n";
             }
             }
         }
@@ -485,7 +485,7 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                         idName += "." + idNames[i];
                 }
                 out<<idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
-                   <<k.addr  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
+                   <<"0"+QString::number(k.addr,8)  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
             }
 
         }

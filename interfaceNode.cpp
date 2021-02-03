@@ -36,6 +36,7 @@ InterfaceNode::InterfaceNode(QString strSetI_,PinNode::TYPE_INTERFACE type,QStri
 }
 InterfaceNode::InterfaceNode(QJsonObject &json)
 {
+    bool tr;
     ch.id               = json["idCh"].toString().toUInt();
     ch.io               = json["io"].toString() == "выдача";
     if(ch.io == 1)
@@ -64,7 +65,7 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         {
             QJsonObject kArray = addrArray[k].toObject();
             QString addr = kArray["addr"].toString();
-            ch.addrs.append(addr);
+            ch.addrs.append(addr.toInt(&tr,8));
         }
     }
     if(json.contains("files") && json["files"].isArray())
@@ -104,11 +105,13 @@ bool InterfaceNode::openFileParams(const QString &nameFile)
             if(listLine[0] == "Название идентификатора")
                 continue;
 
+            bool isOct;
             TParam param;
             param.idName   = listLine[0];
             param.fullName = listLine[1];
             param.units    = listLine[2];
-            param.addr     = listLine[3];
+            param.addr     = listLine[3].toInt(&isOct,8);
+
             param.hiBit    = listLine[4];
             param.lowBit   = listLine[5];
             param.csr      = listLine[6];
