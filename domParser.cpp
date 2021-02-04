@@ -347,7 +347,7 @@ void DomParser::genParamTable(Node* rootNode, QTextStream& out)
             for(auto k:j->params)
             {
                 if(k.enumParam.isEmpty() == false)
-                    out<<"addParamToTable(" << k.enumCh << "," <<k.enumParam <<"," << k.enumPack<<"," << "0"+QString::number(k.addr,8) <<");\n";
+                    out<<"addParamToTable(" << k.enumParam << "," <<k.enumCh <<"," << k.enumPack<<"," << "0"+QString::number(k.addr,8) <<");\n";
             }
             }
         }
