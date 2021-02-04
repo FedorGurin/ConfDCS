@@ -154,6 +154,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+
             out << "arTable.setCh(&(t->chTable.ch[" + j->ch.enumStr+"])); \n";
             out << "arTable.setAddr(E_NODE_CV, 1); \n";
             out << "arTable.setChId(E_CH_AR," + QString::number(j->ch.id) + "," + j->ch.ioStr+"); \n";
@@ -161,7 +162,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
             out << "arTable" ;
             for(auto k:j->ch.addrs)
             {
-               out<<" << " + k;
+               out<<" << 0" + QString::number(k,8);
             }
             out<<";\n";
             if(j->ch.idConnectedUnit != "-")
