@@ -1991,6 +1991,12 @@ void DomParser::recFindWireWithout(Node *wire, Node *startNode)
                     {
                         w0->fullConnected = true;
                         w->fullConnected  = true;
+                        Node *u0 = findNodeByType(pin0,Node::E_UNIT,EDirection::E_UP);
+                        Node *u  = findNodeByType(pin,Node::E_UNIT,EDirection::E_UP);
+                        if(pin->nameSignal.contains(u0->shortName)==false)
+                            pin->nameSignal+=" (Из " + u0->shortName + ")";
+                        if(pin0->nameSignal.contains(u->shortName)==false)
+                            pin0->nameSignal+=" (Из " + u->shortName + ")";
 
                         mergeString(pin->strCord,pin0->strCord);
                         mergeString(pin->strTypeWire,pin0->strTypeWire);

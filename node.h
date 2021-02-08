@@ -24,6 +24,7 @@ public:
 
 //имя которое будет отображаться пользователю
     QString displayName;
+    QString shortName;
     //! имя идентификатор
     QString idName;
 //    //! псевдоним

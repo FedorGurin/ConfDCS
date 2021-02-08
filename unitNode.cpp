@@ -35,6 +35,7 @@ UnitNode::UnitNode (QString fName_,
     idName = id_;
     isStend = (stend_.toLower() == "да");
     isTransit = (trans_.toLower() == "да");
+    shortName = sName_;
 
     nameInternalFile.clear();
     if(class_ != "-")
@@ -227,6 +228,7 @@ Node *UnitNode::clone()
     rootNode->nameCoord     = this->nameCoord;
     rootNode->nameInternalFile = this->nameInternalFile;
     rootNode->rootInternal     = this->rootInternal;
+    rootNode->shortName       = this->shortName;
 
 
     for(auto i:child)
