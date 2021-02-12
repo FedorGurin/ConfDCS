@@ -45,6 +45,8 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         ch.ioStr = "E_CH_IO_INPUT";
     if(json["typeCh"].toString() == "AR429")
         ch.type = "E_CH_AR";
+    else if(json["typeCh"].toString() == "RK")
+        ch.type = "E_CH_RK";
     //ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString();
     ch.typeNode         = json["typeNode"].toString();
@@ -114,8 +116,13 @@ bool InterfaceNode::openFileParams(const QString &nameFile)
 
             param.hiBit    = listLine[4];
             param.lowBit   = listLine[5];
+
             param.csr      = listLine[6];
+            if(listLine[6] == "-")
+                param.csr.clear();
             param.cmr      = listLine[7];
+            if(param.cmr == "-")
+                param.cmr.clear();
             param.sign     = listLine[8];
             if(param.sign.toLower() == "да")
                 param.s = 1;

@@ -119,6 +119,7 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+
             if(j->ch.type == "E_CH_AR")
             {
                 j->ch.enumStr = "E_AR_" + j->ch.idName;
@@ -133,9 +134,14 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
 //                    j->ch.enumStr += "_" + j->ch.idConnectedUnit;
 
 
-                out<<"\t"<<j->ch.enumStr<<", \n";
+                out<<"\t"<<j->ch.enumStr<<" = "<< indexEnum <<", \n";
 
+            }else if(j->ch.type == "E_CH_RK")
+            {
+                j->ch.enumStr = "E_RK_" + j->ch.idName;
+                out<<"\t"<<j->ch.enumStr<<" = "<< indexEnum <<", \n";
             }
+            indexEnum++;
 
         }
     }
@@ -189,7 +195,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
 void DomParser::genEnum_title(Node* rootNode, QTextStream& out)
 {
     out<<tr("enum E_ARINC {")<<"\n";
-
+    indexEnum = 0;
     genChEnum(rootNode,out);
     out<<tr("}");
 }
@@ -427,7 +433,7 @@ void DomParser::saveRP(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
-            out<<j->ch.idName<< ";" << j->ch.id <<"\n";
+            out<<j->ch.idName<< ";" << indexEnum++ <<"\n";
 
         }
     }
@@ -441,6 +447,7 @@ void DomParser::saveRP_BD_Title(Node* rootNode, QTextStream& out)
 {
     out<<tr("Название|Единицы измерения|Описание|Протокол|Адрес|Начальный бит|Конечный бит|Знаковое значение|Масштаб")<<"\n";
 
+    indexEnum = 0;
     saveRP_BD(rootNode,out);
 }
 void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
@@ -459,13 +466,15 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                 if(k.sign == "да")
                     sign = "1";
 
-                if(k.cmr == "-" && k.csr !="-")
+
+                if(k.cmr.isEmpty() && k.csr.isEmpty() == false)
                 {
                     cmr = QString::number(k.csr.toFloat()/ pow(2,k.hiBit.toInt() - k.lowBit.toInt() -1));
-                }else if(k.cmr != "-")
+                }else if(k.cmr.isEmpty() == false)
                 {
                     cmr = k.cmr;
                 }
+
 
                 QString idName;
 
@@ -485,9 +494,10 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                     if(isHas == true)
                         idName += "." + idNames[i];
                 }
-                out<<idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<j->ch.id<<"|"
+                out<<idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<indexEnum<<"|"
                    <<"0"+QString::number(k.addr,8)  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
             }
+            indexEnum++;
 
         }
     }
@@ -499,6 +509,7 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
 }
 void DomParser::saveForRP()
 {
+    indexEnum = 0;
     //! сохранение данных в cvs
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP = &DomParser::saveRP;
     saveDataToCVS("parsed/export/rp"   ,rootItemData,f_saveRP);

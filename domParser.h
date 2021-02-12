@@ -286,6 +286,7 @@ private:
     QProcess procDot;
     QFile fileLog;
 
+    int indexEnum;
 
     //QFile fileTransform;
     //QTextStream outTransform;
