@@ -230,7 +230,7 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
                {
                    float cmr = k.cmr.toFloat();
                    int bit = k.hiBit.toInt() - k.lowBit.toInt();
-                   k.csr = QString::number(1<<bit);
+                   k.csr = QString::number((1<<bit) * cmr);
                }else if(k.csr =="-")
                {
                    k.csr = "0";
