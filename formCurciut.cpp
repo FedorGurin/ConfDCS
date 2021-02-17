@@ -328,25 +328,25 @@ void FormCurciut::slotPushGen()
 
     }else
     {
-    if(ui->listWidgetSys1->currentItem()->text() == ui->listWidgetSys2->currentItem()->text())
-    {
-        Node* node = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
-        if(node != nullptr)
-            domParser->saveForGraphvizForNode("select_" + node->displayName,node);
+        if(ui->listWidgetSys1->currentItem()->text() == ui->listWidgetSys2->currentItem()->text())
+        {
+            Node* node = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
+            if(node != nullptr)
+                domParser->saveForGraphvizForNode("select_" + node->displayName,node);
 
-    }else
-    { 
-        Node* i1 = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
-        if(i1 != nullptr)
-                domParser->saveForGraphvizForNode("select_ "+i1->displayName,i1);
+        }else
+        {
+            Node* i1 = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys1->currentItem()->text());
+            if(i1 != nullptr)
+                    domParser->saveForGraphvizForNode("select_ "+i1->displayName,i1);
 
-        Node* i2 = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text());
-        if(i2 != nullptr)
-                domParser->saveForGraphvizForNode("select_" + i2->displayName,i2);
+            Node* i2 = recFindNodeByName(domParser->rootItemData,ui->listWidgetSys2->currentItem()->text());
+            if(i2 != nullptr)
+                    domParser->saveForGraphvizForNode("select_" + i2->displayName,i2);
 
-        if(i1 != nullptr && i2 != nullptr)
-            domParser->saveForGraphvizForNode("select_"+i1->displayName +"_"+ i2->displayName,i1,i2);
-    }
+            if(i1 != nullptr && i2 != nullptr)
+                domParser->saveForGraphvizForNode("select_"+i1->displayName +"_"+ i2->displayName,i1,i2);
+        }
     }
 }
 //void FormCurciut::slotLoadTransitFile()
