@@ -2139,7 +2139,7 @@ QList<Node* > DomParser::findConnectionPins(Node* unit1, Node* checkForUnit)
                 WireNode *wire = static_cast<WireNode *>(j);
                 if(wire->toPin != nullptr)
                 {
-                    if(checkConnectionUnit(unit1, wire->toPin) == true)
+                    if(checkConnectionUnit(unit1, wire->toPin) == true) //связан ли unit1 c проводом указанным вторым аргументом
                     {
                         Node *tNode = findNodeByType(wire,Node::E_PIN,EDirection::E_UP);
                         if(list.indexOf(tNode) == -1)
