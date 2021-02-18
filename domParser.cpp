@@ -226,12 +226,13 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
             {
                QString m;
 
-               if(k.csr =="-" && k.cmr !="-")
+               if(k.csr.isEmpty() == true && k.cmr.isEmpty() == false)
                {
                    float cmr = k.cmr.toFloat();
                    int bit = k.hiBit.toInt() - k.lowBit.toInt();
                    k.csr = QString::number((1<<bit) * cmr);
-               }else if(k.csr =="-")
+               }
+               else if(k.csr.isEmpty() == true)
                {
                    k.csr = "0";
                }
@@ -248,7 +249,7 @@ void DomParser::genPackEnum(Node* rootNode, QTextStream& out)
                    if(k.s == 1)
                        m1+="* 2.0";
 
-                   m1.replace(",","_");
+                   m1.replace(",",".");
                    QString codeStr = "addPackToTable(" + strEnum + ",TO_AR("+ k.hiBit+"),TO_AR(" + k.lowBit + "),"+  QString::number(k.s) + "," + m1+ ");";
                    packCode.codeStr.append(codeStr);
                    packCode.enumStr.append(strEnum);
