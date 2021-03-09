@@ -179,7 +179,7 @@ public:
     void genPackEnum(Node* rootNode, QTextStream& out);
     void genPackEnum_title(Node* rootNode, QTextStream& out);
     void genParamEnum_title(Node* rootNode, QTextStream& out);
-    void genParamEnum(Node* rootNode, QTextStream& out);
+    void genParamEnum(Node* rootNode, QTextStream& out, QStringList &listStr);
     void genPackTable(Node* rootNode, QTextStream& out);
     //! генерация кода для каждой модели
     void genPackingCode(Node* rootNode, QTextStream& out);

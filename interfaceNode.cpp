@@ -47,11 +47,26 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         ch.type = "E_CH_AR";
     else if(json["typeCh"].toString() == "RK")
         ch.type = "E_CH_RK";
+    else if(json["typeCh"].toString() == "IR")
+        ch.type = "E_CH_IR";
+    else if(json["typeCh"].toString() == "DAC")
+        ch.type = "E_CH_DAC";
+    else if(json["typeCh"].toString() == "ITP")
+        ch.type = "E_CH_ITP";
+    else if(json["typeCh"].toString() == "IP")
+        ch.type = "E_CH_IP";
+    else if(json["typeCh"].toString() == "GEN_NU")
+        ch.type = "E_CH_GEN_NU";
     //ch.type             = json["typeCh"].toString();
-    ch.idName           = json["idName"].toString();
+    ch.idName           = json["idName"].toString().toUpper();
+    if(ch.idName =="-")
+        ch.idName.clear();
+
+
+
     ch.typeNode         = json["typeNode"].toString();
     ch.idNode           = json["idNode"].toString().toUInt();
-    ch.idConnectedUnit  = json["connectToSys"].toString();
+    ch.idConnectedUnit  = json["connectToSys"].toString().toUpper();
     ch.copyFrom         = json["copyFrom"].toString();
     if(ch.type == "E_CH_AR")
     {
@@ -128,7 +143,10 @@ bool InterfaceNode::openFileParams(const QString &nameFile)
                 param.s = 1;
             else
                 param.s = 0;
+
             param.label    = listLine[9];
+            if(param.label == "-")
+                param.label.clear();
             params.append(param);
         };
         file.close();
