@@ -228,7 +228,15 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
             {
                 if(j->ch.enumStr.isEmpty())
                     continue;
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_CV; \n";
+                if(j->ch.typeNode == "ARM_OVO")
+                {
+                    out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                }
+                else
+                {
+                    out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_CV; \n";
+                }
+
                 out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
                 out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
                 out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
