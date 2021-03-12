@@ -640,7 +640,16 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+            if(j->ch.idName.isEmpty())
+                continue;
 
+            if(j->ch.type == "E_CH_RK")
+            {
+                out<<j->ch.idName<<"|"<<"RK"<<"|" <<j->ch.idName<<"|"<<indexEnum<< "|||||\n";
+
+            }
+            else
+            {
             for(auto k: j->params)
             {
                 QString sign = "0";
@@ -678,8 +687,12 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                 }
                 out<<idName<<"|"<<k.units<<"|" <<k.fullName<<"|"<<indexEnum<<"|"
                    <<"0"+QString::number(k.addr,8)  <<"|"<<k.lowBit<<"|"<<k.hiBit<<"|"<< sign <<"|"<<cmr << "\n";
+
             }
-            indexEnum++;
+
+            }
+             indexEnum++;
+
 
         }
     }
@@ -694,7 +707,7 @@ void DomParser::saveForRP()
     indexEnum = 0;
     //! сохранение данных в cvs
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP = &DomParser::saveRP;
-    saveDataToCVS("parsed/export/rp"   ,rootItemData,f_saveRP);
+    saveDataToCVS("parsed/export/channels"   ,rootItemData,f_saveRP);
 
     //! сохранение данных в cvs
     std::function<void(DomParser&, Node*,QTextStream&)> f_saveRP_BD = &DomParser::saveRP_BD_Title;
