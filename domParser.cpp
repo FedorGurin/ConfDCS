@@ -45,6 +45,107 @@ DomParser::DomParser(QObject *parent):QObject(parent)
 //            arTable << 0350  ; \
 //            arTable.setProp(LayerArinc::KBs_50,LayerArinc::REV_RTM3,LayerArinc::ALWAYS); ";
 }
+void DomParser::exportTable()
+{
+    std::function<void(DomParser&, Node*,QTextStream&)> f_saveGenChTable = &DomParser::genChTable;
+    saveDataToCVS("parsed/export/genChTable"   ,rootItemData,f_saveGenChTable);
+
+
+}
+void DomParser::genChTable(Node* startNode, QTextStream& out)
+{
+    if(startNode->type() == Node::E_UNIT)
+    {
+        UnitNode *unit = static_cast<UnitNode* > (startNode);
+        for(auto j:unit->unknownInf)
+        {
+            QString strSource;
+            QString strIo;
+            QString bitrate = "-";
+            QString typeCh;
+            int iCh;
+            if(j->ch.io == 1 )
+                strIo="выдача";
+            else
+                strIo="прием";
+
+            if(j->ch.typeNode == "ARM_IM")
+            {
+                if(j->ch.type == "E_CH_AR")
+                {
+
+                    uint8_t numA = j->ch.id / 48;
+                    iCh = j->ch.id - numA * 48 + 1;
+
+                    if(j->ch.id > 47)
+                        strSource = "KK2_AR_";
+                    else
+                        strSource = "KK1_AR_";
+
+                     bitrate = j->ch.bitrate + " Кбит/с";
+                     typeCh = "Arinc-429";
+                }else if(j->ch.type == "E_CH_RK")
+                {
+                    uint8_t numA = j->ch.id / 48;
+                    iCh = j->ch.id - numA * 48  + 1 ;
+
+                    if(j->ch.id > 47)
+                        strSource = "KK2_RK_";
+                    else
+                        strSource = "KK1_RK_";
+                     typeCh = "РК";
+                }
+                if(j->ch.io == 1)
+                    strSource +="OUT";
+                else
+                    strSource +="IN";
+
+
+
+            }else if (j->ch.typeNode == "ARM_OVO")
+            {
+                iCh = j->ch.id + 1;
+                if(j->ch.type == "E_CH_RK")
+                {
+                    strSource = "KK_OVO_RK";
+                     typeCh = "РК";
+                }else if(j->ch.type == "E_CH_IP")
+                {
+                    strSource = "KK_OVO_IP";
+                    typeCh = "В";
+                }else if(j->ch.type == "E_CH_DAC")
+                {
+                    strSource = "KK_OVO_DAC";
+                    typeCh = "В";
+                }else if(j->ch.type == "E_CH_ITP")
+                {
+                    strSource = "KK_OVO_ITP";
+                    typeCh = "ГрадС";
+                }else if(j->ch.type == "E_CH_IR")
+                {
+                    strSource = "KK_OVO_IR";
+                    typeCh = "Ом";
+                }else if(j->ch.type == "E_CH_GEN_NU")
+                {
+                    strSource = "KK_OVO_FREQ";
+                    typeCh = "Гц";
+                }else if(j->ch.type == "E_CH_GEN")
+                {
+                    strSource = "KK_OVO_GEN";
+                    typeCh = "~В";
+                }
+
+            }
+
+            out<<iCh<<";"<<strSource<<";"<<bitrate<<";"<<typeCh<<";"<<strIo<<";"<<j->ch.displayName<<";"<<unit->displayName<<"\n";
+        }
+    }
+    for(auto i:startNode->child)
+    {
+        genChTable(i,out);
+    }
+}
+
 void DomParser::loadDataPIC(QString nameDir)
 {
     bool curOpenFile = false;

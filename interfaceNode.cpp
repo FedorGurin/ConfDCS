@@ -57,13 +57,15 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         ch.type = "E_CH_IP";
     else if(json["typeCh"].toString() == "GEN_NU")
         ch.type = "E_CH_GEN_NU";
+    else if(json["typeCh"].toString() == "GEN")
+            ch.type = "E_CH_GEN";
     //ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString().toUpper();
     if(ch.idName =="-")
         ch.idName.clear();
 
 
-
+    ch.displayName      = json["displayName"].toString();
     ch.typeNode         = json["typeNode"].toString();
     ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString().toUpper();

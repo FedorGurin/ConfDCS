@@ -53,6 +53,7 @@ FormCurciut::FormCurciut(QWidget *parent) :
     connect(ui->listWidgetSysMiddle,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelection()));
     connect(ui->listWidgetInter,    SIGNAL(itemSelectionChanged()),this,SLOT(slotItemSelectionInterfaces()));
     connect(ui->pushButtonExportRP,      SIGNAL(clicked()),this,SLOT(slotExportRP()));
+    connect(ui->pushButtonExportTable,      SIGNAL(clicked()),this,SLOT(slotExportTable()));
     connect(ui->pushButtonGenCpp,      SIGNAL(clicked()),this,SLOT(slotGenCpp()));
 
 }
@@ -386,6 +387,10 @@ void FormCurciut::slotExportRP()
 {
     domParser->saveForRP();
 
+}
+void FormCurciut::slotExportTable()
+{
+    domParser->exportTable();
 }
 FormCurciut::~FormCurciut()
 {

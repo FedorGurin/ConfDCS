@@ -164,6 +164,7 @@ public:
     void genEnum_title(Node* rootNode, QTextStream& out);
     void genChEnum(Node* rootNode, QTextStream& out);
     void saveChEnum();
+    void genChTable(Node* rootNode, QTextStream& out);
     //! создание описаний каналов
     void saveCh();
     void genCh(Node* rootNode, QTextStream& out);
@@ -207,6 +208,7 @@ public:
     void saveCoordsToGV(Node* rootNode, Node* rootNode2, QTextStream& out);
     void saveDataBase();
     void saveForRP();
+    void exportTable();
     //! Показать список соединений между двумя группой блоков
     //! ..соединения внутри в рамках одной группы игнорируются
     void showConnectionBetween(QString group1, QString group2);

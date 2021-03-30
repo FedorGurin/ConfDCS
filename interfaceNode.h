@@ -14,6 +14,7 @@ typedef struct TCh_
     QString idName;
     //! тип узла
     QString typeNode;
+    QString displayName;
     //! идентификатор
     uint32_t idNode;
     //! тип канала

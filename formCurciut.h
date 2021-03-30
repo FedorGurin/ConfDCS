@@ -36,6 +36,7 @@ public slots:
     void slotDataBase();
     void slotLoadData();
     void slotExportRP();
+    void slotExportTable();
     //! генерация жгутов
     void slotGenRoute();
     void slotGenCpp();
