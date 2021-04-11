@@ -9,6 +9,8 @@ TARGET = confDCS
 DEPENDPATH += .
 CONFIG +=build_all lib
 
+RC_ICONS = "./ico/set.ico"
+
 # DEFINES +=ENG
 #TRANSLATIONS = ui_eng.ts
 CODECFORTR = utf8

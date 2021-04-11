@@ -1433,6 +1433,7 @@ void DomParser::connectToUnits(Node *unitFrom_,
                      wTransit->toPin = pinSel;
                      wTransit->fullConnected = true;
 
+
                      // сохраняем Pin на который указывала 1ая система
                      PinNode *toPin = static_cast<PinNode *> (w0->toPin);
                      // теперь первая система указывает на транзитную систему
@@ -1542,9 +1543,16 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
                      wirePinSel->fullConnected = true;
 
                      if(pinSel->io == PinNode::E_IN)
+                     {
+                         pinTransit->strIO = "выдача";
                          pinTransit->io = PinNode::E_OUT;
+                     }
                      else
+                     {
+                         pinTransit->strIO = "прием";
                          pinTransit->io = PinNode::E_IN;
+                     }
+
 
 
                      // ищем свободный пин для связи транзитной системы с 2ой системой
@@ -1565,9 +1573,15 @@ void DomParser::pasteUnitThrough(Node *unitFrom_,
                      }
                      sys2->toPin = pinFree;
                      if(toPin->io == PinNode::E_IN)
+                     {
+                          pinFree->strIO = "выдача";
                          pinFree->io = PinNode::E_OUT;
+                     }
                      else
+                     {
+                         pinFree->strIO = "прием";
                          pinFree->io = PinNode::E_IN;
+                     }
 
                      pinFree->strInterface = toPin->strInterface;
                      pinFree->type_interface = toPin->type_interface;
