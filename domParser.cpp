@@ -324,7 +324,12 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                     out<<"KBs_12_5";
                 else
                     out<<"KBs_50";
-                out<<",LayerArinc::REV_RTM3,LayerArinc::ALWAYS); \n\n";
+                out<<",LayerArinc::REV_RTM3,LayerArinc::ALWAYS,";
+                if(j->ch.period == "8")
+                    out<<"LayerArinc::INTER_8T";
+                else
+                    out<<"LayerArinc::INTER_4T";
+                out<<"); \n\n";
             }else if(j->ch.type == "E_CH_RK")
             {
                 if(j->ch.enumStr.isEmpty())
