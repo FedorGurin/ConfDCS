@@ -761,7 +761,7 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
                 QString sign = "0";
                 QString cmr  = "1";
                 if(k.sign == "да")
-                    sign = "1";
+                    sign = "-1";
 
 
                 if(k.cmr.isEmpty() && k.csr.isEmpty() == false)
