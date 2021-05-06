@@ -2243,7 +2243,7 @@ void DomParser::parseLocation(QString line, Node *parent)
 
     QStringList listLine = line.split(";", QString::SkipEmptyParts);
 
-    if(listLine.empty() == true || listLine.size() != (E_GEO_NAME_COORD +1))
+    if(listLine.empty() == true || listLine.size() != (E_GEO_FACTORY_ID +1))
         return;
     //! пропустить первую строчку
     if(listLine[0].contains("название", Qt::CaseInsensitive))
@@ -2265,6 +2265,7 @@ void DomParser::parseLocation(QString line, Node *parent)
                             listLine[E_GEO_CLASS],
                             listLine[E_GEO_ALIAS],
                             listLine[E_GEO_NAME_COORD],
+                            listLine[E_GEO_FACTORY_ID],
                             nodeParent);
     }
 

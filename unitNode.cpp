@@ -29,6 +29,7 @@ UnitNode::UnitNode (QString fName_,
           QString class_,
           QString alias_,
           QString nameCoord_,
+          QString factoryId_,
           Node* parent)
 {
     displayName = fName_;
@@ -43,11 +44,15 @@ UnitNode::UnitNode (QString fName_,
     rootInternal = 0;
     alias.clear();
     nameCoord.clear();
+    factoryId.clear();
     rootInternal = nullptr;
     idParentSys  = p_sys_;
 
     if(nameCoord_ != "-")
         nameCoord = nameCoord_;
+
+    if(factoryId_ != "-")
+        factoryId = factoryId_;
 
     if(alias_ !="-")
         alias = alias_;

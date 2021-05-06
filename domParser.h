@@ -30,7 +30,8 @@ public:
         E_GEO_POS,
         E_GEO_CLASS, //! класс объекта
         E_GEO_ALIAS,
-        E_GEO_NAME_COORD //! имя жгута
+        E_GEO_NAME_COORD,
+        E_GEO_FACTORY_ID//! имя жгута
     };
     //! Свойства блока полученные из спецификации
     typedef  struct TGeometry_

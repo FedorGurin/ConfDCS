@@ -26,6 +26,7 @@ public:
               QString class_,
               QString alias_,
               QString nameCoord_,
+              QString factorId_,
               Node* node);
     UnitNode();
 
@@ -69,6 +70,7 @@ public:
     //! псевдоним блока для именования бирок
     QString alias;
     QString nameCoord;
+    QString factoryId;
     //! имя файла с описанием внутренних параметров
     QString nameInternalFile;
     //! отображение клемм друг-на-друга(или здесь возможно должна быть dll)
