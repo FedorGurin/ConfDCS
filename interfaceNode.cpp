@@ -45,7 +45,7 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         ch.ioStr = "E_CH_IO_INPUT";
     if(json["typeCh"].toString() == "AR429")
         ch.type = "E_CH_AR";
-    else if(json["typeCh"].toString() == "RK")
+    else if(json["typeCh"].toString().contains("RK",Qt::CaseInsensitive) == true)
         ch.type = "E_CH_RK";
     else if(json["typeCh"].toString() == "IR")
         ch.type = "E_CH_IR";
@@ -59,6 +59,17 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         ch.type = "E_CH_GEN_NU";
     else if(json["typeCh"].toString() == "GEN")
             ch.type = "E_CH_GEN";
+    ch.typeRK.clear();
+    if(ch.type == "E_CH_RK")
+    {
+        if(json["typeCh"].toString().contains("1",Qt::CaseInsensitive) == true)
+            ch.typeRK = "Тип 1";
+        else if(json["typeCh"].toString().contains("2",Qt::CaseInsensitive) == true)
+            ch.typeRK = "Тип 2";
+        else
+            ch.typeRK = "Не определена";
+
+    }
     //ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString().toUpper();
     if(ch.idName =="-")

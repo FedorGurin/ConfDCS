@@ -93,7 +93,7 @@ void DomParser::genChTable(Node* startNode, QTextStream& out)
                         strSource = "KK2_RK_";
                     else
                         strSource = "KK1_RK_";
-                     typeCh = "РК";
+                      typeCh = "РК (" + j->ch.typeRK + ")";
                 }
                 if(j->ch.io == 1)
                     strSource +="OUT";
@@ -108,7 +108,7 @@ void DomParser::genChTable(Node* startNode, QTextStream& out)
                 if(j->ch.type == "E_CH_RK")
                 {
                     strSource = "KK_OVO_RK";
-                     typeCh = "РК";
+                    typeCh = "РК (" + j->ch.typeRK + ")";
                 }else if(j->ch.type == "E_CH_IP")
                 {
                     strSource = "KK_OVO_IP";

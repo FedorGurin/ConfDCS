@@ -19,6 +19,8 @@ typedef struct TCh_
     uint32_t idNode;
     //! тип канала
     QString type;
+    QString typeRK;
+
     //! имя перечисления
     QString enumStr;
     //! прием/выдача
