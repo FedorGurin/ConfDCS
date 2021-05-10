@@ -441,7 +441,8 @@ void DomParser::genEnum_title(Node* rootNode, QTextStream& out)
     out<<tr("enum E_CH {")<<"\n";
     indexEnum = 0;
     genChEnum(rootNode,out);
-    out<<tr("}");
+    out<<tr("E_CH_MAX\n");
+    out<<tr("};");
 }
 
 void DomParser::saveCh()
@@ -578,7 +579,7 @@ void DomParser::genPackEnum_title(Node* rootNode, QTextStream& out)
     out<<tr("enum E_PACK {")<<"\n";
 
     genPackEnum(rootNode,out);
-    out<<tr("}");
+    out<<tr("};");
 }
 void DomParser::genParamEnum_title(Node* rootNode, QTextStream& out)
 {
@@ -586,7 +587,7 @@ void DomParser::genParamEnum_title(Node* rootNode, QTextStream& out)
 
     QStringList listParam;
     genParamEnum(rootNode,out,listParam);
-    out<<tr("}");
+    out<<tr("};");
 }
 void DomParser::genPackTable(Node* rootNode, QTextStream& out)
 {
