@@ -724,7 +724,10 @@ void DomParser::saveRP(Node* rootNode, QTextStream& out)
         {
             if(j->ch.idName.isEmpty())
                 continue;
-            out<<j->ch.idName<< ";" << indexEnum++ <<"\n";
+            if(j->ch.type == "E_CH_AR")
+                out<<j->ch.idName<< ";" << indexEnum++ <<"\n";
+            else
+                indexEnum++;
 
         }
     }
