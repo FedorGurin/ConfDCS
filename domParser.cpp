@@ -755,7 +755,7 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
             if(j->ch.idName.isEmpty())
                 continue;
 
-            if(j->ch.type == "E_CH_RK")
+            if(j->ch.type == "E_CH_RK" && j->ch.idName.isEmpty() == false)
             {
                 out<<j->ch.idName<<"|"<<"RK"<<"|" <<j->ch.idName<<"|"<<indexEnum<< "|||||\n";
 
@@ -764,6 +764,8 @@ void DomParser::saveRP_BD(Node* rootNode, QTextStream& out)
             {
             for(auto k: j->params)
             {
+                if(k.idName.isEmpty())
+                    continue;
                 QString sign = "0";
                 QString cmr  = "1";
                 if(k.sign == "да")
