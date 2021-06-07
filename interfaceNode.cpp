@@ -95,7 +95,9 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
         {
             QJsonObject kArray = addrArray[k].toObject();
             QString addr = kArray["addr"].toString();
-            ch.addrs.append(addr.toInt(&tr,8));
+            int addr8 = addr.toInt(&tr,8);
+            if(tr == true)
+                ch.addrs.append(addr8);
         }
     }
     if(json.contains("files") && json["files"].isArray())

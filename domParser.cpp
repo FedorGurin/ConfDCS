@@ -310,6 +310,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                 out << "arTable" ;
                 for(auto k:j->ch.addrs)
                 {
+                   QString addr8 = QString::number(k,8);
                    out<<" << 0" + QString::number(k,8);
                 }
                 out<<";\n";
