@@ -64,6 +64,8 @@ void DomParser::genChTable(Node* startNode, QTextStream& out)
             QString bitrate = "-";
             QString typeCh;
             int iCh;
+            if(j->ch.skip == 1)
+                continue;
             if(j->ch.io == 1 )
                 strIo="выдача";
             else
@@ -220,6 +222,8 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+            if(j->ch.skip == 1)
+                continue;
 
             if(j->ch.type == "E_CH_AR")
             {
@@ -301,6 +305,8 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
 
         for(auto j : unit->unknownInf)
         {
+            if(j->ch.skip == 1)
+                continue;
             if(j->ch.type == "E_CH_AR")
             {
                 out << "arTable.setCh(&(t->chTable.ch[" + j->ch.enumStr+"])); \n";
@@ -314,7 +320,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                    out<<" << 0" + QString::number(k,8);
                 }
                 out<<";\n";
-                if(j->ch.idConnectedUnit != "-")
+                if(j->ch.idConnectedUnit.isEmpty() == false)
                     out<< "arTable.setChConnected(E_AR_" << j->ch.idConnectedUnit<<");\n";
                 out <<"arTable.setProp(LayerArinc::";
                 if(j->ch.bitrate == "100")
@@ -349,7 +355,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                 out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
                 out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
                 out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
-                if(j->ch.idConnectedUnit != "-")
+                if(j->ch.idConnectedUnit.isEmpty() == false)
                     out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numChConnected = " << "E_RK_"<<j->ch.idConnectedUnit<<";\n";
                 out<<"\n";
             }else if(j->ch.type == "E_CH_IR")
@@ -635,12 +641,13 @@ void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
                 {
                     for(auto k:j->params)
                     {
-                        int index = k.idName.indexOf("Input",Qt::CaseInsensitive);
                         k.idName.replace("Input","input");
+                        int index = k.idName.indexOf("input",Qt::CaseInsensitive);
                         if(index == -1)
                         {
-                            index = k.idName.indexOf("Output",Qt::CaseInsensitive);
                             k.idName.replace("Output","output");
+                            index = k.idName.indexOf("output",Qt::CaseInsensitive);
+
                         }
                     QString addr = k.idName.mid(index);
                     if(addr != "-" && addr.isEmpty() == false)
@@ -653,9 +660,12 @@ void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
                 }
             }else if(j->ch.type == "E_CH_RK")
             {
-                if(j->ch.idName.isEmpty())
+                if(j->ch.skip == 1 && j->ch.idConnectedUnit.isEmpty() == true)
                     continue;
-                out<<"doHAL(E_RK_"<<j->ch.idName<<","<<" "<<");\n";
+                if(j->ch.skip)
+                    out<<"readHAL(E_RK_"<<j->ch.idConnectedUnit<<","<<" "<<");\n";
+                else
+                    out<<"doHAL(E_RK_"<<j->ch.idName<<","<<" "<<");\n";
             }else if(j->ch.type == "E_CH_DAC")
             {
                 if(j->ch.idName.isEmpty())

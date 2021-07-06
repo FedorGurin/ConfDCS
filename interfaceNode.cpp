@@ -72,14 +72,19 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
     }
     //ch.type             = json["typeCh"].toString();
     ch.idName           = json["idName"].toString().toUpper();
-    if(ch.idName =="-")
-        ch.idName.clear();
+    if(ch.idName =="-" || ch.idName =="-1")
+    {
+        ch.skip = 1;
+    }
 
 
     ch.displayName      = json["displayName"].toString();
     ch.typeNode         = json["typeNode"].toString();
     ch.idNode           = json["idNode"].toString().toUInt();
     ch.idConnectedUnit  = json["connectToSys"].toString().toUpper();
+    if(ch.idConnectedUnit == "-")
+        ch.idConnectedUnit.clear();
+
     ch.copyFrom         = json["copyFrom"].toString();
     if(ch.type == "E_CH_AR")
     {

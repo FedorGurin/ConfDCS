@@ -39,6 +39,8 @@ typedef struct TCh_
     QVector<int> addrs;
     //! Описание данных в файлах
     QStringList fileNames;
+    //! признак того, что данный канал нужно пропустить
+    uint8_t skip;
 }TCh;
 //! описание одного параметра
 typedef struct TParam_
