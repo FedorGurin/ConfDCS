@@ -286,6 +286,14 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
                 out<<"\t"<<j->ch.enumStr<<" = "<< indexEnum <<", \n";
                 indexEnum++;
             }
+            else if(j->ch.type == "E_CH_GEN")
+            {
+                if(j->ch.idName.isEmpty())
+                    continue;
+                j->ch.enumStr = "E_GEN_" + j->ch.idName.toUpper();
+                out<<"\t"<<j->ch.enumStr<<" = "<< indexEnum <<", \n";
+                indexEnum++;
+            }
 
 
         }
@@ -691,6 +699,12 @@ void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
                 if(j->ch.idName.isEmpty())
                     continue;
                 out<<"doHAL(E_GEN_NU_"<<j->ch.idName<<","<<" "<<");\n";
+            }
+            else if(j->ch.type == "E_CH_GEN")
+            {
+                if(j->ch.idName.isEmpty())
+                    continue;
+                out<<"doHAL(E_GEN_"<<j->ch.idName<<","<<" "<<");\n";
             }
         }
     }
