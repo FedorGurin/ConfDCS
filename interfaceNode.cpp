@@ -58,7 +58,7 @@ InterfaceNode::InterfaceNode(QJsonObject &json)
     else if(json["typeCh"].toString() == "GEN_NU")
         ch.type = "E_CH_GEN_NU";
     else if(json["typeCh"].toString() == "GEN")
-            ch.type = "E_CH_GEN";
+            ch.type = "E_CH_GEN_U";
     ch.typeRK.clear();
     if(ch.type == "E_CH_RK")
     {

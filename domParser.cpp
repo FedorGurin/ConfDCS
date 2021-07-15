@@ -39,7 +39,7 @@ DomParser::DomParser(QObject *parent):QObject(parent)
          outLog.setCodec("CP1251");
     }
 
-//    templateChStr = " arTable.setCh(&(t->chTable.ch[AR_OUT_CO2010])); \
+//    templateChStr = " arTable.setCh(&(t->chTable->ch[AR_OUT_CO2010])); \
 //            arTable.setAddr(E_NODE_CV, 1); \
 //            arTable.setChId(E_CH_AR,13,E_CH_IO_OUTPUT); \
 //            arTable << 0350  ; \
@@ -131,7 +131,7 @@ void DomParser::genChTable(Node* startNode, QTextStream& out)
                 {
                     strSource = "KK_OVO_FREQ";
                     typeCh = "Гц";
-                }else if(j->ch.type == "E_CH_GEN")
+                }else if(j->ch.type == "E_CH_GEN_U")
                 {
                     strSource = "KK_OVO_GEN";
                     typeCh = "~В";
@@ -286,7 +286,7 @@ void DomParser::genChEnum(Node* rootNode, QTextStream& out)
                 out<<"\t"<<j->ch.enumStr<<" = "<< indexEnum <<", \n";
                 indexEnum++;
             }
-            else if(j->ch.type == "E_CH_GEN")
+            else if(j->ch.type == "E_CH_GEN_U")
             {
                 if(j->ch.idName.isEmpty())
                     continue;
@@ -317,7 +317,7 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                 continue;
             if(j->ch.type == "E_CH_AR")
             {
-                out << "arTable.setCh(&(t->chTable.ch[" + j->ch.enumStr+"])); \n";
+                out << "arTable.setCh(&(t->chTable->ch[" + j->ch.enumStr+"])); \n";
                 out << "arTable.setAddr(E_NODE_CV, 1); \n";
                 out << "arTable.setChId(E_CH_AR," + QString::number(j->ch.id) + "," + j->ch.ioStr+"); \n";
 
@@ -351,32 +351,32 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
                     continue;
                 if(j->ch.typeNode == "ARM_OVO")
                 {
-                    out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                    out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
                 }
                 else
                 {
-                    out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_CV; \n";
+                    out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_CV; \n";
                 }
 
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
                 if(j->ch.idConnectedUnit.isEmpty() == false)
-                    out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numChConnected = " << "E_RK_"<<j->ch.idConnectedUnit<<";\n";
+                    out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numChConnected = " << "E_RK_"<<j->ch.idConnectedUnit<<";\n";
                 out<<"\n";
             }else if(j->ch.type == "E_CH_IR")
             {
                 if(j->ch.enumStr.isEmpty())
                     continue;
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
-                out << "ir = (TDesIR*) (t->chTable.ch[" << j->ch.enumStr<<"].desData); \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "ir = (TDesIR*) (t->chTable->ch[" << j->ch.enumStr<<"].desData); \n";
                 out << "ir->max = 240; \n";
                 out << "ir->min = 30; \n";
                 out << "ir->value = ir->min; \n";
@@ -385,13 +385,13 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
             {
                 if(j->ch.enumStr.isEmpty())
                     continue;
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
-                out << "ip = (TDesIP*) (t->chTable.ch[" << j->ch.enumStr<<"].desData); \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "ip = (TDesIP*) (t->chTable->ch[" << j->ch.enumStr<<"].desData); \n";
 
                 out << "ip->max = 10; \n";
                 out << "ip->value = 0; \n";
@@ -401,13 +401,13 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
             {
                 if(j->ch.enumStr.isEmpty())
                     continue;
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
-                out << "itp = (TDesITP*) (t->chTable.ch[" << j->ch.enumStr<<"].desData); \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "itp = (TDesITP*) (t->chTable->ch[" << j->ch.enumStr<<"].desData); \n";
                 out << "itp->type = 0; \n";
                 out << "itp->max = 45; \n";
                 out << "itp->value = 0; \n";
@@ -416,13 +416,13 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
             {
                 if(j->ch.enumStr.isEmpty())
                     continue;
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
-                out << "dac = (TDesDAC*) (t->chTable.ch[" << j->ch.enumStr<<"].desData); \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "dac = (TDesDAC*) (t->chTable->ch[" << j->ch.enumStr<<"].desData); \n";
                 out << "dac->volt  = 0; \n";
                 out<<"\n";
 
@@ -431,14 +431,32 @@ void DomParser::genCh(Node* rootNode, QTextStream& out)
 
                 if(j->ch.enumStr.isEmpty())
                     continue;
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
-                out << "t->chTable.ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
-                out << "gen_nu = (TDesGen_NU*) (t->chTable.ch[" << j->ch.enumStr<<"].desData); \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "gen_nu = (TDesGen_NU*) (t->chTable->ch[" << j->ch.enumStr<<"].desData); \n";
                 out << "gen_nu->freq  = 400; \n";
+                out<<"\n";
+
+            }
+            else if(j->ch.type == "E_CH_GEN_U")
+            {
+                if(j->ch.enumStr.isEmpty())
+                    continue;
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeNode = "<<" E_NODE_PV; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].idNode = "<<" 1; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].typeCh = "<< j->ch.type<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numAdapter = "<<" 0; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.numCh = "<< QString::number(j->ch.id)<<"; \n";
+                out << "t->chTable->ch[" << j->ch.enumStr<<"].setting.ioCh = "<< j->ch.ioStr<<"; \n";
+                out << "gen_u = (TDesGen_U*) (t->chTable->ch[" << j->ch.enumStr<<"].desData); \n";
+                out << "gen_u->u1  = 110; \n";
+                out << "gen_u->u2  = 110; \n";
+                out << "gen_u->u3  = 110; \n";
+                out << "gen_u->freq  = 400; \n";
                 out<<"\n";
 
             }
@@ -700,7 +718,7 @@ void DomParser::genPackingCode(Node* rootNode, QTextStream& out)
                     continue;
                 out<<"doHAL(E_GEN_NU_"<<j->ch.idName<<","<<" "<<");\n";
             }
-            else if(j->ch.type == "E_CH_GEN")
+            else if(j->ch.type == "E_CH_GEN_U")
             {
                 if(j->ch.idName.isEmpty())
                     continue;
